@@ -1,0 +1,116 @@
+package com.iiampanda.icbreed.genetics;
+
+public final class Effects {
+    public double healthPct;
+    public double healthFlat;
+    public double damagePct;
+    public double damageFlat;
+    public double speedPct;
+    public double jumpPct;
+    public double scalePct;
+    public double knockbackRes;
+    public double damageTakenPct;
+    public double elementTakenPct;
+    public double threatPct;
+    public double xpPct;
+    public double fertilityPct;
+    public double growthPct;
+    public double eggPct;
+    public double mutationBonus;
+    public double leechChance;
+    public double unseatChance;
+    public double poisonBiteSeconds;
+    public double auraPct;
+    public double productionRank;
+    public double bleedChance;
+
+    public double armorFlat;
+    public double regenPerSec;
+    public double fallTakenPct;
+    public double gestationPct;
+    public double fedDurationPct;
+    public double foodUse;
+    public double satRate;
+    public double physRes;
+    public double regenPct;
+
+    public double hungerStretch() {
+        return (1.0 + Math.max(-0.9, fedDurationPct)) / Math.max(0.25, 1.0 + foodUse + satRate);
+    }
+
+    public double feedXpPct;
+    public double extraDropChance;
+    public double markSeconds;
+    public double stunChance;
+    public double chargeSeconds;
+    public double calmingPct;
+    public double coordPct;
+    public double fireAura;
+    public double lavaPct;
+    public double captain;
+    public double flySpeedPct;
+    public double buildable;
+    public double waterBreath;
+    public double waterVision;
+    public double regenAura;
+    public double satAura;
+    public double nineLives;
+    public double cling;
+    public double feathers;
+    public double nuggets;
+    public double hat;
+    public double feral;
+    public double rideable;
+    public double pollination;
+    public double honeyFast;
+    public double honeyBlock;
+    public double shoulderPal;
+    public double elytraBoost;
+    public double pollyPickup;
+    public double llamaWool;
+    public double phenoMutation;
+    public double stewRank;
+    public double sandPct;
+    public double hopAura;
+
+    public void add(Effects o) {
+        healthPct += o.healthPct; healthFlat += o.healthFlat; damagePct += o.damagePct; damageFlat += o.damageFlat;
+        speedPct += o.speedPct; jumpPct += o.jumpPct; scalePct += o.scalePct; knockbackRes += o.knockbackRes;
+        damageTakenPct += o.damageTakenPct; elementTakenPct += o.elementTakenPct; threatPct += o.threatPct; auraPct += o.auraPct; poisonBiteSeconds += o.poisonBiteSeconds; unseatChance += o.unseatChance; productionRank += o.productionRank;
+        xpPct += o.xpPct; fertilityPct += o.fertilityPct; growthPct += o.growthPct; eggPct += o.eggPct;
+        mutationBonus += o.mutationBonus; leechChance += o.leechChance; bleedChance += o.bleedChance;
+        armorFlat += o.armorFlat; regenPerSec += o.regenPerSec; fallTakenPct += o.fallTakenPct;
+        gestationPct += o.gestationPct; fedDurationPct += o.fedDurationPct; feedXpPct += o.feedXpPct;
+        extraDropChance += o.extraDropChance; markSeconds += o.markSeconds;
+        stunChance += o.stunChance; chargeSeconds += o.chargeSeconds; calmingPct += o.calmingPct;
+        coordPct += o.coordPct;
+        fireAura += o.fireAura;
+        lavaPct += o.lavaPct;
+        captain += o.captain;
+        flySpeedPct += o.flySpeedPct;
+        buildable += o.buildable;
+        waterBreath += o.waterBreath;
+        waterVision += o.waterVision;
+        regenAura += o.regenAura;
+        satAura += o.satAura;
+        nineLives += o.nineLives;
+        cling += o.cling;
+        feathers += o.feathers;
+        nuggets += o.nuggets;
+        hat += o.hat;
+        feral += o.feral;
+        rideable += o.rideable;
+        pollination += o.pollination;
+        honeyFast += o.honeyFast;
+        honeyBlock += o.honeyBlock;
+        shoulderPal += o.shoulderPal;
+        elytraBoost += o.elytraBoost;
+        pollyPickup += o.pollyPickup;
+        llamaWool += o.llamaWool;
+        foodUse += o.foodUse; satRate += o.satRate; physRes += o.physRes; regenPct += o.regenPct;
+        phenoMutation += o.phenoMutation;
+        stewRank += o.stewRank;
+        sandPct += o.sandPct;
+        hopAura += o.hopAura;
+    }
+}
