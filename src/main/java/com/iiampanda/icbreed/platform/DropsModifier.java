@@ -1,6 +1,9 @@
 package com.iiampanda.icbreed.platform;
 
 import java.util.List;
+import java.util.Optional;
+
+import net.minecraft.core.Holder;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -14,7 +17,7 @@ import net.neoforged.neoforge.common.loot.LootModifier;
 public class DropsModifier extends LootModifier {
     public static final MapCodec<DropsModifier> CODEC = RecordCodecBuilder.mapCodec(i -> codecStart(i).apply(i, DropsModifier::new));
 
-    public DropsModifier(LootItemCondition[] conditions, int priority) {
+    public DropsModifier(Optional<Holder<LootItemCondition>> conditions, int priority) {
         super(conditions, priority);
     }
 

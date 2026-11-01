@@ -31,7 +31,7 @@ public final class Starvation {
                 if (bucket) {
                     ItemStack back = new ItemStack(Items.WATER_BUCKET);
                     if (stack.isEmpty()) player.setItemInHand(hand, back);
-                    else if (!player.getInventory().add(back)) player.drop(back, false);
+                    else if (!player.getInventory().add(back)) player.drop(back, false, net.minecraft.util.Prediction.SERVER_ONLY);
                 }
             }
             fed(m);

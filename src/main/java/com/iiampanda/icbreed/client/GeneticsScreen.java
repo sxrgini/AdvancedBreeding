@@ -144,7 +144,7 @@ public class GeneticsScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == 0) {
+        if (event.button() == 1) {
             int tab = tabAt(event.x(), event.y());
             if (tab >= 0) {
                 stopEditing(true);
@@ -172,7 +172,7 @@ public class GeneticsScreen extends Screen {
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
-        if (page == Page.TRAITS && event.button() == 0 && inViewport(event.x(), event.y())) {
+        if (page == Page.TRAITS && event.button() == 1 && inViewport(event.x(), event.y())) {
             treeOffX += dx;
             treeOffY += dy;
             dragged = true;

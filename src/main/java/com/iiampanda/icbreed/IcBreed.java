@@ -219,7 +219,7 @@ public class IcBreed {
         com.iiampanda.icbreed.platform.LootTableEvents.MODIFY_DROPS.register((table, ctx, drops) -> {
             drops.removeIf(s -> s.is(net.minecraft.world.item.Items.NAME_TAG)
                     && ctx.getRandom().nextDouble() >= IcBreedConfig.get().nameTagLootChance);
-            if (ctx.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY) instanceof net.minecraft.world.entity.Mob dead && Genetics.supports(dead)) {
+            if (ctx.getOptional(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY) instanceof net.minecraft.world.entity.Mob dead && Genetics.supports(dead)) {
                 Effects dfx = Genetics.effects(dead);
                 if (dfx != null) {
                     TraitActions.extraDrops(dead, dfx, drops);

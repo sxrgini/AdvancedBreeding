@@ -29,7 +29,7 @@ public final class RideAttack {
         Long ready = READY.get(a.getUUID());
         if (ready != null && now < ready) return;
         READY.put(a.getUUID(), now + 20);
-        a.swing(InteractionHand.MAIN_HAND);
+        a.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         Vec3 look = p.getLookAngle();
         LivingEntity best = null;
         double bestDot = 0.3;
