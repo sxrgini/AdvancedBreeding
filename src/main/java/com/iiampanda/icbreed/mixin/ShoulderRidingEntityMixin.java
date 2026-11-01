@@ -16,7 +16,7 @@ public abstract class ShoulderRidingEntityMixin {
     @Inject(method = "canSitOnShoulder", at = @At("RETURN"), cancellable = true)
     private void icbreed$needsTrait(CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValueZ() || !((Object) this instanceof Parrot parrot)) return;
-        Traits t = parrot.getAttached(Genetics.TRAITS);
+        Traits t = com.iiampanda.icbreed.platform.Att.get(parrot, Genetics.TRAITS);
         if (t == null || t.rank("shoulder_pal") <= 0) cir.setReturnValue(false);
     }
 

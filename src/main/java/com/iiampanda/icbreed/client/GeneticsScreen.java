@@ -23,7 +23,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import com.iiampanda.icbreed.net.OpenInventoryPayload;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import com.iiampanda.icbreed.platform.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -114,7 +114,7 @@ public class GeneticsScreen extends Screen {
     }
 
     private boolean isWild() {
-        Taming t = entity.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.TAMING);
         return t != null && !t.tamed();
     }
 
@@ -245,9 +245,9 @@ public class GeneticsScreen extends Screen {
         }
         super.extractRenderState(ctx, mouseX, mouseY, delta);
 
-        Genome live = entity.getAttached(Genetics.GENOME);
+        Genome live = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.GENOME);
         Genome genome = live != null ? live : openedGenome;
-        Pregnancy pregnancy = entity.getAttached(Genetics.PREGNANCY);
+        Pregnancy pregnancy = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.PREGNANCY);
         int pregnantTicks = openedPregnantTicks;
         if (pregnancy != null && this.minecraft != null && this.minecraft.level != null) {
             pregnantTicks = (int) pregnancy.ticksLeft(this.minecraft.level.getGameTime());
@@ -281,7 +281,7 @@ public class GeneticsScreen extends Screen {
         ctx.text(this.font, lvl, lx, ly, 0xFF80FF20, false);
         boolean overBar = mouseX >= barX && mouseX < barX + XP_W && mouseY >= barY - 12 && mouseY <= barY + XP_H + 1;
 
-        Integer growth = entity.getAttached(Genetics.GROWTH);
+        Integer growth = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.GROWTH);
         int tameY = barY + XP_H + 2;
         boolean overTame = false;
         if (growth != null) {
@@ -345,9 +345,9 @@ public class GeneticsScreen extends Screen {
         ctx.text(this.font, String.valueOf(genome.generation), vx, y, TEXT, false);
         y += 12;
         ctx.text(this.font, labels[3], ix, y, TEXT, false);
-        ctx.text(this.font, String.valueOf(Genetics.availablePoints(genome, entity.getAttached(Genetics.TRAITS), TraitTrees.forEntity(entity))), vx, y, TEXT, false);
+        ctx.text(this.font, String.valueOf(Genetics.availablePoints(genome, com.iiampanda.icbreed.platform.Att.get(entity, Genetics.TRAITS), TraitTrees.forEntity(entity))), vx, y, TEXT, false);
         y += 12;
-        Taming taming = entity.getAttached(Genetics.TAMING);
+        Taming taming = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.TAMING);
         boolean wild = taming != null && !taming.tamed();
         boolean taming2 = wild && taming.orphan() && entity != null && com.iiampanda.icbreed.genetics.Ages.isBaby(entity);
         ctx.text(this.font, labels[5], ix, y, TEXT, false);
@@ -380,7 +380,7 @@ public class GeneticsScreen extends Screen {
         }
         if (entity instanceof net.minecraft.world.entity.animal.cow.AbstractCow && !((net.minecraft.world.entity.animal.cow.AbstractCow) entity).isBaby()
                 && this.minecraft != null && this.minecraft.level != null) {
-            Long ready = entity.getAttached(Genetics.MILK_READY);
+            Long ready = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.MILK_READY);
             long left2 = ready == null ? 0 : ready - this.minecraft.level.getGameTime();
             ctx.text(this.font, Component.translatable(entity instanceof net.minecraft.world.entity.animal.cow.MushroomCow ? "advbreeding.gui.milk_stew" : "advbreeding.gui.milk"), ix, y, TEXT, false);
             if (left2 <= 0) {
@@ -488,7 +488,7 @@ public class GeneticsScreen extends Screen {
     private List<Tab> tabs() {
         List<Tab> l = new ArrayList<>(List.of(Tab.TRAITS, Tab.STATS));
         if (canOpenInventory) l.add(Tab.INVENTORY);
-        if (entity.getAttached(Genetics.BAGS) != null) l.add(Tab.BAGS);
+        if (com.iiampanda.icbreed.platform.Att.get(entity, Genetics.BAGS) != null) l.add(Tab.BAGS);
         return l;
     }
 
@@ -544,7 +544,7 @@ public class GeneticsScreen extends Screen {
                 case STATS -> net.minecraft.world.item.Items.BOOK;
                 case INVENTORY -> net.minecraft.world.item.Items.CHEST;
                 case BAGS -> {
-                    Integer bagStyle = entity.getAttached(Genetics.BAG_STYLE);
+                    Integer bagStyle = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.BAG_STYLE);
                     yield com.iiampanda.icbreed.traits.SaddleBags.itemFor(bagStyle == null ? 0 : bagStyle).getItem();
                 }
             };
@@ -591,13 +591,13 @@ public class GeneticsScreen extends Screen {
     }
 
     private Traits traits() {
-        Traits t = entity.getAttached(Genetics.TRAITS);
+        Traits t = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.TRAITS);
         return t == null ? Traits.NONE : t;
     }
 
     private int points() {
-        Genome g = entity.getAttached(Genetics.GENOME);
-        return g == null ? 0 : Genetics.availablePoints(g, entity.getAttached(Genetics.TRAITS), TraitTrees.forEntity(entity));
+        Genome g = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.GENOME);
+        return g == null ? 0 : Genetics.availablePoints(g, com.iiampanda.icbreed.platform.Att.get(entity, Genetics.TRAITS), TraitTrees.forEntity(entity));
     }
 
     private boolean canBuy(TraitDef d) {

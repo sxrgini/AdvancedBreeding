@@ -4,7 +4,7 @@ import com.iiampanda.icbreed.genetics.Ages;
 import com.iiampanda.icbreed.genetics.Genetics;
 import com.iiampanda.icbreed.genetics.Sex;
 import com.iiampanda.icbreed.taming.TamingLogic;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import com.iiampanda.icbreed.platform.UseEntityCallback;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -33,10 +33,10 @@ public final class DolphinBreeding {
             if (level.isClientSide()) return InteractionResult.SUCCESS;
             ServerLevel sl = (ServerLevel) level;
             if (!baby) {
-                if (Genetics.isPregnant(dolphin) || dolphin.getAge() > 0 || dolphin.getAttached(Genetics.LOVE_UNTIL) != null) {
+                if (Genetics.isPregnant(dolphin) || dolphin.getAge() > 0 || com.iiampanda.icbreed.platform.Att.get(dolphin, Genetics.LOVE_UNTIL) != null) {
                     return InteractionResult.SUCCESS;
                 }
-                dolphin.setAttached(Genetics.LOVE_UNTIL, sl.getGameTime() + LOVE_TICKS);
+                com.iiampanda.icbreed.platform.Att.set(dolphin, Genetics.LOVE_UNTIL, sl.getGameTime() + LOVE_TICKS);
                 sl.broadcastEntityEvent(dolphin, (byte) 18);
             }
             if (!player.getAbilities().instabuild) held.shrink(1);
@@ -49,16 +49,16 @@ public final class DolphinBreeding {
     }
 
     public static void tick(ServerLevel level, Dolphin d) {
-        Long until = d.getAttached(Genetics.LOVE_UNTIL);
+        Long until = com.iiampanda.icbreed.platform.Att.get(d, Genetics.LOVE_UNTIL);
         if (until == null) return;
         if (level.getGameTime() > until || d.isBaby() || Genetics.isPregnant(d)) {
-            d.removeAttached(Genetics.LOVE_UNTIL);
+            com.iiampanda.icbreed.platform.Att.remove(d, Genetics.LOVE_UNTIL);
             return;
         }
         Dolphin mate = null;
         double best = Double.MAX_VALUE;
         for (Dolphin o : level.getEntitiesOfClass(Dolphin.class, d.getBoundingBox().inflate(24.0),
-                o -> o != d && o.isAlive() && o.getAttached(Genetics.LOVE_UNTIL) != null && Genetics.canBreed(d, o))) {
+                o -> o != d && o.isAlive() && com.iiampanda.icbreed.platform.Att.get(o, Genetics.LOVE_UNTIL) != null && Genetics.canBreed(d, o))) {
             double dist = d.distanceToSqr(o);
             if (dist < best) {
                 best = dist;
@@ -74,7 +74,7 @@ public final class DolphinBreeding {
         Dolphin father = mother == d ? mate : d;
         Genetics.conceive(mother, father);
         for (Dolphin x : new Dolphin[] {d, mate}) {
-            x.removeAttached(Genetics.LOVE_UNTIL);
+            com.iiampanda.icbreed.platform.Att.remove(x, Genetics.LOVE_UNTIL);
             x.setAge(COOLDOWN_AGE);
             level.sendParticles(ParticleTypes.HEART, x.getX(), x.getEyeY() + 0.4, x.getZ(), 5, 0.3, 0.3, 0.3, 0.02);
         }

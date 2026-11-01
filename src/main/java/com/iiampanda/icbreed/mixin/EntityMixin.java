@@ -40,7 +40,7 @@ public abstract class EntityMixin {
         Entity self = (Entity) (Object) this;
         if (NameHelper.RAW.get() || !Genetics.supports(self) || !self.level().isClientSide()
                 || !IcBreedConfig.get().showSexSymbol) return;
-        Genome g = self.getAttached(Genetics.GENOME);
+        Genome g = com.iiampanda.icbreed.platform.Att.get(self, Genetics.GENOME);
         if (g == null) return;
         Component base = cir.getReturnValue();
         if (base == null) base = self.getType().getDescription();

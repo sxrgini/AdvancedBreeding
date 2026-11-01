@@ -15,13 +15,12 @@ import com.iiampanda.icbreed.genetics.Genome;
 import com.iiampanda.icbreed.genetics.Pregnancy;
 import com.iiampanda.icbreed.net.OpenGeneticsPayload;
 import com.iiampanda.icbreed.net.OpenInventoryPayload;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.iiampanda.icbreed.platform.ServerLivingEntityEvents;
+import com.iiampanda.icbreed.platform.ServerEntityEvents;
+import com.iiampanda.icbreed.platform.ServerTickEvents;
+import com.iiampanda.icbreed.platform.UseEntityCallback;
+import com.iiampanda.icbreed.platform.PayloadTypeRegistry;
+import com.iiampanda.icbreed.platform.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -36,18 +35,16 @@ import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IcBreed implements ModInitializer {
+public class IcBreed {
     public static final String MOD_ID = "advbreeding";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    @Override
     public void onInitialize() {
         IcBreedConfig.load();
         Genetics.init();
-        ModBlocks.init();
         com.iiampanda.icbreed.traits.Starvation.register();
         com.iiampanda.icbreed.traits.Shoulder.register();
-        net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register(
+        com.iiampanda.icbreed.platform.CommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess, environment) -> IcBreedCommand.register(dispatcher));
 
         PayloadTypeRegistry.clientboundPlay().register(OpenGeneticsPayload.TYPE, OpenGeneticsPayload.CODEC);
@@ -123,7 +120,7 @@ public class IcBreed implements ModInitializer {
             if (!(entity instanceof net.minecraft.world.entity.animal.cow.AbstractCow cow) || cow.isBaby()) return InteractionResult.PASS;
             if (!player.getItemInHand(hand).is(net.minecraft.world.item.Items.BUCKET)) return InteractionResult.PASS;
             long now = level.getGameTime();
-            Long ready = cow.getAttached(Genetics.MILK_READY);
+            Long ready = com.iiampanda.icbreed.platform.Att.get(cow, Genetics.MILK_READY);
             if (ready != null && ready > now) {
                 int secs = (int) ((ready - now + 19) / 20);
                 player.sendOverlayMessage(Component.translatable(cow instanceof net.minecraft.world.entity.animal.cow.MushroomCow ? "advbreeding.msg.stew_wait" : "advbreeding.msg.milk_wait",
@@ -134,7 +131,7 @@ public class IcBreed implements ModInitializer {
             Effects fx = Genetics.effects(cow);
             int rank = fx == null ? 0 : (int) Math.min(3, fx.productionRank);
             long cooldown = Math.max(2400L, IcBreedConfig.get().milkCooldownSeconds * 20L - rank * 1200L);
-            cow.setAttached(Genetics.MILK_READY, now + cooldown);
+            com.iiampanda.icbreed.platform.Att.set(cow, Genetics.MILK_READY, now + cooldown);
             Genetics.addXp(cow, Genetics.XP_PRODUCE);
             return InteractionResult.PASS;
         });
@@ -153,7 +150,7 @@ public class IcBreed implements ModInitializer {
         com.iiampanda.icbreed.traits.GhastDeck.register();
 
         ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-            if (entity instanceof net.minecraft.world.entity.Mob mob && mob.hasAttached(Genetics.CULL) && !mob.isLeashed() && !mob.hasCustomName()) {
+            if (entity instanceof net.minecraft.world.entity.Mob mob && com.iiampanda.icbreed.platform.Att.has(mob, Genetics.CULL) && !mob.isLeashed() && !mob.hasCustomName()) {
                 world.getServer().execute(mob::discard);
                 return;
             }
@@ -168,7 +165,7 @@ public class IcBreed implements ModInitializer {
             ItemStack held = player.getItemInHand(hand);
             if (com.iiampanda.icbreed.genetics.Ages.isFood(animal, held)) return InteractionResult.PASS;
             if (animal instanceof AbstractHorse bagged && held.is(net.minecraft.world.item.Items.SHEARS)
-                    && bagged.getAttached(Genetics.BAGS) != null) {
+                    && com.iiampanda.icbreed.platform.Att.get(bagged, Genetics.BAGS) != null) {
                 if (!level.isClientSide()) SaddleBags.remove(bagged, player, hand);
                 return InteractionResult.SUCCESS;
             }
@@ -176,7 +173,7 @@ public class IcBreed implements ModInitializer {
             if (player instanceof ServerPlayer sp) {
                 Genome g = Genetics.getOrCreate(animal);
                 boolean horse = animal instanceof AbstractHorse h && h.isTamed();
-                Pregnancy pregnancy = animal.getAttached(Genetics.PREGNANCY);
+                Pregnancy pregnancy = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.PREGNANCY);
                 ServerPlayNetworking.send(sp, new OpenGeneticsPayload(animal.getId(), g, horse,
                         pregnancy == null ? -1 : (int) pregnancy.ticksLeft(animal.level().getGameTime())));
                 ServerPlayNetworking.send(sp, new com.iiampanda.icbreed.net.StayStatePayload(animal.getId(), com.iiampanda.icbreed.traits.StayPut.mode(animal).ordinal(), com.iiampanda.icbreed.traits.StayPut.isOwner(animal, sp)));
@@ -193,7 +190,7 @@ public class IcBreed implements ModInitializer {
             }
         });
 
-        net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+        com.iiampanda.icbreed.platform.UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
             if (hand != InteractionHand.MAIN_HAND || !player.isShiftKeyDown() || player.isSpectator()
                     || !player.getMainHandItem().isEmpty()) {
                 return InteractionResult.PASS;
@@ -219,7 +216,7 @@ public class IcBreed implements ModInitializer {
             return InteractionResult.PASS;
         });
 
-        net.fabricmc.fabric.api.loot.v3.LootTableEvents.MODIFY_DROPS.register((table, ctx, drops) -> {
+        com.iiampanda.icbreed.platform.LootTableEvents.MODIFY_DROPS.register((table, ctx, drops) -> {
             drops.removeIf(s -> s.is(net.minecraft.world.item.Items.NAME_TAG)
                     && ctx.getRandom().nextDouble() >= IcBreedConfig.get().nameTagLootChance);
             if (ctx.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY) instanceof net.minecraft.world.entity.Mob dead && Genetics.supports(dead)) {
@@ -305,9 +302,9 @@ public class IcBreed implements ModInitializer {
             AuraManager.update(level, animals);
             for (net.minecraft.world.entity.Mob animal : animals) {
                 if (!animal.isAlive()) continue;
-                Genome g = animal.getAttached(Genetics.GENOME);
+                Genome g = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.GENOME);
                 if (g == null) continue;
-                com.iiampanda.icbreed.genetics.Taming tm = animal.getAttached(Genetics.TAMING);
+                com.iiampanda.icbreed.genetics.Taming tm = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
                 if (tm != null && (tm.tamed() || tm.started() || tm.orphan() || tm.young() || com.iiampanda.icbreed.genetics.Ages.isBaby(animal) || animal.isLeashed())) animal.setPersistenceRequired();
                 Effects fx = Genetics.effects(animal);
                 TraitActions.upkeep(level, animal, fx);

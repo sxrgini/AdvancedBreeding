@@ -44,29 +44,29 @@ public final class TamingLogic {
         List<? extends Mob> babies = level.getEntitiesOfClass(babyClass(dead), box,
                 a -> a != dead && Ages.isBaby(a) && a.isAlive());
         for (Mob baby : babies) {
-            Taming t = baby.getAttached(Genetics.TAMING);
+            Taming t = com.iiampanda.icbreed.platform.Att.get(baby, Genetics.TAMING);
             if (t == null || t.tamed() || t.orphan()) continue;
-            baby.setAttached(Genetics.TAMING, t.withOrphan());
+            com.iiampanda.icbreed.platform.Att.set(baby, Genetics.TAMING, t.withOrphan());
         }
     }
 
     public static void onFed(Mob animal, UUID player) {
-        Taming t = animal.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
         if (t == null || t.tamed() || !t.orphan() || !Ages.isBaby(animal)) return;
         var fx = Genetics.effects(animal);
         double stretch = fx == null ? 1.0 : fx.hungerStretch();
         long until = animal.level().getGameTime() + Math.round(IcBreedConfig.get().tamingFoodSeconds * 20L * stretch);
-        animal.setAttached(Genetics.TAMING, t.withFed(until, player));
+        com.iiampanda.icbreed.platform.Att.set(animal, Genetics.TAMING, t.withFed(until, player));
     }
 
     private static final double GROWN_YOUNG_CHANCE = 0.01;
 
     public static boolean tick(ServerLevel level, Mob animal) {
-        Taming t = animal.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
         if (t == null || t.tamed()) return true;
         if (!Ages.isBaby(animal) && !t.young()) {
             ensureYoung(level, animal, t.orphan() || t.started() ? GROWN_YOUNG_CHANCE : IcBreedConfig.get().youngSpawnChance);
-            t = animal.getAttached(Genetics.TAMING);
+            t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
         }
         if (Ages.isBaby(animal) && !t.orphan()) {
             holdAsBaby(animal);
@@ -88,7 +88,7 @@ public final class TamingLogic {
 
         if (!next.started() && leashed && bed && next.fed(now)) next = next.withStart(Ages.getAge(animal));
         if (pen != next.pen() || bed != next.bed()) next = next.withChecks(pen, bed);
-        if (!next.equals(t)) animal.setAttached(Genetics.TAMING, next);
+        if (!next.equals(t)) com.iiampanda.icbreed.platform.Att.set(animal, Genetics.TAMING, next);
 
         boolean progress = next.started() && pen && bed && next.fed(now);
         if (!next.started()) {
@@ -128,14 +128,14 @@ public final class TamingLogic {
     }
 
     private static void ensureYoung(ServerLevel level, Mob adult, double chance) {
-        Taming t = adult.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(adult, Genetics.TAMING);
         if (t == null || t.young()) return;
         AABB box = adult.getBoundingBox().inflate(PARENT_RANGE);
         boolean has = !level.getEntitiesOfClass(babyClass(adult), box, a -> a != adult && Ages.isBaby(a) && a.isAlive()).isEmpty();
         if (!has) {
             int crowd = level.getEntitiesOfClass(adult.getClass(), adult.getBoundingBox().inflate(16.0), a -> a != adult && a.isAlive()).size();
             if (crowd >= 10 || adult.getRandom().nextDouble() >= chance) {
-                adult.setAttached(Genetics.TAMING, t.withYoung());
+                com.iiampanda.icbreed.platform.Att.set(adult, Genetics.TAMING, t.withYoung());
                 return;
             }
             net.minecraft.world.entity.Entity made = adult instanceof net.minecraft.world.entity.animal.frog.Frog
@@ -160,7 +160,7 @@ public final class TamingLogic {
                 level.addFreshEntityWithPassengers(baby);
             }
         }
-        adult.setAttached(Genetics.TAMING, t.withYoung());
+        com.iiampanda.icbreed.platform.Att.set(adult, Genetics.TAMING, t.withYoung());
     }
 
     private static void holdAsBaby(Mob animal) {
@@ -170,15 +170,15 @@ public final class TamingLogic {
     }
 
     public static void forceTame(ServerLevel level, Mob animal, ServerPlayer owner) {
-        Taming t = animal.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
         if (t == null) t = Taming.wild();
         animal.setPersistenceRequired();
         complete(level, animal, t.withOwner(owner.getUUID()));
     }
 
     private static void complete(ServerLevel level, Mob animal, Taming t) {
-        animal.setAttached(Genetics.TAMING, t.asTamed());
-        animal.setAttached(Genetics.LAST_FED, animal.level().getGameTime());
+        com.iiampanda.icbreed.platform.Att.set(animal, Genetics.TAMING, t.asTamed());
+        com.iiampanda.icbreed.platform.Att.set(animal, Genetics.LAST_FED, animal.level().getGameTime());
         ServerPlayer owner = t.owner().map(id -> level.getServer().getPlayerList().getPlayer(id)).orElse(null);
         ALLOW.set(true);
         try {

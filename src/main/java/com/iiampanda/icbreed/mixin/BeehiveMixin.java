@@ -21,7 +21,7 @@ public abstract class BeehiveMixin {
     @Inject(method = "addOccupant", at = @At("HEAD"))
     private void icbreed$flag(Bee bee, CallbackInfo ci) {
         Effects fx = Genetics.effects(bee);
-        if (fx != null && fx.honeyBlock > 0) ((BeehiveBlockEntity) (Object) this).setAttached(Genetics.HONEY_HIVE, true);
+        if (fx != null && fx.honeyBlock > 0) com.iiampanda.icbreed.platform.Att.set(((BeehiveBlockEntity) (Object) this), Genetics.HONEY_HIVE, true);
     }
 
     @WrapOperation(method = "addOccupant", at = @At(value = "INVOKE",
@@ -37,6 +37,6 @@ public abstract class BeehiveMixin {
 
     @Inject(method = "serverTick", at = @At("TAIL"))
     private static void icbreed$drip(Level level, BlockPos pos, BlockState state, BeehiveBlockEntity hive, CallbackInfo ci) {
-        if (level.getGameTime() % 20 == 0 && Boolean.TRUE.equals(hive.getAttached(Genetics.HONEY_HIVE))) HoneyDrip.tick(level, pos, hive);
+        if (level.getGameTime() % 20 == 0 && Boolean.TRUE.equals(com.iiampanda.icbreed.platform.Att.get(hive, Genetics.HONEY_HIVE))) HoneyDrip.tick(level, pos, hive);
     }
 }

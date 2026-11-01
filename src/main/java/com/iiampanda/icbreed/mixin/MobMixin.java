@@ -29,7 +29,7 @@ public abstract class MobMixin {
         Mob self = (Mob) (Object) this;
         if ((reason == net.minecraft.world.entity.EntitySpawnReason.NATURAL || reason == net.minecraft.world.entity.EntitySpawnReason.CHUNK_GENERATION)
                 && Genetics.supports(self) && self.getRandom().nextDouble() >= com.iiampanda.icbreed.IcBreedConfig.get().naturalSpawnKeep) {
-            self.setAttached(Genetics.CULL, true);
+            com.iiampanda.icbreed.platform.Att.set(self, Genetics.CULL, true);
         }
     }
 

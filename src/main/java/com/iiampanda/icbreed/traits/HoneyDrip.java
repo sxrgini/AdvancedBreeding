@@ -30,16 +30,16 @@ public final class HoneyDrip {
         BlockPos stone = pos.below();
         BlockPos cauldron = stone.below();
         if (!dripstone(level.getBlockState(stone)) || !level.getBlockState(cauldron).is(Blocks.CAULDRON)) {
-            if (hive.hasAttached(Genetics.HONEY_PROGRESS)) hive.removeAttached(Genetics.HONEY_PROGRESS);
+            if (com.iiampanda.icbreed.platform.Att.has(hive, Genetics.HONEY_PROGRESS)) com.iiampanda.icbreed.platform.Att.remove(hive, Genetics.HONEY_PROGRESS);
             return;
         }
-        int progress = hive.getAttachedOrElse(Genetics.HONEY_PROGRESS, 0) + 1;
+        int progress = com.iiampanda.icbreed.platform.Att.getOrElse(hive, Genetics.HONEY_PROGRESS, 0) + 1;
         sl.sendParticles(ParticleTypes.FALLING_HONEY, stone.getX() + 0.5, stone.getY() + 0.1, stone.getZ() + 0.5, 2, 0.1, 0.0, 0.1, 0.0);
         if (progress < SECONDS) {
-            hive.setAttached(Genetics.HONEY_PROGRESS, progress);
+            com.iiampanda.icbreed.platform.Att.set(hive, Genetics.HONEY_PROGRESS, progress);
             return;
         }
-        hive.removeAttached(Genetics.HONEY_PROGRESS);
+        com.iiampanda.icbreed.platform.Att.remove(hive, Genetics.HONEY_PROGRESS);
         level.setBlock(cauldron, ModBlocks.HONEY_CAULDRON.defaultBlockState(), 3);
         level.playSound(null, cauldron, SoundEvents.BEEHIVE_EXIT, SoundSource.BLOCKS, 1.0F, 1.0F);
     }

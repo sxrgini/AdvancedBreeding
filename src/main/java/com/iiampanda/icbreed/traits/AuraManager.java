@@ -99,7 +99,7 @@ public final class AuraManager {
             if (hasHitEffects(hit) && hit.damagePct == 0) HIT.put(p.getUUID(), hit);
             else HIT.remove(p.getUUID());
             if (nine) NINE.add(p.getUUID()); else NINE.remove(p.getUUID());
-            if (cling) p.setAttached(Genetics.CLING, true); else if (p.hasAttached(Genetics.CLING)) p.removeAttached(Genetics.CLING);
+            if (cling) com.iiampanda.icbreed.platform.Att.set(p, Genetics.CLING, true); else if (com.iiampanda.icbreed.platform.Att.has(p, Genetics.CLING)) com.iiampanda.icbreed.platform.Att.remove(p, Genetics.CLING);
             if (fire) {
                 p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE, 100, 0, true, false, true));
             }

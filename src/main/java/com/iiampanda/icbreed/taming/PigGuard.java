@@ -20,12 +20,12 @@ public final class PigGuard {
     }
 
     static boolean guarding(Pig pig) {
-        Taming t = pig.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(pig, Genetics.TAMING);
         return t != null && t.tamed() && !pig.isBaby();
     }
 
     static Player owner(Pig pig) {
-        Taming t = pig.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(pig, Genetics.TAMING);
         if (t == null || !t.tamed()) return null;
         UUID id = t.owner().orElse(null);
         return id == null ? null : pig.level().getPlayerByUUID(id);

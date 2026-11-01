@@ -14,13 +14,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import com.iiampanda.icbreed.platform.AttachmentRegistry;
+import com.iiampanda.icbreed.platform.AttachmentSyncPredicate;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import com.iiampanda.icbreed.platform.ServerLivingEntityEvents;
+import com.iiampanda.icbreed.platform.ServerTickEvents;
+import com.iiampanda.icbreed.platform.UseBlockCallback;
+import com.iiampanda.icbreed.platform.UseEntityCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -122,7 +122,7 @@ public final class GhastDeck {
     }
 
     public static boolean hasBlocks(HappyGhast g) {
-        Deck d = g.getAttached(DECK);
+        Deck d = com.iiampanda.icbreed.platform.Att.get(g, DECK);
         if (d == null) return false;
         if (d.flying()) return true;
         if (!(g.level() instanceof ServerLevel level)) return !d.offsets().isEmpty();
@@ -134,7 +134,7 @@ public final class GhastDeck {
     }
 
     public static LivingEntity seated(HappyGhast g) {
-        Seats s = g.getAttached(SEATS);
+        Seats s = com.iiampanda.icbreed.platform.Att.get(g, SEATS);
         if (s == null || s.riders().isEmpty()) return null;
         for (Entity p : g.getPassengers()) {
             if (p instanceof Player player && s.riders().contains(player.getUUID())) return player;
@@ -145,7 +145,7 @@ public final class GhastDeck {
     public static Vec3 attach(HappyGhast g, Entity passenger) {
         if (passenger instanceof Display.BlockDisplay) return Vec3.ZERO;
         if (passenger instanceof Player) {
-            Seats s = g.getAttached(SEATS);
+            Seats s = com.iiampanda.icbreed.platform.Att.get(g, SEATS);
             if (s == null) return null;
             int i = s.riders().indexOf(passenger.getUUID());
             if (i < 0) return null;
@@ -185,7 +185,7 @@ public final class GhastDeck {
             if (!(entity instanceof HappyGhast g) || !buildable(g)) return InteractionResult.PASS;
             ItemStack held = player.getItemInHand(hand);
             if (!(held.getItem() instanceof BlockItem)) return InteractionResult.PASS;
-            Deck d = g.getAttached(DECK);
+            Deck d = com.iiampanda.icbreed.platform.Att.get(g, DECK);
             if (d != null && d.flying()) return InteractionResult.PASS;
             Vec3 at = hit != null ? hit.getLocation() : g.position();
             if (at.y < g.getBoundingBox().maxY - 0.75) return InteractionResult.PASS;
@@ -217,9 +217,9 @@ public final class GhastDeck {
             ServerLevel sl = (ServerLevel) level;
             BlockPos clicked = hit.getBlockPos();
             List<HappyGhast> near = sl.getEntitiesOfClass(HappyGhast.class, new AABB(clicked).inflate(RADIUS + 6),
-                    g -> g.getAttached(DECK) != null && !g.getAttached(DECK).flying());
+                    g -> com.iiampanda.icbreed.platform.Att.get(g, DECK) != null && !com.iiampanda.icbreed.platform.Att.get(g, DECK).flying());
             for (HappyGhast g : near) {
-                Deck d = g.getAttached(DECK);
+                Deck d = com.iiampanda.icbreed.platform.Att.get(g, DECK);
                 BlockPos off = clicked.subtract(BlockPos.of(d.anchor()));
                 if (!d.offsets().contains(off.asLong())) continue;
                 if (player.getItemInHand(hand).isEmpty() && !player.isShiftKeyDown()
@@ -246,7 +246,7 @@ public final class GhastDeck {
             for (Pending p : list) {
                 Entity e = p.level().getEntity(p.ghast());
                 if (!(e instanceof HappyGhast g)) continue;
-                Deck d = g.getAttached(DECK);
+                Deck d = com.iiampanda.icbreed.platform.Att.get(g, DECK);
                 if (d == null || d.flying() || p.level().getBlockState(p.pos()).isAir()) continue;
                 if (d.offsets().size() >= MAX_BLOCKS) continue;
                 addOffset(g, d, p.pos().subtract(BlockPos.of(d.anchor())));
@@ -255,25 +255,25 @@ public final class GhastDeck {
 
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
             if (entity instanceof HappyGhast g && g.level() instanceof ServerLevel level) {
-                Deck d = g.getAttached(DECK);
+                Deck d = com.iiampanda.icbreed.platform.Att.get(g, DECK);
                 if (d != null && d.flying()) land(g, level, d, true);
             }
         });
     }
 
     private static boolean mount(HappyGhast g, Player player, BlockPos off) {
-        Seats s = g.getAttached(SEATS);
+        Seats s = com.iiampanda.icbreed.platform.Att.get(g, SEATS);
         List<UUID> riders = s == null ? new ArrayList<>() : new ArrayList<>(s.riders());
         List<Long> offs = s == null ? new ArrayList<>() : new ArrayList<>(s.offsets());
         if (offs.contains(off.asLong()) || riders.size() >= MAX_SEATS || riders.contains(player.getUUID())) return false;
         riders.add(player.getUUID());
         offs.add(off.asLong());
-        g.setAttached(SEATS, new Seats(riders, offs));
+        com.iiampanda.icbreed.platform.Att.set(g, SEATS, new Seats(riders, offs));
         return player.startRiding(g, true, false);
     }
 
     private static void cleanSeats(HappyGhast g) {
-        Seats s = g.getAttached(SEATS);
+        Seats s = com.iiampanda.icbreed.platform.Att.get(g, SEATS);
         if (s == null) return;
         List<UUID> riders = new ArrayList<>();
         List<Long> offs = new ArrayList<>();
@@ -292,19 +292,19 @@ public final class GhastDeck {
             }
         }
         if (riders.size() == s.riders().size()) return;
-        if (riders.isEmpty()) g.removeAttached(SEATS);
-        else g.setAttached(SEATS, new Seats(riders, offs));
+        if (riders.isEmpty()) com.iiampanda.icbreed.platform.Att.remove(g, SEATS);
+        else com.iiampanda.icbreed.platform.Att.set(g, SEATS, new Seats(riders, offs));
     }
 
     private static void addOffset(HappyGhast g, Deck d, BlockPos off) {
         if (!inBounds(off)) return;
         List<Long> offs = new ArrayList<>(d.offsets());
         if (!offs.contains(off.asLong())) offs.add(off.asLong());
-        g.setAttached(DECK, new Deck(d.anchor(), offs, d.flight()));
+        com.iiampanda.icbreed.platform.Att.set(g, DECK, new Deck(d.anchor(), offs, d.flight()));
     }
 
     public static void tick(HappyGhast g) {
-        Deck d = g.getAttached(DECK);
+        Deck d = com.iiampanda.icbreed.platform.Att.get(g, DECK);
         if (d == null || !(g.level() instanceof ServerLevel level)) return;
         if (!buildable(g)) return;
         cleanSeats(g);
@@ -342,11 +342,11 @@ public final class GhastDeck {
         }
         if (kept.size() == d.offsets().size()) return d;
         if (kept.isEmpty()) {
-            g.removeAttached(DECK);
+            com.iiampanda.icbreed.platform.Att.remove(g, DECK);
             return null;
         }
         Deck nd = new Deck(d.anchor(), kept, List.of());
-        g.setAttached(DECK, nd);
+        com.iiampanda.icbreed.platform.Att.set(g, DECK, nd);
         return nd;
     }
 
@@ -374,7 +374,7 @@ public final class GhastDeck {
             world.add(p);
         }
         if (entries.isEmpty()) {
-            g.removeAttached(DECK);
+            com.iiampanda.icbreed.platform.Att.remove(g, DECK);
             return;
         }
         for (BlockPos p : world) {
@@ -398,7 +398,7 @@ public final class GhastDeck {
             level.addFreshEntity(bd);
             bd.startRiding(g, true, false);
         }
-        g.setAttached(DECK, new Deck(d.anchor(), kept, entries));
+        com.iiampanda.icbreed.platform.Att.set(g, DECK, new Deck(d.anchor(), kept, entries));
         MOTION.remove(g.getUUID());
     }
 
@@ -453,7 +453,7 @@ public final class GhastDeck {
             kept.add(e.off());
         }
         MOTION.remove(g.getUUID());
-        if (kept.isEmpty()) g.removeAttached(DECK);
-        else g.setAttached(DECK, new Deck(a.asLong(), kept, List.of()));
+        if (kept.isEmpty()) com.iiampanda.icbreed.platform.Att.remove(g, DECK);
+        else com.iiampanda.icbreed.platform.Att.set(g, DECK, new Deck(a.asLong(), kept, List.of()));
     }
 }

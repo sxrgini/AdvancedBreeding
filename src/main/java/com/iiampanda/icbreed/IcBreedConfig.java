@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.loading.FMLPaths;
 
 public final class IcBreedConfig {
     private static final int CURRENT_VERSION = 6;
@@ -57,7 +57,7 @@ public final class IcBreedConfig {
     }
 
     public static void load() {
-        Path path = FabricLoader.getInstance().getConfigDir().resolve("advbreeding.json");
+        Path path = FMLPaths.CONFIGDIR.get().resolve("advbreeding.json");
         if (Files.exists(path)) {
             try (Reader r = Files.newBufferedReader(path)) {
                 IcBreedConfig loaded = GSON.fromJson(r, IcBreedConfig.class);

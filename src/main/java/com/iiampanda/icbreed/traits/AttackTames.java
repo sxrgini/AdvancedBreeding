@@ -51,14 +51,14 @@ public final class AttackTames {
 
     public static boolean owns(net.minecraft.world.entity.Mob a, Player p) {
         if (a instanceof net.minecraft.world.entity.TamableAnimal t && t.isTame() && t.getOwner() != null) return t.isOwnedBy(p);
-        Taming t = a.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(a, Genetics.TAMING);
         return t != null && (t.owner().isEmpty() || t.owner().get().equals(p.getUUID()));
     }
 
     private static boolean sameOwner(Animal a, LivingEntity other) {
         if (!(other instanceof Animal o)) return false;
-        Taming ta = a.getAttached(Genetics.TAMING);
-        Taming tb = o.getAttached(Genetics.TAMING);
+        Taming ta = com.iiampanda.icbreed.platform.Att.get(a, Genetics.TAMING);
+        Taming tb = com.iiampanda.icbreed.platform.Att.get(o, Genetics.TAMING);
         return ta != null && tb != null && tb.tamed() && ta.owner().isPresent() && ta.owner().equals(tb.owner());
     }
 
@@ -99,13 +99,13 @@ public final class AttackTames {
     }
 
     public static net.minecraft.world.entity.player.Player ownerOf(Animal a) {
-        Taming t = a.getAttached(Genetics.TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(a, Genetics.TAMING);
         if (t == null || t.owner().isEmpty()) return null;
         return a.level().getPlayerByUUID(t.owner().get());
     }
 
     public static boolean sitting(net.minecraft.world.entity.Entity e) {
-        return Boolean.TRUE.equals(e.getAttached(Genetics.SITTING));
+        return Boolean.TRUE.equals(com.iiampanda.icbreed.platform.Att.get(e, Genetics.SITTING));
     }
 
     public static boolean toggleSit(Animal a) {
@@ -124,10 +124,10 @@ public final class AttackTames {
                 a.setTarget(null);
             }
             if (a instanceof Hoglin hg && !hg.isConverting()) {
-                Taming ht = hg.getAttached(Genetics.TAMING);
+                Taming ht = com.iiampanda.icbreed.platform.Att.get(hg, Genetics.TAMING);
                 if (hg.isBaby() || hg.isLeashed() || (ht != null && (ht.tamed() || ht.orphan()))) hg.setImmuneToZombification(true);
             } else if (a instanceof Hoglin hg2 && hg2.isConverting()) {
-                Taming ht = hg2.getAttached(Genetics.TAMING);
+                Taming ht = com.iiampanda.icbreed.platform.Att.get(hg2, Genetics.TAMING);
                 if (hg2.isBaby() || hg2.isLeashed() || (ht != null && (ht.tamed() || ht.orphan()))) hg2.setImmuneToZombification(true);
             }
             if (a instanceof Hoglin h && passive(h)) {

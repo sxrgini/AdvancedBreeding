@@ -45,7 +45,7 @@ public final class IcBreedCommand {
         }
         Genome before = Genetics.getOrCreate(target);
         Genetics.addXp(target, amount);
-        Genome after = target.getAttached(Genetics.GENOME);
+        Genome after = com.iiampanda.icbreed.platform.Att.get(target, Genetics.GENOME);
         int level = after == null ? before.level() : after.level();
         src.sendSuccess(() -> Component.translatable("advbreeding.cmd.xp_added", amount, target.getDisplayName(), level), true);
         return 1;

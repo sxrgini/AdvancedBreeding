@@ -2,9 +2,9 @@ package com.iiampanda.icbreed.traits;
 
 import com.iiampanda.icbreed.genetics.Genetics;
 import com.iiampanda.icbreed.mixin.ServerPlayerAccessor;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import com.iiampanda.icbreed.platform.ServerLifecycleEvents;
+import com.iiampanda.icbreed.platform.ServerTickEvents;
+import com.iiampanda.icbreed.platform.ServerPlayConnectionEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,10 +45,10 @@ public final class Shoulder {
     }
 
     public static void register() {
-        net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+        com.iiampanda.icbreed.platform.UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             if (hand != net.minecraft.world.InteractionHand.MAIN_HAND || player.isShiftKeyDown() || player.isSpectator()) return net.minecraft.world.InteractionResult.PASS;
             if (!(entity instanceof Parrot parrot) || !player.getMainHandItem().isEmpty() || !parrot.isTame() || !parrot.isOwnedBy(player)) return net.minecraft.world.InteractionResult.PASS;
-            if (parrot.getAttachedOrElse(Genetics.TRAITS, com.iiampanda.icbreed.genetics.Traits.NONE).rank("shoulder_pal") <= 0) return net.minecraft.world.InteractionResult.PASS;
+            if (com.iiampanda.icbreed.platform.Att.getOrElse(parrot, Genetics.TRAITS, com.iiampanda.icbreed.genetics.Traits.NONE).rank("shoulder_pal") <= 0) return net.minecraft.world.InteractionResult.PASS;
             if (level.isClientSide()) return net.minecraft.world.InteractionResult.SUCCESS;
             if (player instanceof ServerPlayer sp && MISSIONS.get(sp.getUUID()) == null) {
                 StayPut.release(parrot);
@@ -80,8 +80,9 @@ public final class Shoulder {
     }
 
     private static int rank(CompoundTag t, String id) {
-        return t.getCompound("fabric:attachments")
+        return t.getCompound("neoforge:attachments")
                 .flatMap(a -> a.getCompound("advbreeding:traits"))
+                .flatMap(v -> v.getCompound("v"))
                 .map(c -> c.getIntOr(id, 0)).orElse(0);
     }
 
@@ -98,16 +99,16 @@ public final class Shoulder {
 
     public static void refresh(ServerPlayer p) {
         int v = perks(p);
-        Integer cur = p.getAttached(Genetics.PERKS);
+        Integer cur = com.iiampanda.icbreed.platform.Att.get(p, Genetics.PERKS);
         if (v == 0) {
-            if (cur != null) p.removeAttached(Genetics.PERKS);
+            if (cur != null) com.iiampanda.icbreed.platform.Att.remove(p, Genetics.PERKS);
         } else if (cur == null || cur != v) {
-            p.setAttached(Genetics.PERKS, v);
+            com.iiampanda.icbreed.platform.Att.set(p, Genetics.PERKS, v);
         }
     }
 
     public static void release(ServerPlayer p) {
-        Integer pk = p.getAttached(Genetics.PERKS);
+        Integer pk = com.iiampanda.icbreed.platform.Att.get(p, Genetics.PERKS);
         if (pk == null || (pk & 1) == 0 || MISSIONS.containsKey(p.getUUID())) return;
         FORCE.set(true);
         try {
@@ -115,7 +116,7 @@ public final class Shoulder {
         } finally {
             FORCE.set(false);
         }
-        p.removeAttached(Genetics.PERKS);
+        com.iiampanda.icbreed.platform.Att.remove(p, Genetics.PERKS);
         for (Parrot parrot : p.level().getEntitiesOfClass(Parrot.class, p.getBoundingBox().inflate(2.0), x -> x.isOwnedBy(p))) {
             StayPut.sit(parrot, true);
         }
@@ -137,7 +138,7 @@ public final class Shoulder {
     }
 
     private static void launch(ServerPlayer p) {
-        Integer pk = p.getAttached(Genetics.PERKS);
+        Integer pk = com.iiampanda.icbreed.platform.Att.get(p, Genetics.PERKS);
         int rank = pk == null ? 0 : (pk >> 2) & 3;
         if (rank <= 0 || !p.isAlive() || p.isSpectator()) return;
         Long next = NEXT.get(p.getUUID());

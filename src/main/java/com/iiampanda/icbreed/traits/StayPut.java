@@ -18,7 +18,7 @@ public final class StayPut {
     }
 
     public static boolean holding(net.minecraft.world.entity.LivingEntity e) {
-        return e instanceof Mob m && !m.isVehicle() && Boolean.TRUE.equals(m.getAttached(Genetics.SITTING));
+        return e instanceof Mob m && !m.isVehicle() && Boolean.TRUE.equals(com.iiampanda.icbreed.platform.Att.get(m, Genetics.SITTING));
     }
 
     public static boolean can(Mob mob, Player player) {
@@ -35,7 +35,7 @@ public final class StayPut {
     }
 
     public static boolean following(Mob mob) {
-        return Boolean.TRUE.equals(mob.getAttached(Genetics.FOLLOWING));
+        return Boolean.TRUE.equals(com.iiampanda.icbreed.platform.Att.get(mob, Genetics.FOLLOWING));
     }
 
     public static Mode mode(Mob mob) {
@@ -45,37 +45,37 @@ public final class StayPut {
 
     public static boolean isOwner(Mob mob, Player player) {
         if (mob instanceof TamableAnimal t && t.isTame() && t.getOwnerReference() != null) return t.isOwnedBy(player);
-        com.iiampanda.icbreed.genetics.Taming tm = mob.getAttached(Genetics.TAMING);
+        com.iiampanda.icbreed.genetics.Taming tm = com.iiampanda.icbreed.platform.Att.get(mob, Genetics.TAMING);
         if (tm == null) return false;
         return tm.owner().isEmpty() || tm.owner().get().equals(player.getUUID());
     }
 
     public static Player ownerPlayer(Mob mob) {
         if (mob instanceof TamableAnimal t && t.getOwner() instanceof Player p) return p;
-        com.iiampanda.icbreed.genetics.Taming tm = mob.getAttached(Genetics.TAMING);
+        com.iiampanda.icbreed.genetics.Taming tm = com.iiampanda.icbreed.platform.Att.get(mob, Genetics.TAMING);
         if (tm == null || tm.owner().isEmpty()) return null;
         return mob.level().getPlayerByUUID(tm.owner().get());
     }
 
     public static void setMode(Mob mob, Mode mode, Player who) {
         if (who != null) {
-            com.iiampanda.icbreed.genetics.Taming tm = mob.getAttached(Genetics.TAMING);
-            if (tm != null && tm.owner().isEmpty()) mob.setAttached(Genetics.TAMING, tm.withOwner(who.getUUID()));
+            com.iiampanda.icbreed.genetics.Taming tm = com.iiampanda.icbreed.platform.Att.get(mob, Genetics.TAMING);
+            if (tm != null && tm.owner().isEmpty()) com.iiampanda.icbreed.platform.Att.set(mob, Genetics.TAMING, tm.withOwner(who.getUUID()));
         }
         boolean wasStaying = staying(mob);
-        mob.removeAttached(Genetics.FOLLOWING);
+        com.iiampanda.icbreed.platform.Att.remove(mob, Genetics.FOLLOWING);
         if (mode == Mode.STAY) {
-            mob.setAttached(Genetics.SITTING, true);
+            com.iiampanda.icbreed.platform.Att.set(mob, Genetics.SITTING, true);
             if (mob instanceof PathfinderMob pm) pm.getNavigation().stop();
             pose(mob, true);
             return;
         }
         if (wasStaying) {
-            mob.removeAttached(Genetics.SITTING);
+            com.iiampanda.icbreed.platform.Att.remove(mob, Genetics.SITTING);
             pose(mob, false);
         }
         if (mode == Mode.FOLLOW) {
-            mob.setAttached(Genetics.FOLLOWING, true);
+            com.iiampanda.icbreed.platform.Att.set(mob, Genetics.FOLLOWING, true);
             if (mob instanceof PathfinderMob pm && !(mob instanceof TamableAnimal)) FollowOwnerLiteGoal.attach(pm);
         }
     }
@@ -137,7 +137,7 @@ public final class StayPut {
 
     public static void enforce(Mob mob) {
         if (!AttackTames.sitting(mob)) {
-            if (mob instanceof TamableAnimal t && t.isOrderedToSit()) mob.setAttached(Genetics.SITTING, true);
+            if (mob instanceof TamableAnimal t && t.isOrderedToSit()) com.iiampanda.icbreed.platform.Att.set(mob, Genetics.SITTING, true);
             return;
         }
         if (!mob.isVehicle()) {
@@ -148,7 +148,7 @@ public final class StayPut {
         }
         if (mob.tickCount % 4 != 0) return;
         if (mob instanceof TamableAnimal t) {
-            if (!t.isOrderedToSit()) mob.removeAttached(Genetics.SITTING);
+            if (!t.isOrderedToSit()) com.iiampanda.icbreed.platform.Att.remove(mob, Genetics.SITTING);
         } else if (mob instanceof Fox f) {
             if (!f.isSitting()) f.setSitting(true);
         } else if (mob instanceof Panda p) {

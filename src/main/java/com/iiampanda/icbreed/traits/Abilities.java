@@ -3,11 +3,11 @@ package com.iiampanda.icbreed.traits;
 import com.iiampanda.icbreed.IcBreedConfig;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import com.iiampanda.icbreed.platform.ServerLivingEntityEvents;
+import com.iiampanda.icbreed.platform.ServerTickEvents;
+import com.iiampanda.icbreed.platform.UseEntityCallback;
+import com.iiampanda.icbreed.platform.UseItemCallback;
+import com.iiampanda.icbreed.platform.ServerPlayConnectionEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,9 +57,9 @@ public final class Abilities {
             if (!(entity instanceof ServerPlayer p) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return true;
             if (!AuraManager.nineLives(p.getUUID())) return true;
             long now = p.level().getGameTime();
-            Long ready = p.getAttached(Genetics.NINE_LIVES_READY);
+            Long ready = com.iiampanda.icbreed.platform.Att.get(p, Genetics.NINE_LIVES_READY);
             if (ready != null && now < ready) return true;
-            p.setAttached(Genetics.NINE_LIVES_READY, now + NINE_LIVES_COOLDOWN);
+            com.iiampanda.icbreed.platform.Att.set(p, Genetics.NINE_LIVES_READY, now + NINE_LIVES_COOLDOWN);
             p.setHealth(1.0F);
             p.removeAllEffects();
             p.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 900, 1));
@@ -71,7 +71,7 @@ public final class Abilities {
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-                if (p.hasAttached(Genetics.CLING) && p.isShiftKeyDown() && p.horizontalCollision) p.resetFallDistance();
+                if (com.iiampanda.icbreed.platform.Att.has(p, Genetics.CLING) && p.isShiftKeyDown() && p.horizontalCollision) p.resetFallDistance();
             }
         });
 
@@ -88,13 +88,13 @@ public final class Abilities {
                 if (level.isClientSide()) return InteractionResult.SUCCESS;
                 ServerLevel sl = (ServerLevel) level;
                 long now = sl.getGameTime();
-                Long ready = chicken.getAttached(Genetics.MILK_READY);
+                Long ready = com.iiampanda.icbreed.platform.Att.get(chicken, Genetics.MILK_READY);
                 if (ready != null && now < ready) {
                     int secs = (int) ((ready - now + 19) / 20);
                     player.sendOverlayMessage(Component.translatable("advbreeding.feathers.wait", String.format("%d:%02d", secs / 60, secs % 60)));
                     return InteractionResult.SUCCESS;
                 }
-                chicken.setAttached(Genetics.MILK_READY, now + IcBreedConfig.get().milkCooldownSeconds * 20L);
+                com.iiampanda.icbreed.platform.Att.set(chicken, Genetics.MILK_READY, now + IcBreedConfig.get().milkCooldownSeconds * 20L);
                 chicken.spawnAtLocation(sl, new ItemStack(Items.FEATHER, (int) fx.feathers));
                 sl.playSound(null, chicken, SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1.0F, 1.0F);
                 held.hurtAndBreak(1, player, hand);
@@ -106,13 +106,13 @@ public final class Abilities {
                 if (level.isClientSide()) return InteractionResult.SUCCESS;
                 ServerLevel sl = (ServerLevel) level;
                 long now = sl.getGameTime();
-                Long ready = llama.getAttached(Genetics.MILK_READY);
+                Long ready = com.iiampanda.icbreed.platform.Att.get(llama, Genetics.MILK_READY);
                 if (ready != null && now < ready) {
                     int secs = (int) ((ready - now + 19) / 20);
                     player.sendOverlayMessage(Component.translatable("advbreeding.wool.wait", String.format("%d:%02d", secs / 60, secs % 60)));
                     return InteractionResult.SUCCESS;
                 }
-                llama.setAttached(Genetics.MILK_READY, now + 300L * 20L);
+                com.iiampanda.icbreed.platform.Att.set(llama, Genetics.MILK_READY, now + 300L * 20L);
                 net.minecraft.world.item.Item wool = switch (llama.getVariant()) {
                     case BROWN -> Items.WOOL.brown();
                     case GRAY -> Items.WOOL.gray();

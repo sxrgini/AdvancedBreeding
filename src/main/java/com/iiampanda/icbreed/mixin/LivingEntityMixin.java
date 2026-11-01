@@ -141,7 +141,7 @@ public abstract class LivingEntityMixin {
     @Inject(method = "aiStep", at = @At("TAIL"))
     private void icbreed$stay(CallbackInfo ci) {
         if ((Object) this instanceof net.minecraft.world.entity.Mob m && !m.level().isClientSide()
-                && (m.hasAttached(Genetics.SITTING) || m instanceof net.minecraft.world.entity.TamableAnimal)) {
+                && (com.iiampanda.icbreed.platform.Att.has(m, Genetics.SITTING) || m instanceof net.minecraft.world.entity.TamableAnimal)) {
             com.iiampanda.icbreed.traits.StayPut.enforce(m);
         }
     }
@@ -156,7 +156,7 @@ public abstract class LivingEntityMixin {
     @Inject(method = "aiStep", at = @At("TAIL"))
     private void icbreed$elytraBoost(CallbackInfo ci) {
         if ((Object) this instanceof net.minecraft.world.entity.player.Player p && p.isFallFlying()) {
-            Integer perks = p.getAttached(Genetics.PERKS);
+            Integer perks = com.iiampanda.icbreed.platform.Att.get(p, Genetics.PERKS);
             if (perks != null && (perks & 2) != 0) p.setDeltaMovement(p.getDeltaMovement().scale(1.0009));
         }
     }
@@ -164,7 +164,7 @@ public abstract class LivingEntityMixin {
     @Inject(method = "aiStep", at = @At("TAIL"))
     private void icbreed$starve(CallbackInfo ci) {
         if ((Object) this instanceof net.minecraft.world.entity.Mob m && !m.level().isClientSide() && m.tickCount % 20 == 0
-                && m.hasAttached(Genetics.TAMING)) {
+                && com.iiampanda.icbreed.platform.Att.has(m, Genetics.TAMING)) {
             com.iiampanda.icbreed.traits.Starvation.tick(m);
         }
     }

@@ -3,7 +3,7 @@ package com.iiampanda.icbreed.traits;
 import com.iiampanda.icbreed.IcBreedConfig;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import com.iiampanda.icbreed.platform.UseEntityCallback;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -52,13 +52,13 @@ public final class Starvation {
     }
 
     public static boolean hungry(Mob m) {
-        Long last = m.getAttached(Genetics.LAST_FED);
+        Long last = com.iiampanda.icbreed.platform.Att.get(m, Genetics.LAST_FED);
         return last != null && m.level().getGameTime() - last >= threshold(m) / 2;
     }
 
     public static void fed(Mob m) {
         if (!Genetics.isTamed(m) || !(m.level() instanceof ServerLevel level)) return;
-        m.setAttached(Genetics.LAST_FED, level.getGameTime());
+        com.iiampanda.icbreed.platform.Att.set(m, Genetics.LAST_FED, level.getGameTime());
         double heal = IcBreedConfig.get().feedHealAmount;
         if (heal > 0 && m.getHealth() < m.getMaxHealth()) {
             m.heal((float) heal);
@@ -69,9 +69,9 @@ public final class Starvation {
     public static void tick(Mob m) {
         if (!(m.level() instanceof ServerLevel level) || !Genetics.supports(m) || !Genetics.isTamed(m) || !m.isAlive()) return;
         long now = level.getGameTime();
-        Long last = m.getAttached(Genetics.LAST_FED);
+        Long last = com.iiampanda.icbreed.platform.Att.get(m, Genetics.LAST_FED);
         if (last == null) {
-            m.setAttached(Genetics.LAST_FED, now);
+            com.iiampanda.icbreed.platform.Att.set(m, Genetics.LAST_FED, now);
             return;
         }
         long over = now - last - threshold(m);

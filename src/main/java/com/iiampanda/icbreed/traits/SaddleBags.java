@@ -41,8 +41,8 @@ public final class SaddleBags {
 
     public static boolean canFit(AbstractHorse horse, int style) {
         if (style < 0 || horse instanceof AbstractChestedHorse || horse.isBaby() || Genetics.isWild(horse)) return false;
-        var t = horse.getAttached(Genetics.TRAITS);
-        if (t == null || horse.getAttached(Genetics.BAGS) != null) return false;
+        var t = com.iiampanda.icbreed.platform.Att.get(horse, Genetics.TRAITS);
+        if (t == null || com.iiampanda.icbreed.platform.Att.get(horse, Genetics.BAGS) != null) return false;
         return t.rank(style == 0 ? "saddle_bags" : "shulker_bags") > 0;
     }
 
@@ -56,13 +56,13 @@ public final class SaddleBags {
             contents.copyInto(items);
             for (int i = 0; i < SLOTS; i++) empty.set(i, items.get(i));
         }
-        horse.setAttached(Genetics.BAG_STYLE, style);
-        horse.setAttached(Genetics.BAGS, empty);
+        com.iiampanda.icbreed.platform.Att.set(horse, Genetics.BAG_STYLE, style);
+        com.iiampanda.icbreed.platform.Att.set(horse, Genetics.BAGS, empty);
         horse.playSound(SoundEvents.DONKEY_CHEST, 1.0F, (horse.getRandom().nextFloat() - horse.getRandom().nextFloat()) * 0.2F + 1.0F);
     }
 
     public static void open(ServerPlayer player, AbstractHorse horse) {
-        List<ItemStack> saved = horse.getAttached(Genetics.BAGS);
+        List<ItemStack> saved = com.iiampanda.icbreed.platform.Att.get(horse, Genetics.BAGS);
         if (saved == null) return;
         SimpleContainer container = new SimpleContainer(SLOTS) {
             @Override
@@ -70,7 +70,7 @@ public final class SaddleBags {
                 super.setChanged();
                 List<ItemStack> now = new ArrayList<>();
                 for (int i = 0; i < SLOTS; i++) now.add(getItem(i).copy());
-                horse.setAttached(Genetics.BAGS, now);
+                com.iiampanda.icbreed.platform.Att.set(horse, Genetics.BAGS, now);
             }
 
             @Override
@@ -91,11 +91,11 @@ public final class SaddleBags {
     }
 
     public static void dropAll(AbstractHorse horse) {
-        List<ItemStack> saved = horse.getAttached(Genetics.BAGS);
+        List<ItemStack> saved = com.iiampanda.icbreed.platform.Att.get(horse, Genetics.BAGS);
         if (saved == null || !(horse.level() instanceof ServerLevel level)) return;
-        horse.removeAttached(Genetics.BAGS);
-        Integer style = horse.getAttached(Genetics.BAG_STYLE);
-        horse.removeAttached(Genetics.BAG_STYLE);
+        com.iiampanda.icbreed.platform.Att.remove(horse, Genetics.BAGS);
+        Integer style = com.iiampanda.icbreed.platform.Att.get(horse, Genetics.BAG_STYLE);
+        com.iiampanda.icbreed.platform.Att.remove(horse, Genetics.BAG_STYLE);
         int st = style == null ? 0 : style;
         ItemStack drop = itemFor(st);
         if (st > 0) {

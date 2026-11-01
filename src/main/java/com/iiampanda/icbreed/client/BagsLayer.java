@@ -2,7 +2,7 @@ package com.iiampanda.icbreed.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
+import com.iiampanda.icbreed.platform.RenderStateDataKey;
 import net.minecraft.client.model.animal.equine.HorseModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -28,7 +28,7 @@ public class BagsLayer extends RenderLayer<HorseRenderState, HorseModel> {
 
     @Override
     public void submit(PoseStack pose, SubmitNodeCollector collector, int light, HorseRenderState state, float yRot, float xRot) {
-        Integer style = state.getData(BAG_STYLE);
+        Integer style = BAG_STYLE.get(state);
         if (state.isBaby || style == null || style < 0) return;
         var root = getParentModel().root();
         if (!root.hasChild("body")) return;

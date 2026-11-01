@@ -112,12 +112,12 @@ public final class Colors {
             ((PhenoHorseAccessor) (Object) c).icbreed$set(coat, marks);
         } else if (baby instanceof Tadpole t && a instanceof Frog x && b instanceof Frog y) {
             Holder<net.minecraft.world.entity.animal.frog.FrogVariant> h = choose(r, x.getVariant(), y.getVariant(), pool(lv, Registries.FROG_VARIANT));
-            h.unwrapKey().ifPresent(k -> t.setAttached(Genetics.FROG_VARIANT, k.identifier().toString()));
+            h.unwrapKey().ifPresent(k -> com.iiampanda.icbreed.platform.Att.set(t, Genetics.FROG_VARIANT, k.identifier().toString()));
         }
     }
 
     public static void applyFrog(Tadpole src, Frog frog) {
-        String id = src.getAttached(Genetics.FROG_VARIANT);
+        String id = com.iiampanda.icbreed.platform.Att.get(src, Genetics.FROG_VARIANT);
         if (id == null) return;
         Identifier parsed = Identifier.tryParse(id);
         if (parsed == null) return;

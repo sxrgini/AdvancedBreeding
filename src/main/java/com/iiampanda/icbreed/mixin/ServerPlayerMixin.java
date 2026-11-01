@@ -14,7 +14,7 @@ public abstract class ServerPlayerMixin {
     private void icbreed$keepParrot(CallbackInfo ci) {
         ServerPlayer self = (ServerPlayer) (Object) this;
         if (Shoulder.FORCE.get()) return;
-        Integer perks = self.getAttached(Genetics.PERKS);
+        Integer perks = com.iiampanda.icbreed.platform.Att.get(self, Genetics.PERKS);
         if (perks != null && (perks & 1) != 0 && self.isAlive()) ci.cancel();
     }
 }

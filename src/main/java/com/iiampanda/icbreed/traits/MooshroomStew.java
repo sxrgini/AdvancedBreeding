@@ -5,7 +5,7 @@ import java.util.List;
 import com.iiampanda.icbreed.IcBreedConfig;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import com.iiampanda.icbreed.platform.UseEntityCallback;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -33,7 +33,7 @@ public final class MooshroomStew {
             ItemStack held = player.getItemInHand(hand);
             if (!held.is(Items.BOWL)) return InteractionResult.PASS;
             long now = level.getGameTime();
-            Long ready = cow.getAttached(Genetics.MILK_READY);
+            Long ready = com.iiampanda.icbreed.platform.Att.get(cow, Genetics.MILK_READY);
             if (ready != null && ready > now) {
                 int secs = (int) ((ready - now + 19) / 20);
                 player.sendOverlayMessage(Component.translatable("advbreeding.msg.stew_wait", String.format("%d:%02d", secs / 60, secs % 60)));
@@ -43,7 +43,7 @@ public final class MooshroomStew {
             Effects fx = Genetics.effects(cow);
             int rank = fx == null ? 0 : (int) Math.min(3, fx.stewRank);
             long cooldown = Math.max(2400L, IcBreedConfig.get().milkCooldownSeconds * 20L - rank * 1200L);
-            cow.setAttached(Genetics.MILK_READY, now + cooldown);
+            com.iiampanda.icbreed.platform.Att.set(cow, Genetics.MILK_READY, now + cooldown);
             Item flower = FLOWERS.get(cow.getRandom().nextInt(FLOWERS.size()));
             SuspiciousEffectHolder holder = SuspiciousEffectHolder.tryGet(flower);
             ItemStack stew = new ItemStack(Items.SUSPICIOUS_STEW);

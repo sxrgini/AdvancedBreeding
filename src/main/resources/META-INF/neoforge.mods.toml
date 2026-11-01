@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "LGPL-3.0-only"
+
+[[mods]]
+modId = "advbreeding"
+version = "${version}"
+displayName = "Advanced Breeding"
+authors = "iiAmPanda"
+iconFile = "assets/advbreeding/icon.png"
+description = '''Advanced animal genetics: every animal has a sex, a bloodline and seven genotype trait levels. Breed animals to pass on and improve traits. Shift + right-click an animal to inspect its genes.'''
+
+[[mixins]]
+config = "advbreeding.mixins.json"
+
+[[mixins]]
+config = "advbreeding.client.mixins.json"
+
+[[dependencies.advbreeding]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${minecraft_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.advbreeding]]
+modId = "minecraft"
+type = "required"
+versionRange = "[${minecraft_version},)"
+ordering = "NONE"
+side = "BOTH"

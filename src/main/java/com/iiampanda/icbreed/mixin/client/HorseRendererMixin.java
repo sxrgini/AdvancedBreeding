@@ -15,7 +15,7 @@ public abstract class HorseRendererMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/animal/equine/Horse;Lnet/minecraft/client/renderer/entity/state/HorseRenderState;F)V",
             at = @At("TAIL"))
     private void icbreed$bags(Horse horse, HorseRenderState state, float partialTick, CallbackInfo ci) {
-        Integer style = horse.getAttached(Genetics.BAG_STYLE);
-        state.setData(BagsLayer.BAG_STYLE, horse.getAttached(Genetics.BAGS) == null ? -1 : style == null ? 0 : style);
+        Integer style = com.iiampanda.icbreed.platform.Att.get(horse, Genetics.BAG_STYLE);
+        BagsLayer.BAG_STYLE.put(state, com.iiampanda.icbreed.platform.Att.get(horse, Genetics.BAGS) == null ? -1 : style == null ? 0 : style);
     }
 }

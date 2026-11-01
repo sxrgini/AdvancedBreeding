@@ -50,11 +50,11 @@ public final class MountJump {
     }
 
     public static void roll(Mob m) {
-        if (!species(m) || m.hasAttached(Genetics.JUMP_ROLLED)) return;
+        if (!species(m) || com.iiampanda.icbreed.platform.Att.has(m, Genetics.JUMP_ROLLED)) return;
         var rnd = m.getRandom();
         double v = 0.4 + rnd.nextDouble() * 0.2 + rnd.nextDouble() * 0.2 + rnd.nextDouble() * 0.2;
         var attr = m.getAttribute(Attributes.JUMP_STRENGTH);
         if (attr != null) attr.setBaseValue(v);
-        m.setAttached(Genetics.JUMP_ROLLED, true);
+        com.iiampanda.icbreed.platform.Att.set(m, Genetics.JUMP_ROLLED, true);
     }
 }

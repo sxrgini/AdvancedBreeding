@@ -1,23 +1,21 @@
 package com.iiampanda.icbreed.client;
 
 import com.iiampanda.icbreed.net.OpenGeneticsPayload;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import com.iiampanda.icbreed.platform.ClientPlayNetworking;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
-public class IcBreedClient implements ClientModInitializer {
-    @Override
+public class IcBreedClient {
     public void onInitializeClient() {
-        net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register(
+        com.iiampanda.icbreed.platform.LivingEntityRenderLayerRegistrationCallback.EVENT.register(
                 (type, renderer, helper, context) -> {
                     if (renderer instanceof net.minecraft.client.renderer.entity.HorseRenderer horseRenderer) {
                         registerBags(helper, new BagsLayer(horseRenderer, context.getItemModelResolver()));
                     }
                 });
-        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+        com.iiampanda.icbreed.platform.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             var p = mc.player;
-            if (p == null || !p.hasAttached(com.iiampanda.icbreed.genetics.Genetics.CLING)) return;
+            if (p == null || !com.iiampanda.icbreed.platform.Att.has(p, com.iiampanda.icbreed.genetics.Genetics.CLING)) return;
             if (p.isShiftKeyDown() && p.horizontalCollision && !p.onGround() && !p.getAbilities().flying) {
                 var dm = p.getDeltaMovement();
                 if (dm.y < -0.06) p.setDeltaMovement(dm.x, -0.06, dm.z);
@@ -25,12 +23,12 @@ public class IcBreedClient implements ClientModInitializer {
             }
         });
         final boolean[] wasUse = {false};
-        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+        com.iiampanda.icbreed.platform.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             var p = mc.player;
             boolean down = mc.options.keyUse.isDown();
             if (p != null && down && !wasUse[0] && mc.gui.screen() == null && p.getXRot() < -50.0F && p.getMainHandItem().isEmpty()
                     && (p.getPassengers().stream().anyMatch(e -> e instanceof net.minecraft.world.entity.animal.axolotl.Axolotl)
-                    || (p.getAttachedOrElse(com.iiampanda.icbreed.genetics.Genetics.PERKS, 0) & 1) != 0)) {
+                    || (com.iiampanda.icbreed.platform.Att.getOrElse(p, com.iiampanda.icbreed.genetics.Genetics.PERKS, 0) & 1) != 0)) {
                 ClientPlayNetworking.send(new com.iiampanda.icbreed.net.RemoveHatPayload());
             }
             if (p != null && down && !wasUse[0] && mc.gui.screen() == null && p.getMainHandItem().isEmpty()
@@ -53,7 +51,7 @@ public class IcBreedClient implements ClientModInitializer {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void registerBags(net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.RegistrationHelper helper,
+    private static void registerBags(com.iiampanda.icbreed.platform.LivingEntityRenderLayerRegistrationCallback.RegistrationHelper helper,
                                      BagsLayer layer) {
         helper.register((net.minecraft.client.renderer.entity.layers.RenderLayer) layer);
     }

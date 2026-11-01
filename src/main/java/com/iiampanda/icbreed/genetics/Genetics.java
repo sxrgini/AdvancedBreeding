@@ -5,9 +5,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.iiampanda.icbreed.IcBreed;
 import com.iiampanda.icbreed.IcBreedConfig;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import com.iiampanda.icbreed.platform.AttachmentRegistry;
+import com.iiampanda.icbreed.platform.AttachmentSyncPredicate;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -74,7 +74,7 @@ public final class Genetics {
     public static final AttachmentType<Boolean> SITTING = AttachmentRegistry.create(
             Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "sitting"),
             builder -> builder.persistent(com.mojang.serialization.Codec.BOOL)
-                    .syncWith(net.minecraft.network.codec.ByteBufCodecs.BOOL, net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate.all()));
+                    .syncWith(net.minecraft.network.codec.ByteBufCodecs.BOOL, com.iiampanda.icbreed.platform.AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Boolean> CULL = AttachmentRegistry.create(
             Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "cull"),
@@ -124,10 +124,10 @@ public final class Genetics {
     }
 
     public static Genome getOrCreate(Mob animal) {
-        Genome g = animal.getAttached(GENOME);
+        Genome g = com.iiampanda.icbreed.platform.Att.get(animal, GENOME);
         if (g == null) {
             g = Genome.wild(new java.util.Random(animal.getUUID().getMostSignificantBits() ^ Long.rotateLeft(animal.getUUID().getLeastSignificantBits(), 17)));
-            animal.setAttached(GENOME, g);
+            com.iiampanda.icbreed.platform.Att.set(animal, GENOME, g);
             applyAttributes(animal, g, true);
         }
         return g;
@@ -139,28 +139,28 @@ public final class Genetics {
     public static void onLoad(Mob animal) {
         net.minecraft.world.entity.animal.frog.Tadpole src = CONVERTING.get();
         if (src != null && animal instanceof net.minecraft.world.entity.animal.frog.Frog) {
-            Genome sg = src.getAttached(GENOME);
-            if (sg != null) animal.setAttached(GENOME, sg);
+            Genome sg = com.iiampanda.icbreed.platform.Att.get(src, GENOME);
+            if (sg != null) com.iiampanda.icbreed.platform.Att.set(animal, GENOME, sg);
             Colors.applyFrog(src, (net.minecraft.world.entity.animal.frog.Frog) animal);
-            Taming st = src.getAttached(TAMING);
-            if (st != null) animal.setAttached(TAMING, st.withYoung());
-            Traits str = src.getAttached(TRAITS);
-            if (str != null) animal.setAttached(TRAITS, str);
+            Taming st = com.iiampanda.icbreed.platform.Att.get(src, TAMING);
+            if (st != null) com.iiampanda.icbreed.platform.Att.set(animal, TAMING, st.withYoung());
+            Traits str = com.iiampanda.icbreed.platform.Att.get(src, TRAITS);
+            if (str != null) com.iiampanda.icbreed.platform.Att.set(animal, TRAITS, str);
         }
-        Genome g = animal.getAttached(GENOME);
+        Genome g = com.iiampanda.icbreed.platform.Att.get(animal, GENOME);
         boolean fresh = false;
         if (g == null) {
             g = Genome.wild(new java.util.Random(animal.getUUID().getMostSignificantBits() ^ Long.rotateLeft(animal.getUUID().getLeastSignificantBits(), 17)));
-            animal.setAttached(GENOME, g);
+            com.iiampanda.icbreed.platform.Att.set(animal, GENOME, g);
             fresh = true;
         }
         if (isTamedSpecies(animal)) {
-            Taming cur = animal.getAttached(TAMING);
-            if (cur == null || !cur.tamed()) animal.setAttached(TAMING, Taming.ownedRecord());
+            Taming cur = com.iiampanda.icbreed.platform.Att.get(animal, TAMING);
+            if (cur == null || !cur.tamed()) com.iiampanda.icbreed.platform.Att.set(animal, TAMING, Taming.ownedRecord());
         }
-        if (animal.getAttached(TAMING) == null) {
+        if (com.iiampanda.icbreed.platform.Att.get(animal, TAMING) == null) {
             boolean owned = alreadyTamed(animal) || (!fresh && (g.generation > 0 || g.hasParents() || animal.hasCustomName()));
-            animal.setAttached(TAMING, owned ? Taming.ownedRecord() : Taming.wild());
+            com.iiampanda.icbreed.platform.Att.set(animal, TAMING, owned ? Taming.ownedRecord() : Taming.wild());
         }
         if (animal instanceof net.minecraft.world.entity.monster.hoglin.Hoglin hog && (Ages.isBaby(hog) || isTamed(hog))) {
             hog.setImmuneToZombification(true);
@@ -180,14 +180,14 @@ public final class Genetics {
     }
 
     public static boolean isWild(Mob animal) {
-        Taming t = animal.getAttached(TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(animal, TAMING);
         return t != null && !t.tamed();
     }
 
     public static void updateGrowth(Mob animal) {
-        Integer cur = animal.getAttached(GROWTH);
+        Integer cur = com.iiampanda.icbreed.platform.Att.get(animal, GROWTH);
         Integer want = null;
-        Taming t = animal.getAttached(TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(animal, TAMING);
         if (t != null && !t.tamed()) {
             want = Ages.isBaby(animal) ? t.progress(Ages.getAge(animal)) : 0;
         } else if (Ages.isBaby(animal)) {
@@ -195,21 +195,21 @@ public final class Genetics {
             want = (int) Math.round(100.0 * clamp((AgeableMob.BABY_START_AGE * -1.0 + age) / (-AgeableMob.BABY_START_AGE), 0, 1));
         }
         if (want == null) {
-            if (cur != null) animal.removeAttached(GROWTH);
+            if (cur != null) com.iiampanda.icbreed.platform.Att.remove(animal, GROWTH);
         } else if (!want.equals(cur)) {
-            animal.setAttached(GROWTH, want);
+            com.iiampanda.icbreed.platform.Att.set(animal, GROWTH, want);
         }
     }
 
     public static boolean isTamed(Mob animal) {
-        Taming t = animal.getAttached(TAMING);
+        Taming t = com.iiampanda.icbreed.platform.Att.get(animal, TAMING);
         return t != null && t.tamed();
     }
 
     public static Effects effects(Mob animal) {
-        Genome g = animal.getAttached(GENOME);
+        Genome g = com.iiampanda.icbreed.platform.Att.get(animal, GENOME);
         if (g == null) return null;
-        Traits t = animal.getAttached(TRAITS);
+        Traits t = com.iiampanda.icbreed.platform.Att.get(animal, TRAITS);
         return t == null ? g.effects() : t.combined(g, com.iiampanda.icbreed.traits.TraitTrees.forMob(animal));
     }
 
@@ -218,26 +218,26 @@ public final class Genetics {
     }
 
     public static boolean tryUpgrade(Mob animal, String traitId) {
-        Genome g = animal.getAttached(GENOME);
+        Genome g = com.iiampanda.icbreed.platform.Att.get(animal, GENOME);
         if (g == null || isWild(animal)) return false;
         var tree = com.iiampanda.icbreed.traits.TraitTrees.forMob(animal);
         var def = tree.get(traitId);
         if (def == null) return false;
-        Traits t = animal.getAttached(TRAITS);
+        Traits t = com.iiampanda.icbreed.platform.Att.get(animal, TRAITS);
         if (t == null) t = Traits.NONE;
         int rank = t.rank(traitId);
         if (rank >= def.maxRank() || availablePoints(g, t, tree) < def.cost()) return false;
         if (def.missing(t::rank) != null) return false;
-        animal.setAttached(TRAITS, t.with(traitId, rank + 1));
+        com.iiampanda.icbreed.platform.Att.set(animal, TRAITS, t.with(traitId, rank + 1));
         applyAttributes(animal, g, false);
         return true;
     }
 
     public static void addXp(Mob animal, int amount) {
-        Genome g = animal.getAttached(GENOME);
+        Genome g = com.iiampanda.icbreed.platform.Att.get(animal, GENOME);
         if (g == null || g.level() >= Genome.MAX_LEVEL) return;
         Genome next = g.withXp(g.xp + amount);
-        animal.setAttached(GENOME, next);
+        com.iiampanda.icbreed.platform.Att.set(animal, GENOME, next);
         if (next.level() != g.level()) applyAttributes(animal, next, false);
     }
 
@@ -251,8 +251,8 @@ public final class Genetics {
         boolean aMother = a.sex == Sex.FEMALE || (b.sex != Sex.FEMALE && ThreadLocalRandom.current().nextBoolean());
         Mob mom = aMother ? parentA : parentB;
         Mob dad = aMother ? parentB : parentA;
-        child.setAttached(TAMING, Taming.ownedRecord());
-        child.setAttached(GENOME, Genome.breed(aMother ? a : b, aMother ? b : a, ThreadLocalRandom.current(), false,
+        com.iiampanda.icbreed.platform.Att.set(child, TAMING, Taming.ownedRecord());
+        com.iiampanda.icbreed.platform.Att.set(child, GENOME, Genome.breed(aMother ? a : b, aMother ? b : a, ThreadLocalRandom.current(), false,
                 displayName(mom), displayName(dad)));
         addXp(parentA, XP_BIRTH);
         addXp(parentB, XP_BIRTH);
@@ -268,12 +268,12 @@ public final class Genetics {
     }
 
     public static boolean isPregnant(Mob animal) {
-        return animal.getAttached(PREGNANCY) != null;
+        return com.iiampanda.icbreed.platform.Att.get(animal, PREGNANCY) != null;
     }
 
     public static void conceive(Mob mother, Mob father) {
         Genome fatherGenome = getOrCreate(father);
-        mother.setAttached(PREGNANCY, new Pregnancy(fatherGenome, displayName(father), Optional.of(father.getUUID()),
+        com.iiampanda.icbreed.platform.Att.set(mother, PREGNANCY, new Pregnancy(fatherGenome, displayName(father), Optional.of(father.getUUID()),
                 mother.level().getGameTime() + gestationTicks(mother), false));
         addXp(mother, XP_BREED);
         addXp(father, XP_BREED);
@@ -286,21 +286,21 @@ public final class Genetics {
     }
 
     public static void onPregnantHit(Mob mother) {
-        Pregnancy p = mother.getAttached(PREGNANCY);
+        Pregnancy p = com.iiampanda.icbreed.platform.Att.get(mother, PREGNANCY);
         if (p == null || p.worse()) return;
         if (ThreadLocalRandom.current().nextDouble() < IcBreedConfig.get().worseChanceOnHit) {
-            mother.setAttached(PREGNANCY, p.withWorse());
+            com.iiampanda.icbreed.platform.Att.set(mother, PREGNANCY, p.withWorse());
         }
     }
 
     public static void tickPregnancy(ServerLevel level, Mob mother) {
-        Pregnancy p = mother.getAttached(PREGNANCY);
+        Pregnancy p = com.iiampanda.icbreed.platform.Att.get(mother, PREGNANCY);
         if (p == null || level.getGameTime() < p.dueTime()) return;
         giveBirth(level, mother, p);
     }
 
     private static void giveBirth(ServerLevel level, Mob mother, Pregnancy p) {
-        mother.removeAttached(PREGNANCY);
+        com.iiampanda.icbreed.platform.Att.remove(mother, PREGNANCY);
         if (!(mother instanceof AgeableMob am)) return;
         AgeableMob partner = am;
         if (p.fatherId().isPresent() && level.getEntity(p.fatherId().get()) instanceof AgeableMob dad && dad.isAlive()) {
@@ -314,10 +314,10 @@ public final class Genetics {
         {
             Mob child = baby;
             Genome mom = getOrCreate(mother);
-            Taming motherTaming = mother.getAttached(TAMING);
-            child.setAttached(TAMING, Taming.ownedRecord().withOwner(
+            Taming motherTaming = com.iiampanda.icbreed.platform.Att.get(mother, TAMING);
+            com.iiampanda.icbreed.platform.Att.set(child, TAMING, Taming.ownedRecord().withOwner(
                     motherTaming == null ? null : motherTaming.owner().orElse(null)));
-            child.setAttached(GENOME, Genome.breed(mom, p.father(), ThreadLocalRandom.current(), p.worse(),
+            com.iiampanda.icbreed.platform.Att.set(child, GENOME, Genome.breed(mom, p.father(), ThreadLocalRandom.current(), p.worse(),
                     displayName(mother), p.fatherName()));
         }
         level.addFreshEntityWithPassengers(baby);
