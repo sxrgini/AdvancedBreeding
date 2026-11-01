@@ -40,7 +40,7 @@ public class BagsLayer extends RenderLayer<HorseRenderState, HorseModel> {
 
             pose.translate(side * (style == 0 ? 3.6F : 4.0F) / 16.0F, -5.0F / 16.0F, 0.0F);
 
-            pose.mulPose(Axis.ZP.rotationDegrees(-90.0F * side));
+            pose.rotateDegrees(Axis.ZP, -90.0F * side);
             pose.scale(0.5F, 0.5F, 0.5F);
             barrel.submit(pose, collector, light, OverlayTexture.NO_OVERLAY, 0);
             pose.popPose();

@@ -170,7 +170,7 @@ public final class Shoulder {
         parrot.setPos(p.getX(), p.getY() + p.getBbHeight() * 0.85, p.getZ());
         parrot.setNoAi(true);
         parrot.setNoGravity(true);
-        parrot.setInvulnerable(true);
+        parrot.setPermanentlyInvulnerable(true);
         StayPut.sit(parrot, false);
         level.addWithUUID(parrot);
         if (useLeft) ((ServerPlayerAccessor) p).icbreed$setLeft(new CompoundTag());
@@ -237,7 +237,7 @@ public final class Shoulder {
         if (!c.isEmpty()) {
             if (p != null && p.isAlive()) {
                 p.getInventory().add(c);
-                if (!c.isEmpty()) p.drop(c, false);
+                if (!c.isEmpty()) p.drop(c, false, net.minecraft.util.Prediction.SERVER_ONLY);
                 p.level().playSound(null, p.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.3F, 1.2F);
             } else if (pe != null) {
                 pe.level().addFreshEntity(new ItemEntity(pe.level(), pe.getX(), pe.getY(), pe.getZ(), c));
@@ -246,7 +246,7 @@ public final class Shoulder {
         if (pe instanceof Parrot parrot) {
             parrot.setNoAi(false);
             parrot.setNoGravity(false);
-            parrot.setInvulnerable(false);
+            parrot.setPermanentlyInvulnerable(false);
             if (p != null && p.isAlive() && p.level() == parrot.level()) {
                 if (!parrot.setEntityOnShoulder(p)) StayPut.sit(parrot, false);
             }

@@ -31,7 +31,7 @@ public class HoneyCauldronBlock extends Block {
         if (!level.isClientSide()) {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             ItemStack stack = new ItemStack(Items.HONEY_BLOCK);
-            if (!player.getInventory().add(stack)) player.drop(stack, false);
+            if (!player.getInventory().add(stack)) player.drop(stack, false, net.minecraft.util.Prediction.SERVER_ONLY);
             level.playSound(null, pos, SoundEvents.HONEY_BLOCK_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
         return InteractionResult.SUCCESS;

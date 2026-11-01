@@ -47,7 +47,7 @@ public abstract class LivingEntityMixin {
     }
 
     @Inject(method = "getVisibilityPercent", at = @At("RETURN"), cancellable = true)
-    private void icbreed$threat(@Nullable Entity entity, CallbackInfoReturnable<Double> cir) {
+    private void icbreed$threat(ServerLevel level, @Nullable Entity entity, CallbackInfoReturnable<Double> cir) {
         if (!((Object) this instanceof net.minecraft.server.level.ServerPlayer player)) return;
         double t = com.iiampanda.icbreed.traits.AuraManager.threat(player.getUUID());
         if (t == 0) return;
