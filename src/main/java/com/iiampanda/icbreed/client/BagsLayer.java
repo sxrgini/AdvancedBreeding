@@ -1,48 +1,40 @@
 package com.iiampanda.icbreed.client;
 
+import com.iiampanda.icbreed.genetics.Genetics;
+import com.iiampanda.icbreed.mixin.client.HorseModelAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
-import net.minecraft.client.model.animal.equine.HorseModel;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HorseModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.state.HorseRenderState;
-import net.minecraft.client.renderer.item.ItemModelResolver;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
-public class BagsLayer extends RenderLayer<HorseRenderState, HorseModel> {
-    public static final RenderStateDataKey<Integer> BAG_STYLE = RenderStateDataKey.create();
-
-    private final ItemModelResolver items;
-    private final ItemStackRenderState barrel = new ItemStackRenderState();
-
-    public BagsLayer(RenderLayerParent<HorseRenderState, HorseModel> parent, ItemModelResolver items) {
+public class BagsLayer extends RenderLayer<Horse, HorseModel<Horse>> {
+    public BagsLayer(RenderLayerParent<Horse, HorseModel<Horse>> parent) {
         super(parent);
-        this.items = items;
     }
 
     @Override
-    public void submit(PoseStack pose, SubmitNodeCollector collector, int light, HorseRenderState state, float yRot, float xRot) {
-        Integer style = state.getData(BAG_STYLE);
-        if (state.isBaby || style == null || style < 0) return;
-        var root = getParentModel().root();
-        if (!root.hasChild("body")) return;
-        items.updateForTopItem(barrel, com.iiampanda.icbreed.traits.SaddleBags.itemFor(style), ItemDisplayContext.NONE, null, null, 0);
-        if (barrel.isEmpty()) return;
+    public void render(PoseStack pose, MultiBufferSource buffers, int light, Horse horse, float limbSwing, float limbSwingAmount,
+                       float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        Integer style = horse.getAttached(Genetics.BAG_STYLE);
+        if (horse.getAttached(Genetics.BAGS) == null || horse.isBaby()) return;
+        int st = style == null ? 0 : style;
+        ItemStack barrel = com.iiampanda.icbreed.traits.SaddleBags.itemFor(st);
+        var body = ((HorseModelAccessor) getParentModel()).icbreed$body();
         for (int side = -1; side <= 1; side += 2) {
             pose.pushPose();
-            root.getChild("body").translateAndRotate(pose);
-
-            pose.translate(side * (style == 0 ? 3.6F : 4.0F) / 16.0F, -5.0F / 16.0F, 0.0F);
-
+            body.translateAndRotate(pose);
+            pose.translate(side * (st == 0 ? 3.6F : 4.0F) / 16.0F, -3.0F / 16.0F, 0.0F);
             pose.mulPose(Axis.ZP.rotationDegrees(-90.0F * side));
             pose.scale(0.5F, 0.5F, 0.5F);
-            barrel.submit(pose, collector, light, OverlayTexture.NO_OVERLAY, 0);
+            Minecraft.getInstance().getItemRenderer().renderStatic(barrel, ItemDisplayContext.NONE, light, OverlayTexture.NO_OVERLAY,
+                    pose, buffers, horse.level(), horse.getId());
             pose.popPose();
         }
     }

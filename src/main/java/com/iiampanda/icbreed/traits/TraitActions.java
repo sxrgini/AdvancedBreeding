@@ -6,7 +6,7 @@ import com.iiampanda.icbreed.IcBreed;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
 import com.iiampanda.icbreed.genetics.Taming;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -15,11 +15,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.phys.AABB;
 
 public final class TraitActions {
-    private static final Identifier COORD_ID = Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "coordinated");
+    private static final ResourceLocation COORD_ID = ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "coordinated");
 
     private TraitActions() {
     }
@@ -78,13 +78,13 @@ public final class TraitActions {
             victim.addEffect(new MobEffectInstance(MobEffects.GLOWING, (int) (fx.markSeconds * 20), 0), attacker);
         }
         if (fx.stunChance > 0 && rnd.nextDouble() < fx.stunChance) {
-            victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 25, 6), attacker);
+            victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 25, 6), attacker);
         }
     }
 
     public static void onHurt(net.minecraft.world.entity.Mob victim, Effects fx) {
         if (fx.chargeSeconds > 0) {
-            victim.addEffect(new MobEffectInstance(MobEffects.SPEED, (int) (fx.chargeSeconds * 20), 1));
+            victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, (int) (fx.chargeSeconds * 20), 1));
         }
     }
 

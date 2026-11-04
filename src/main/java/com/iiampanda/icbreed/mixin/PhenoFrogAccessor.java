@@ -6,5 +6,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(net.minecraft.world.entity.animal.frog.Frog.class)
 public interface PhenoFrogAccessor {
     @Invoker("setVariant")
-    void icbreed$set(net.minecraft.core.Holder<net.minecraft.world.entity.animal.frog.FrogVariant> v);
+    void icbreed$set(net.minecraft.core.Holder<net.minecraft.world.entity.animal.FrogVariant> v);
 }

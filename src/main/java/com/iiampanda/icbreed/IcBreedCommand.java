@@ -20,7 +20,7 @@ public final class IcBreedCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
         d.register(Commands.literal("advb")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .requires(src -> src.hasPermission(2))
                 .then(Commands.literal("tame").executes(ctx -> tame(ctx.getSource())))
                 .then(Commands.literal("xp")
                         .then(Commands.literal("add")
@@ -70,7 +70,7 @@ public final class IcBreedCommand {
             src.sendFailure(Component.translatable("advbreeding.cmd.baby"));
             return 0;
         }
-        com.iiampanda.icbreed.taming.TamingLogic.forceTame(player.level(), target, player);
+        com.iiampanda.icbreed.taming.TamingLogic.forceTame(player.serverLevel(), target, player);
         return 1;
     }
 

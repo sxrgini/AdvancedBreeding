@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.animal.cow.MushroomCow;
+import net.minecraft.world.entity.animal.MushroomCow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemUtils;
@@ -36,7 +36,7 @@ public final class MooshroomStew {
             Long ready = cow.getAttached(Genetics.MILK_READY);
             if (ready != null && ready > now) {
                 int secs = (int) ((ready - now + 19) / 20);
-                player.sendOverlayMessage(Component.translatable("advbreeding.msg.stew_wait", String.format("%d:%02d", secs / 60, secs % 60)));
+                player.displayClientMessage(Component.translatable("advbreeding.msg.stew_wait", String.format("%d:%02d", secs / 60, secs % 60)), true);
                 return InteractionResult.FAIL;
             }
             if (level.isClientSide()) return InteractionResult.SUCCESS;

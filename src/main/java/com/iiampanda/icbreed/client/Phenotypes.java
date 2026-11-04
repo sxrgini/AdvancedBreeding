@@ -3,20 +3,16 @@ package com.iiampanda.icbreed.client;
 import java.util.Locale;
 
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
-import net.minecraft.world.entity.animal.chicken.Chicken;
-import net.minecraft.world.entity.animal.cow.Cow;
-import net.minecraft.world.entity.animal.cow.MushroomCow;
-import net.minecraft.world.entity.animal.equine.Horse;
-import net.minecraft.world.entity.animal.equine.Llama;
-import net.minecraft.world.entity.animal.feline.Cat;
-import net.minecraft.world.entity.animal.fox.Fox;
-import net.minecraft.world.entity.animal.parrot.Parrot;
-import net.minecraft.world.entity.animal.pig.Pig;
-import net.minecraft.world.entity.animal.rabbit.Rabbit;
-import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.animal.MushroomCow;
+import net.minecraft.world.entity.animal.horse.Horse;
+import net.minecraft.world.entity.animal.horse.Llama;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.animal.Sheep;
 
 public final class Phenotypes {
     private Phenotypes() {
@@ -24,14 +20,13 @@ public final class Phenotypes {
 
     public static String of(Entity e) {
         try {
+            String compat = com.iiampanda.icbreed.compat.Compat.phenotype(e);
+            if (compat != null) return compat;
             if (e instanceof Sheep s) return title(s.getColor().getName());
             if (e instanceof MushroomCow m) return title(m.getVariant().name());
-            if (e instanceof Cow c) return holder(c.getVariant());
-            if (e instanceof Pig p) return holder(p.getVariant());
             if (e instanceof net.minecraft.world.entity.animal.frog.Frog f) return holder(f.getVariant());
-            if (e instanceof Chicken c) return holder(c.getVariant());
             if (e instanceof Cat c) return cat(holder(c.getVariant()));
-            if (e instanceof net.minecraft.world.entity.animal.wolf.Wolf w) return holder(w.get(DataComponents.WOLF_VARIANT));
+            if (e instanceof net.minecraft.world.entity.animal.Wolf w) return holder(w.getVariant());
             if (e instanceof Horse h) {
                 String coat = title(h.getVariant().name());
                 String mark = switch (h.getMarkings()) {
@@ -77,7 +72,7 @@ public final class Phenotypes {
 
     private static String holder(Holder<?> h) {
         if (h == null) return null;
-        return h.unwrapKey().map(k -> title(k.identifier().getPath())).orElse(null);
+        return h.unwrapKey().map(k -> title(k.location().getPath())).orElse(null);
     }
 
     private static String title(String id) {

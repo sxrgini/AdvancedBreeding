@@ -8,11 +8,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayer.class)
+@Mixin(net.minecraft.world.entity.player.Player.class)
 public abstract class ServerPlayerMixin {
     @Inject(method = "removeEntitiesOnShoulder", at = @At("HEAD"), cancellable = true)
     private void icbreed$keepParrot(CallbackInfo ci) {
-        ServerPlayer self = (ServerPlayer) (Object) this;
+        if (!((Object) this instanceof ServerPlayer self)) return;
         if (Shoulder.FORCE.get()) return;
         Integer perks = self.getAttached(Genetics.PERKS);
         if (perks != null && (perks & 1) != 0 && self.isAlive()) ci.cancel();

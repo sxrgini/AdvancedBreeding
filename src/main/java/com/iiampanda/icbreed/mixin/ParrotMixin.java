@@ -6,11 +6,10 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.parrot.Parrot;
+import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,11 +31,6 @@ public abstract class ParrotMixin {
         if (stack.is(ItemTags.PARROT_FOOD)) cir.setReturnValue(true);
     }
 
-    @Inject(method = "canBeABaby", at = @At("HEAD"), cancellable = true)
-    private void icbreed$baby(CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(true);
-    }
-
     @Inject(method = "canMate", at = @At("HEAD"), cancellable = true)
     private void icbreed$mate(Animal partner, CallbackInfoReturnable<Boolean> cir) {
         Parrot self = (Parrot) (Object) this;
@@ -47,7 +41,7 @@ public abstract class ParrotMixin {
     @Inject(method = "getBreedOffspring", at = @At("HEAD"), cancellable = true)
     private void icbreed$offspring(ServerLevel level, AgeableMob partner, CallbackInfoReturnable<AgeableMob> cir) {
         Parrot self = (Parrot) (Object) this;
-        Parrot baby = EntityTypes.PARROT.create(level, EntitySpawnReason.BREEDING);
+        Parrot baby = EntityType.PARROT.create(level);
         if (baby == null) return;
         Parrot.Variant v = partner instanceof Parrot p && self.getRandom().nextBoolean() ? p.getVariant() : self.getVariant();
         ((ParrotAccessor) (Object) baby).icbreed$setVariant(v);
@@ -61,12 +55,12 @@ public abstract class ParrotMixin {
         if (!self.isTame() || !stack.is(ItemTags.PARROT_FOOD)) return;
         if (self.isBaby()) {
             if (!self.level().isClientSide()) {
-                ((MobAccessor) (Object) self).icbreed$use(player, hand, stack);
+                ((AnimalUseAccessor) (Object) self).icbreed$use(player, hand, stack);
                 self.ageUp(AgeableMob.getSpeedUpSecondsWhenFeeding(-self.getAge()), true);
             }
         } else if (self.getAge() == 0 && self.canFallInLove()) {
             if (!self.level().isClientSide()) {
-                ((MobAccessor) (Object) self).icbreed$use(player, hand, stack);
+                ((AnimalUseAccessor) (Object) self).icbreed$use(player, hand, stack);
                 self.setInLove(player);
             }
         } else {

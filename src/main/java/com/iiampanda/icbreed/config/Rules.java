@@ -24,7 +24,7 @@ import com.iiampanda.icbreed.genetics.Stat;
 import com.iiampanda.icbreed.net.RulesSyncPayload;
 import com.iiampanda.icbreed.traits.TraitTrees;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.Resource;
@@ -155,10 +155,10 @@ public final class Rules {
 
     private static JsonArray readDatapacks(MinecraftServer server) {
         JsonArray out = new JsonArray();
-        Map<Identifier, Resource> found = server.getResourceManager().listResources("advbreeding/mob_traits", id -> id.getPath().endsWith(".json"));
-        List<Identifier> ids = new ArrayList<>(found.keySet());
+        Map<ResourceLocation, Resource> found = server.getResourceManager().listResources("advbreeding/mob_traits", id -> id.getPath().endsWith(".json"));
+        List<ResourceLocation> ids = new ArrayList<>(found.keySet());
         ids.sort(null);
-        for (Identifier id : ids) {
+        for (ResourceLocation id : ids) {
             try (Reader r = found.get(id).openAsReader()) {
                 JsonElement el = COMPACT.fromJson(r, JsonElement.class);
                 if (el != null && el.isJsonObject()) out.add(el);

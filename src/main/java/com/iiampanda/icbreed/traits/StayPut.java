@@ -6,8 +6,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.camel.Camel;
-import net.minecraft.world.entity.animal.fox.Fox;
-import net.minecraft.world.entity.animal.panda.Panda;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.animal.Panda;
 import net.minecraft.world.entity.player.Player;
 import java.util.UUID;
 
@@ -44,7 +44,7 @@ public final class StayPut {
     }
 
     public static boolean isOwner(Mob mob, Player player) {
-        if (mob instanceof TamableAnimal t && t.isTame() && t.getOwnerReference() != null) return t.isOwnedBy(player);
+        if (mob instanceof TamableAnimal t && t.isTame() && t.getOwnerUUID() != null) return t.isOwnedBy(player);
         com.iiampanda.icbreed.genetics.Taming tm = mob.getAttached(Genetics.TAMING);
         if (tm == null) return false;
         return tm.owner().isEmpty() || tm.owner().get().equals(player.getUUID());

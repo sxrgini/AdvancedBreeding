@@ -1,4 +1,4 @@
-package com.iiampanda.icbreed.mixin;
+package com.iiampanda.icbreed.compat.mixin;
 
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.level.block.state.BlockState;

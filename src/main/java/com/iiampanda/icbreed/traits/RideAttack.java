@@ -24,7 +24,7 @@ public final class RideAttack {
         if (!(p.getVehicle() instanceof Animal a) || a.getControllingPassenger() != p || !AttackTames.is(a)) return;
         Effects fx = Genetics.effects(a);
         if (fx == null || fx.rideable <= 0 || !AttackTames.owns(a, p)) return;
-        ServerLevel level = p.level();
+        ServerLevel level = p.serverLevel();
         long now = level.getGameTime();
         Long ready = READY.get(a.getUUID());
         if (ready != null && now < ready) return;
@@ -45,6 +45,6 @@ public final class RideAttack {
                 best = e;
             }
         }
-        if (best != null) a.doHurtTarget(level, best);
+        if (best != null) a.doHurtTarget(best);
     }
 }

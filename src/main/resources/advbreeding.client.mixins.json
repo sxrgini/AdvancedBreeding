@@ -2,9 +2,9 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.iiampanda.icbreed.mixin.client",
-  "compatibilityLevel": "JAVA_25",
+  "compatibilityLevel": "JAVA_21",
   "client": [
-    "HorseRendererMixin",
+    "HorseModelAccessor",
     "ParrotRendererMixin"
   ],
   "injectors": {

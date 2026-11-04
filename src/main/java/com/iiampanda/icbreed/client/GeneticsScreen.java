@@ -20,27 +20,24 @@ import com.iiampanda.icbreed.traits.TraitTrees;
 import com.iiampanda.icbreed.net.RenamePayload;
 import com.iiampanda.icbreed.IcBreedConfig;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import com.iiampanda.icbreed.net.OpenInventoryPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 public class GeneticsScreen extends Screen {
     private static final int W = 256;
     private static final int H = 284;
     private static final int TEXT = 0xFF404040;
-    private static final Identifier XP_BG = Identifier.withDefaultNamespace("hud/experience_bar_background");
-    private static final Identifier XP_FG = Identifier.withDefaultNamespace("hud/experience_bar_progress");
+    private static final ResourceLocation XP_BG = ResourceLocation.withDefaultNamespace("hud/experience_bar_background");
+    private static final ResourceLocation XP_FG = ResourceLocation.withDefaultNamespace("hud/experience_bar_progress");
     private static final int XP_W = 182;
     private static final int XP_H = 5;
 
@@ -68,15 +65,15 @@ public class GeneticsScreen extends Screen {
     private static final int NODE = 26;
     private static final int COL_STEP = 50;
     private static final int ROW_STEP = 35;
-    private static final Identifier TAB_TOP = Identifier.withDefaultNamespace("advancements/tab_right_top");
-    private static final Identifier TAB_TOP_SEL = Identifier.withDefaultNamespace("advancements/tab_right_top_selected");
-    private static final Identifier TAB_MIDDLE = Identifier.withDefaultNamespace("advancements/tab_right_middle");
-    private static final Identifier TAB_MIDDLE_SEL = Identifier.withDefaultNamespace("advancements/tab_right_middle_selected");
-    private static final Identifier TAB_BOTTOM = Identifier.withDefaultNamespace("advancements/tab_right_bottom");
-    private static final Identifier TAB_BOTTOM_SEL = Identifier.withDefaultNamespace("advancements/tab_right_bottom_selected");
-    private static final Identifier FRAME_OFF = Identifier.withDefaultNamespace("advancements/task_frame_unobtained");
-    private static final Identifier FRAME_ON = Identifier.withDefaultNamespace("advancements/task_frame_obtained");
-    private static final Identifier FRAME_MAX = Identifier.withDefaultNamespace("advancements/goal_frame_obtained");
+    private static final ResourceLocation TAB_TOP = ResourceLocation.withDefaultNamespace("advancements/tab_right_top");
+    private static final ResourceLocation TAB_TOP_SEL = ResourceLocation.withDefaultNamespace("advancements/tab_right_top_selected");
+    private static final ResourceLocation TAB_MIDDLE = ResourceLocation.withDefaultNamespace("advancements/tab_right_middle");
+    private static final ResourceLocation TAB_MIDDLE_SEL = ResourceLocation.withDefaultNamespace("advancements/tab_right_middle_selected");
+    private static final ResourceLocation TAB_BOTTOM = ResourceLocation.withDefaultNamespace("advancements/tab_right_bottom");
+    private static final ResourceLocation TAB_BOTTOM_SEL = ResourceLocation.withDefaultNamespace("advancements/tab_right_bottom_selected");
+    private static final ResourceLocation FRAME_OFF = ResourceLocation.withDefaultNamespace("advancements/task_frame_unobtained");
+    private static final ResourceLocation FRAME_ON = ResourceLocation.withDefaultNamespace("advancements/task_frame_obtained");
+    private static final ResourceLocation FRAME_MAX = ResourceLocation.withDefaultNamespace("advancements/goal_frame_obtained");
 
     private int left;
     private int top;
@@ -143,9 +140,9 @@ public class GeneticsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == 0) {
-            int tab = tabAt(event.x(), event.y());
+    public boolean mouseClicked(double mx, double my, int button) {
+        if (button == 0) {
+            int tab = tabAt(mx, my);
             if (tab >= 0) {
                 stopEditing(true);
                 clickTab(tab);
@@ -153,7 +150,7 @@ public class GeneticsScreen extends Screen {
             }
             if (page == Page.TRAITS) {
                 dragged = false;
-                TraitDef hit = nodeAt(event.x(), event.y());
+                TraitDef hit = nodeAt(mx, my);
                 if (hit != null) {
                     tryBuy(hit);
                     return true;
@@ -161,24 +158,24 @@ public class GeneticsScreen extends Screen {
                 return true;
             }
             if (page == Page.STATS) return true;
-            if (overName(event.x(), event.y())) {
+            if (overName(mx, my)) {
                 if (!editing && !isWild()) startEditing();
                 return true;
             }
             if (editing) stopEditing(true);
         }
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(mx, my, button);
     }
 
     @Override
-    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
-        if (page == Page.TRAITS && event.button() == 0 && inViewport(event.x(), event.y())) {
+    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+        if (page == Page.TRAITS && button == 0 && inViewport(mx, my)) {
             treeOffX += dx;
             treeOffY += dy;
             dragged = true;
             return true;
         }
-        return super.mouseDragged(event, dx, dy);
+        return super.mouseDragged(mx, my, button, dx, dy);
     }
 
     private void setPage(Page p) {
@@ -186,9 +183,8 @@ public class GeneticsScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(KeyEvent event) {
+    public boolean keyPressed(int k, int scan, int mods) {
         if (editing) {
-            int k = event.key();
             if (k == 257 || k == 335) {
                 stopEditing(true);
                 return true;
@@ -198,7 +194,7 @@ public class GeneticsScreen extends Screen {
                 return true;
             }
         }
-        return super.keyPressed(event);
+        return super.keyPressed(k, scan, mods);
     }
 
     @Override
@@ -218,8 +214,8 @@ public class GeneticsScreen extends Screen {
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        super.extractBackground(ctx, mouseX, mouseY, delta);
+    public void renderBackground(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
+        super.renderBackground(ctx, mouseX, mouseY, delta);
         panel(ctx, left, top, W, H);
     }
 
@@ -236,14 +232,14 @@ public class GeneticsScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
         if (stayButton != null) {
             stayButton.visible = page == Page.MAIN && !isWild() && !editing;
             int[] st = STAY.get(entity.getId());
             stayButton.active = stayButton.visible && (st == null || st[1] == 1);
             stayButton.setMessage(stayLabel());
         }
-        super.extractRenderState(ctx, mouseX, mouseY, delta);
+        super.render(ctx, mouseX, mouseY, delta);
 
         Genome live = entity.getAttached(Genetics.GENOME);
         Genome genome = live != null ? live : openedGenome;
@@ -258,7 +254,7 @@ public class GeneticsScreen extends Screen {
         int level = genome.level();
         int barX = left + (W - XP_W) / 2;
         int barY = top + 16;
-        ctx.blitSprite(RenderPipelines.GUI_TEXTURED, XP_BG, barX, barY, XP_W, XP_H);
+        ctx.blitSprite(XP_BG, barX, barY, XP_W, XP_H);
         float progress = 1.0F;
         int into = 0;
         int need = 0;
@@ -269,23 +265,23 @@ public class GeneticsScreen extends Screen {
         }
         int filled = (int) (progress * XP_W);
         if (filled > 0) {
-            ctx.blitSprite(RenderPipelines.GUI_TEXTURED, XP_FG, XP_W, XP_H, 0, 0, barX, barY, filled, XP_H);
+            ctx.blitSprite(XP_FG, XP_W, XP_H, 0, 0, barX, barY, filled, XP_H);
         }
         String lvl = String.valueOf(level);
         int lx = left + (W - this.font.width(lvl)) / 2;
         int ly = top + 5;
-        ctx.text(this.font, lvl, lx + 1, ly, 0xFF000000, false);
-        ctx.text(this.font, lvl, lx - 1, ly, 0xFF000000, false);
-        ctx.text(this.font, lvl, lx, ly + 1, 0xFF000000, false);
-        ctx.text(this.font, lvl, lx, ly - 1, 0xFF000000, false);
-        ctx.text(this.font, lvl, lx, ly, 0xFF80FF20, false);
+        ctx.drawString(this.font, lvl, lx + 1, ly, 0xFF000000, false);
+        ctx.drawString(this.font, lvl, lx - 1, ly, 0xFF000000, false);
+        ctx.drawString(this.font, lvl, lx, ly + 1, 0xFF000000, false);
+        ctx.drawString(this.font, lvl, lx, ly - 1, 0xFF000000, false);
+        ctx.drawString(this.font, lvl, lx, ly, 0xFF80FF20, false);
         boolean overBar = mouseX >= barX && mouseX < barX + XP_W && mouseY >= barY - 12 && mouseY <= barY + XP_H + 1;
 
         Integer growth = entity.getAttached(Genetics.GROWTH);
         int tameY = barY + XP_H + 2;
         boolean overTame = false;
         if (growth != null) {
-            ctx.blitSprite(RenderPipelines.GUI_TEXTURED, XP_BG, barX, tameY, XP_W, XP_H);
+            ctx.blitSprite(XP_BG, barX, tameY, XP_W, XP_H);
             int tf = (int) (Math.max(0, Math.min(100, growth)) / 100.0 * XP_W);
             if (tf > 0) {
                 ctx.fill(barX, tameY, barX + tf, tameY + 1, TAME_COLOR_TOP);
@@ -305,19 +301,19 @@ public class GeneticsScreen extends Screen {
             }
             List<Component> tabTip = renderTabs(ctx, mouseX, mouseY);
             if (tabTip != null) tip = tabTip;
-            if (tip != null) ctx.setComponentTooltipForNextFrame(this.font, tip, mouseX, mouseY);
+            if (tip != null) ctx.renderComponentTooltip(this.font, tip, mouseX, mouseY);
             return;
         }
 
         if (!editing) {
-            ctx.text(this.font, baseName().copy().append(" ").append(sexSymbol(genome.sex)), left + 8, top + 31, TEXT, false);
+            ctx.drawString(this.font, baseName().copy().append(" ").append(sexSymbol(genome.sex)), left + 8, top + 31, TEXT, false);
         }
         boolean overTitle = !editing && overName(mouseX, mouseY);
 
         int bx = left + 8, by = top + 43, bw = 76, bh = 74;
         inset(ctx, bx, by, bw, bh);
         float size = (float) Math.max(entity.getBbWidth() * 1.15, entity.getBbHeight());
-        InventoryScreen.extractEntityInInventoryFollowsMouse(ctx, bx + 1, by + 1, bx + bw - 1, by + bh - 1,
+        InventoryScreen.renderEntityInInventoryFollowsMouse(ctx, bx + 1, by + 1, bx + bw - 1, by + bh - 1,
                 (int) Math.max(8, 52 / size), 0.0625F, mouseX, mouseY, entity);
 
         Bloodline bl = genome.bloodline;
@@ -334,60 +330,60 @@ public class GeneticsScreen extends Screen {
         for (Component c : labels) widest = Math.max(widest, this.font.width(c));
         int vx = ix + widest + 8;
         int y = top + 43;
-        ctx.text(this.font, labels[0], ix, y, TEXT, false);
-        ctx.text(this.font, Component.literal(genome.sex.symbol + " ").append(Component.translatable("advbreeding.sex." + genome.sex.id)),
+        ctx.drawString(this.font, labels[0], ix, y, TEXT, false);
+        ctx.drawString(this.font, Component.literal(genome.sex.symbol + " ").append(Component.translatable("advbreeding.sex." + genome.sex.id)),
                 vx, y, 0xFF000000 | darken(genome.sex.color), false);
         y += 12;
-        ctx.text(this.font, labels[1], ix, y, TEXT, false);
+        ctx.drawString(this.font, labels[1], ix, y, TEXT, false);
         fitText(ctx, Component.translatable(bl.nameKey()), vx, y, 0xFF000000 | darken(bl.color), left + W - 8 - vx);
         y += 12;
-        ctx.text(this.font, labels[2], ix, y, TEXT, false);
-        ctx.text(this.font, String.valueOf(genome.generation), vx, y, TEXT, false);
+        ctx.drawString(this.font, labels[2], ix, y, TEXT, false);
+        ctx.drawString(this.font, String.valueOf(genome.generation), vx, y, TEXT, false);
         y += 12;
-        ctx.text(this.font, labels[3], ix, y, TEXT, false);
-        ctx.text(this.font, String.valueOf(Genetics.availablePoints(genome, entity.getAttached(Genetics.TRAITS), TraitTrees.forEntity(entity))), vx, y, TEXT, false);
+        ctx.drawString(this.font, labels[3], ix, y, TEXT, false);
+        ctx.drawString(this.font, String.valueOf(Genetics.availablePoints(genome, entity.getAttached(Genetics.TRAITS), TraitTrees.forEntity(entity))), vx, y, TEXT, false);
         y += 12;
         Taming taming = entity.getAttached(Genetics.TAMING);
         boolean wild = taming != null && !taming.tamed();
         boolean taming2 = wild && taming.orphan() && entity != null && com.iiampanda.icbreed.genetics.Ages.isBaby(entity);
-        ctx.text(this.font, labels[5], ix, y, TEXT, false);
+        ctx.drawString(this.font, labels[5], ix, y, TEXT, false);
         Component statusText = Component.translatable(!wild ? "advbreeding.gui.status.tamed" : taming2 ? "advbreeding.gui.status.taming" : "advbreeding.gui.status.wild");
         fitText(ctx, statusText, vx, y, !wild ? 0xFF2E7D32 : taming2 ? 0xFF7A3E9D : 0xFF8A5A00, left + W - 8 - vx);
         boolean overStatus = mouseX >= ix && mouseX < left + W - 8 && mouseY >= y - 1 && mouseY < y + 10;
         y += 12;
         String pheno = Phenotypes.of(entity);
         if (pheno != null) {
-            ctx.text(this.font, Component.translatable("advbreeding.gui.phenotype"), ix, y, TEXT, false);
+            ctx.drawString(this.font, Component.translatable("advbreeding.gui.phenotype"), ix, y, TEXT, false);
             int avail = left + W - 8 - vx;
             int tw = this.font.width(pheno);
             if (tw > avail) {
                 float sc = (float) avail / tw;
-                ctx.pose().pushMatrix();
-                ctx.pose().translate(vx, y + (1 - sc) * 4);
-                ctx.pose().scale(sc, sc);
-                ctx.text(this.font, pheno, 0, 0, TEXT, false);
-                ctx.pose().popMatrix();
+                ctx.pose().pushPose();
+                ctx.pose().translate((float) vx, y + (1 - sc) * 4, 0.0F);
+                ctx.pose().scale(sc, sc, 1.0F);
+                ctx.drawString(this.font, pheno, 0, 0, TEXT, false);
+                ctx.pose().popPose();
             } else {
-                ctx.text(this.font, pheno, vx, y, TEXT, false);
+                ctx.drawString(this.font, pheno, vx, y, TEXT, false);
             }
             y += 12;
         }
         if (pregnantTicks >= 0) {
             int secs = (pregnantTicks + 19) / 20;
-            ctx.text(this.font, labels[4], ix, y, TEXT, false);
-            ctx.text(this.font, String.format("%d:%02d", secs / 60, secs % 60), vx, y, 0xFF7A3E9D, false);
+            ctx.drawString(this.font, labels[4], ix, y, TEXT, false);
+            ctx.drawString(this.font, String.format("%d:%02d", secs / 60, secs % 60), vx, y, 0xFF7A3E9D, false);
             y += 12;
         }
-        if (entity instanceof net.minecraft.world.entity.animal.cow.AbstractCow && !((net.minecraft.world.entity.animal.cow.AbstractCow) entity).isBaby()
+        if (entity instanceof net.minecraft.world.entity.animal.Cow && !((net.minecraft.world.entity.animal.Cow) entity).isBaby()
                 && this.minecraft != null && this.minecraft.level != null) {
             Long ready = entity.getAttached(Genetics.MILK_READY);
             long left2 = ready == null ? 0 : ready - this.minecraft.level.getGameTime();
-            ctx.text(this.font, Component.translatable(entity instanceof net.minecraft.world.entity.animal.cow.MushroomCow ? "advbreeding.gui.milk_stew" : "advbreeding.gui.milk"), ix, y, TEXT, false);
+            ctx.drawString(this.font, Component.translatable(entity instanceof net.minecraft.world.entity.animal.MushroomCow ? "advbreeding.gui.milk_stew" : "advbreeding.gui.milk"), ix, y, TEXT, false);
             if (left2 <= 0) {
-                ctx.text(this.font, Component.translatable("advbreeding.gui.milk_ready"), vx, y, 0xFF2E7D32, false);
+                ctx.drawString(this.font, Component.translatable("advbreeding.gui.milk_ready"), vx, y, 0xFF2E7D32, false);
             } else {
                 int secs = (int) ((left2 + 19) / 20);
-                ctx.text(this.font, String.format("%d:%02d", secs / 60, secs % 60), vx, y, 0xFF7A3E9D, false);
+                ctx.drawString(this.font, String.format("%d:%02d", secs / 60, secs % 60), vx, y, 0xFF7A3E9D, false);
             }
             y += 12;
         }
@@ -395,19 +391,23 @@ public class GeneticsScreen extends Screen {
             Component parents = Component.translatable("advbreeding.gui.parents",
                     nameWithSymbol(genome.motherName.isEmpty() ? "?" : genome.motherName, Sex.FEMALE),
                     nameWithSymbol(genome.fatherName.isEmpty() ? "?" : genome.fatherName, Sex.MALE));
-            ctx.textWithWordWrap(this.font, parents, ix, y, left + W - 8 - ix, TEXT, false);
+            int ly2 = y;
+            for (net.minecraft.util.FormattedCharSequence line : this.font.split(parents, left + W - 8 - ix)) {
+                ctx.drawString(this.font, line, ix, ly2, TEXT, false);
+                ly2 += 9;
+            }
         }
 
         int gy = top + 133;
-        ctx.text(this.font, Component.translatable("advbreeding.gui.genotypes").withStyle(ChatFormatting.BOLD), left + 8, gy, TEXT, false);
+        ctx.drawString(this.font, Component.translatable("advbreeding.gui.genotypes").withStyle(ChatFormatting.BOLD), left + 8, gy, TEXT, false);
         gy += 12;
         List<Component> tooltip = null;
         for (Genotype g : Genotype.ALL) {
             int v = genome.get(g);
             int rowY = gy + g.ordinal() * 12;
             int color = valueColor(v);
-            ctx.text(this.font, g.abbr, left + 8, rowY + 1, 0xFF000000 | darken(color), false);
-            ctx.text(this.font, Component.translatable(g.nameKey()), left + 32, rowY + 1, TEXT, false);
+            ctx.drawString(this.font, g.abbr, left + 8, rowY + 1, 0xFF000000 | darken(color), false);
+            ctx.drawString(this.font, Component.translatable(g.nameKey()), left + 32, rowY + 1, TEXT, false);
 
             int sx0 = left + 108;
             for (int i = 0; i < Genotype.MAX; i++) {
@@ -417,7 +417,7 @@ public class GeneticsScreen extends Screen {
             }
 
             ctx.fill(sx0 + Genotype.BASELINE * 12 - 1, rowY - 1, sx0 + Genotype.BASELINE * 12, rowY + 10, 0xFFFFFFFF);
-            ctx.text(this.font, String.valueOf(v), sx0 + 10 * 12 + 4, rowY + 1, TEXT, false);
+            ctx.drawString(this.font, String.valueOf(v), sx0 + 10 * 12 + 4, rowY + 1, TEXT, false);
 
             if (mouseX >= left + 8 && mouseX <= sx0 + 10 * 12 + 14 && mouseY >= rowY - 1 && mouseY <= rowY + 10) {
                 tooltip = new ArrayList<>();
@@ -471,7 +471,7 @@ public class GeneticsScreen extends Screen {
         }
 
         int ey = gy + Genotype.ALL.length * 12 + 4;
-        ctx.text(this.font, Component.translatable("advbreeding.gui.bloodline_effects", Component.translatable(bl.nameKey())).withStyle(ChatFormatting.BOLD), left + 8, ey, TEXT, false);
+        ctx.drawString(this.font, Component.translatable("advbreeding.gui.bloodline_effects", Component.translatable(bl.nameKey())).withStyle(ChatFormatting.BOLD), left + 8, ey, TEXT, false);
         ey += 11;
         for (int li = 0; li < bl.mods.length; li++) {
             fitText(ctx, bl.lineComponent(li), left + 12, ey, TEXT, left + W - 8 - (left + 12));
@@ -480,7 +480,7 @@ public class GeneticsScreen extends Screen {
 
         List<Component> tabTip = renderTabs(ctx, mouseX, mouseY);
         if (tabTip != null) tooltip = tabTip;
-        if (tooltip != null) ctx.setComponentTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
+        if (tooltip != null) ctx.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
     }
 
     private enum Tab { TRAITS, STATS, INVENTORY, BAGS }
@@ -512,21 +512,21 @@ public class GeneticsScreen extends Screen {
         }
     }
 
-    private void fitText(GuiGraphicsExtractor ctx, Component text, int x, int y, int color, int maxWidth) {
+    private void fitText(GuiGraphics ctx, Component text, int x, int y, int color, int maxWidth) {
         int tw = this.font.width(text);
         if (tw <= maxWidth) {
-            ctx.text(this.font, text, x, y, color, false);
+            ctx.drawString(this.font, text, x, y, color, false);
             return;
         }
         float sc = (float) maxWidth / tw;
-        ctx.pose().pushMatrix();
-        ctx.pose().translate(x, y + (1 - sc) * 4);
-        ctx.pose().scale(sc, sc);
-        ctx.text(this.font, text, 0, 0, color, false);
-        ctx.pose().popMatrix();
+        ctx.pose().pushPose();
+        ctx.pose().translate((float) x, y + (1 - sc) * 4, 0.0F);
+        ctx.pose().scale(sc, sc, 1.0F);
+        ctx.drawString(this.font, text, 0, 0, color, false);
+        ctx.pose().popPose();
     }
 
-    private List<Component> renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
+    private List<Component> renderTabs(GuiGraphics ctx, int mouseX, int mouseY) {
         int x = left + W - 4;
         List<Component> tip = null;
         List<Tab> tabs = tabs();
@@ -534,11 +534,11 @@ public class GeneticsScreen extends Screen {
         for (int i = 0; i < count; i++) {
             Tab t = tabs.get(i);
             boolean selected = (t == Tab.TRAITS && page == Page.TRAITS) || (t == Tab.STATS && page == Page.STATS);
-            Identifier sprite = i == 0 ? (selected ? TAB_TOP_SEL : TAB_TOP)
+            ResourceLocation sprite = i == 0 ? (selected ? TAB_TOP_SEL : TAB_TOP)
                     : i == count - 1 ? (selected ? TAB_BOTTOM_SEL : TAB_BOTTOM)
                     : (selected ? TAB_MIDDLE_SEL : TAB_MIDDLE);
             int y = top + TAB_H * i + 8;
-            ctx.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, TAB_W, TAB_H);
+            ctx.blitSprite(sprite, x, y, TAB_W, TAB_H);
             net.minecraft.world.item.Item icon = switch (t) {
                 case TRAITS -> net.minecraft.world.item.Items.OAK_SAPLING;
                 case STATS -> net.minecraft.world.item.Items.BOOK;
@@ -548,7 +548,7 @@ public class GeneticsScreen extends Screen {
                     yield com.iiampanda.icbreed.traits.SaddleBags.itemFor(bagStyle == null ? 0 : bagStyle).getItem();
                 }
             };
-            ctx.item(new net.minecraft.world.item.ItemStack(icon), x + 5, y + 6);
+            ctx.renderItem(new net.minecraft.world.item.ItemStack(icon), x + 5, y + 6);
             if (mouseX >= x && mouseX < x + TAB_W && mouseY >= y && mouseY < y + TAB_H) {
                 tip = new ArrayList<>();
                 tip.add(Component.translatable(switch (t) {
@@ -612,12 +612,12 @@ public class GeneticsScreen extends Screen {
         ClientPlayNetworking.send(new UpgradeTraitPayload(entity.getId(), d.id()));
     }
 
-    private List<Component> renderTraits(GuiGraphicsExtractor ctx, int mouseX, int mouseY, Genome genome) {
+    private List<Component> renderTraits(GuiGraphics ctx, int mouseX, int mouseY, Genome genome) {
         TraitTrees.Tree tree = TraitTrees.forEntity(entity);
         Traits traits = traits();
-        ctx.text(this.font, Component.translatable("advbreeding.gui.tab.traits").withStyle(ChatFormatting.BOLD), left + 8, top + 31, TEXT, false);
+        ctx.drawString(this.font, Component.translatable("advbreeding.gui.tab.traits").withStyle(ChatFormatting.BOLD), left + 8, top + 31, TEXT, false);
         Component pts = Component.translatable("advbreeding.gui.trait_points", points());
-        ctx.text(this.font, pts, left + W - 8 - this.font.width(pts), top + 31, 0xFF2E7D32, false);
+        ctx.drawString(this.font, pts, left + W - 8 - this.font.width(pts), top + 31, 0xFF2E7D32, false);
 
         int x0 = vpX(), y0 = vpY(), x1 = x0 + vpW(), y1 = y0 + vpH();
         inset(ctx, x0 - 1, y0 - 1, vpW() + 2, vpH() + 2);
@@ -644,14 +644,14 @@ public class GeneticsScreen extends Screen {
             int x = nodeX(d), y = nodeY(d);
             int rank = traits.rank(d.id());
             boolean unlocked = d.missing(traits::rank) == null;
-            Identifier frame = rank >= d.maxRank() ? FRAME_MAX : rank > 0 ? FRAME_ON : FRAME_OFF;
-            ctx.blitSprite(RenderPipelines.GUI_TEXTURED, frame, x, y, NODE, NODE);
-            Identifier effectIcon = effectSprite(d.id());
-            if (effectIcon != null) ctx.blitSprite(RenderPipelines.GUI_TEXTURED, effectIcon, x + 4, y + 4, 18, 18);
-            else ctx.item(d.iconStack(), x + 5, y + 5);
+            ResourceLocation frame = rank >= d.maxRank() ? FRAME_MAX : rank > 0 ? FRAME_ON : FRAME_OFF;
+            ctx.blitSprite(frame, x, y, NODE, NODE);
+            var effectIcon = effectIcon(d.id());
+            if (effectIcon != null) ctx.blit(x + 4, y + 4, 0, 18, 18, this.minecraft.getMobEffectTextures().get(effectIcon));
+            else ctx.renderItem(d.iconStack(), x + 5, y + 5);
             if (!unlocked) ctx.fill(x + 3, y + 3, x + NODE - 3, y + NODE - 3, 0x99000000);
             String r = rank + "/" + d.maxRank();
-            ctx.text(this.font, r, x + (NODE - this.font.width(r)) / 2, y + NODE - 1, rank >= d.maxRank() ? 0xFFFFD84A : 0xFFE0E0E0, true);
+            ctx.drawString(this.font, r, x + (NODE - this.font.width(r)) / 2, y + NODE - 1, rank >= d.maxRank() ? 0xFFFFD84A : 0xFFE0E0E0, true);
             if (mouseX >= x && mouseX < x + NODE && mouseY >= y && mouseY < y + NODE && inViewport(mouseX, mouseY)) hover = d;
         }
         ctx.disableScissor();
@@ -698,15 +698,14 @@ public class GeneticsScreen extends Screen {
         return tip;
     }
 
-    private static Identifier effectSprite(String id) {
-        String name = switch (id) {
-            case "regen_aura" -> "regeneration";
-            case "fire_resistance_aura" -> "fire_resistance";
-            case "saturation_aura" -> "saturation";
-            case "hoppy_aura" -> "jump_boost";
+    private static net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effectIcon(String id) {
+        return switch (id) {
+            case "regen_aura" -> net.minecraft.world.effect.MobEffects.REGENERATION;
+            case "fire_resistance_aura" -> net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE;
+            case "saturation_aura" -> net.minecraft.world.effect.MobEffects.SATURATION;
+            case "hoppy_aura" -> net.minecraft.world.effect.MobEffects.JUMP;
             default -> null;
         };
-        return name == null ? null : Identifier.withDefaultNamespace("mob_effect/" + name);
     }
 
     private static boolean lowerIsBetter(Stat s) {
@@ -720,8 +719,8 @@ public class GeneticsScreen extends Screen {
     private static final Stat[] CORE = {Stat.HEALTH_PCT, Stat.DAMAGE_PCT, Stat.SPEED_PCT, Stat.JUMP_PCT,
             Stat.DAMAGE_TAKEN, Stat.ELEMENT_TAKEN, Stat.GROWTH};
 
-    private List<Component> renderStats(GuiGraphicsExtractor ctx, int mouseX, int mouseY, Genome genome) {
-        ctx.text(this.font, Component.translatable("advbreeding.gui.stats_title").withStyle(ChatFormatting.BOLD), left + 8, top + 31, TEXT, false);
+    private List<Component> renderStats(GuiGraphics ctx, int mouseX, int mouseY, Genome genome) {
+        ctx.drawString(this.font, Component.translatable("advbreeding.gui.stats_title").withStyle(ChatFormatting.BOLD), left + 8, top + 31, TEXT, false);
 
         Effects genes = genome.genotypeEffects();
         Effects blood = genome.bloodlineEffects();
@@ -734,7 +733,7 @@ public class GeneticsScreen extends Screen {
         inset(ctx, left + 8, hy - 3, W - 16, H - 52);
         for (int i = 0; i < 4; i++) {
             Component h = Component.translatable(heads[i]);
-            ctx.text(this.font, h, colRight[i] - this.font.width(h), hy, 0xFF000000 | darken(0xFFFFFF), false);
+            ctx.drawString(this.font, h, colRight[i] - this.font.width(h), hy, 0xFF000000 | darken(0xFFFFFF), false);
         }
         ctx.fill(left + 10, hy + 10, left + W - 10, hy + 11, 0xFF555555);
 
@@ -755,13 +754,13 @@ public class GeneticsScreen extends Screen {
                 shown = shown.substring(0, shown.length() - 1);
             }
             if (!shown.equals(name)) shown = shown.stripTrailing() + "\u2026";
-            ctx.text(this.font, shown, nameX, y, TEXT, false);
+            ctx.drawString(this.font, shown, nameX, y, TEXT, false);
             double[] vals = {g, b, t, total};
             for (int i = 0; i < 4; i++) {
                 boolean zero = Math.abs(vals[i]) < 1e-9;
                 String txt = zero ? "-" : st.format(vals[i]);
                 int color = zero ? 0xFF8A8A8A : isGood(st, vals[i]) ? 0xFF2E7D32 : 0xFFB23A3A;
-                ctx.text(this.font, txt, colRight[i] - this.font.width(txt), y, color, false);
+                ctx.drawString(this.font, txt, colRight[i] - this.font.width(txt), y, color, false);
             }
             if (mouseX >= left + 10 && mouseX < left + W - 10 && mouseY >= y - 1 && mouseY < y + 10) {
                 tip = new ArrayList<>();
@@ -804,7 +803,7 @@ public class GeneticsScreen extends Screen {
         return (r << 16) | (g << 8) | b;
     }
 
-    private static void panel(GuiGraphicsExtractor ctx, int x, int y, int w, int h) {
+    private static void panel(GuiGraphics ctx, int x, int y, int w, int h) {
         ctx.fill(x, y, x + w, y + h, 0xFF000000);
         ctx.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0xFFC6C6C6);
         ctx.fill(x + 1, y + 1, x + w - 2, y + 3, 0xFFFFFFFF);
@@ -813,7 +812,7 @@ public class GeneticsScreen extends Screen {
         ctx.fill(x + w - 3, y + 3, x + w - 1, y + h - 1, 0xFF555555);
     }
 
-    private static void inset(GuiGraphicsExtractor ctx, int x, int y, int w, int h) {
+    private static void inset(GuiGraphics ctx, int x, int y, int w, int h) {
         ctx.fill(x, y, x + w, y + h, 0xFF373737);
         ctx.fill(x + 1, y + 1, x + w, y + h, 0xFFFFFFFF);
         ctx.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0xFF8B8B8B);

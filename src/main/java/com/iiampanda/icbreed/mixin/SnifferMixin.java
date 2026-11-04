@@ -19,11 +19,10 @@ public abstract class SnifferMixin {
         if (!(self.level() instanceof ServerLevel level)) return;
         Effects fx = Genetics.effects(self);
         if (fx == null || fx.nuggets <= 0 || self.getRandom().nextFloat() >= 0.5F) return;
-        var nugget = switch (self.getRandom().nextInt(3)) {
+        var nugget = switch (self.getRandom().nextInt(2)) {
             case 0 -> Items.IRON_NUGGET;
-            case 1 -> Items.GOLD_NUGGET;
-            default -> Items.COPPER_NUGGET;
+            default -> Items.GOLD_NUGGET;
         };
-        self.spawnAtLocation(level, new ItemStack(nugget));
+        self.spawnAtLocation(new ItemStack(nugget));
     }
 }

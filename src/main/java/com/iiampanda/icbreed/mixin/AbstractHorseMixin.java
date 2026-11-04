@@ -1,7 +1,7 @@
 package com.iiampanda.icbreed.mixin;
 
 import com.iiampanda.icbreed.taming.TamingLogic;
-import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

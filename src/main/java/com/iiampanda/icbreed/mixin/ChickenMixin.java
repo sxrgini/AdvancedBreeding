@@ -3,7 +3,7 @@ package com.iiampanda.icbreed.mixin;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,7 +30,7 @@ public abstract class ChickenMixin {
         Effects fx = Genetics.effects(self);
         if (fx == null || fx.productionRank <= 0) return;
         if (self.getRandom().nextDouble() < com.iiampanda.icbreed.IcBreedConfig.get().productionChancePerRank * Math.min(3, fx.productionRank)) {
-            self.spawnAtLocation(level, Items.EGG);
+            self.spawnAtLocation(Items.EGG);
         }
     }
 }
