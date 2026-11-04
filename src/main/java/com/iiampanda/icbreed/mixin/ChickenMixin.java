@@ -29,7 +29,7 @@ public abstract class ChickenMixin {
         Genetics.addXp(self, Genetics.XP_PRODUCE);
         Effects fx = Genetics.effects(self);
         if (fx == null || fx.productionRank <= 0) return;
-        if (self.getRandom().nextDouble() < 0.11 * Math.min(3, fx.productionRank)) {
+        if (self.getRandom().nextDouble() < com.iiampanda.icbreed.IcBreedConfig.get().productionChancePerRank * Math.min(3, fx.productionRank)) {
             self.spawnAtLocation(level, Items.EGG);
         }
     }

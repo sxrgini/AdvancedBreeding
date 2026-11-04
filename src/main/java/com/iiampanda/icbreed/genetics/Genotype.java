@@ -17,12 +17,14 @@ public enum Genotype {
     public final String id;
     public final String abbr;
 
-    public final double perLevel;
+    public double perLevel;
+    public final double defaultPerLevel;
 
     Genotype(String id, String abbr, double perLevel) {
         this.id = id;
         this.abbr = abbr;
         this.perLevel = perLevel;
+        this.defaultPerLevel = perLevel;
     }
 
     public String nameKey() {

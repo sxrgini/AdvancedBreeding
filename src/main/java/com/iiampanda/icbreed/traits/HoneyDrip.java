@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.PointedDripstoneBlock;
 
 public final class HoneyDrip {
-    public static final int SECONDS = 45;
+    public static final int SECONDS = com.iiampanda.icbreed.IcBreedConfig.get().honeyDripSeconds;
 
     private HoneyDrip() {
     }

@@ -42,6 +42,8 @@
   "advbreeding.bloodline.unstable": "Unstable",
   "advbreeding.bloodline.savage": "Savage",
   "advbreeding.bloodline.alpha": "Alpha",
+  "advbreeding.gui.every_one": "(Every 1 Level)",
+  "advbreeding.gui.every_n": "(Every %s Levels)",
   "advbreeding.bloodline.wild.line0": "+5% Food Consumption",
   "advbreeding.bloodline.wild.line1": "+1% chance to cause Poison on Hit with Attacks (Every 5 Levels)",
   "advbreeding.bloodline.brave.line0": "-10% Jump Height",

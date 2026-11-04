@@ -113,12 +113,12 @@ public final class Genetics {
 
     public static final ThreadLocal<net.minecraft.world.entity.animal.frog.Tadpole> CONVERTING = new ThreadLocal<>();
 
-    public static final int XP_FEED = 2;
-    public static final int XP_BREED = 50;
-    public static final int XP_BIRTH = 25;
-    public static final int XP_KILL = 25;
+    public static int XP_FEED = 2;
+    public static int XP_BREED = 50;
+    public static int XP_BIRTH = 25;
+    public static int XP_KILL = 25;
 
-    public static final int XP_PRODUCE = 20;
+    public static int XP_PRODUCE = 20;
 
     private Genetics() {
     }
