@@ -1,9 +1,18 @@
 package com.iiampanda.icbreed.traits;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.iiampanda.icbreed.IcBreed;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 
 import com.iiampanda.icbreed.genetics.Stat;
 import com.iiampanda.icbreed.traits.TraitDef.Mod;
@@ -36,7 +45,12 @@ public final class TraitTrees {
         }
     }
 
-    private static final Map<String, Tree> TREES = new LinkedHashMap<>();
+    private static volatile Map<String, Tree> TREES = new LinkedHashMap<>();
+    private static Map<String, Tree> target = TREES;
+    private static final Map<String, TraitDef> BASE = new LinkedHashMap<>();
+    private static volatile Map<String, JsonObject> OVERRIDES = Map.of();
+    private static volatile Map<String, List<TraitDef>> EXTRAS = Map.of();
+    private static volatile Map<String, Tree> MERGED = new ConcurrentHashMap<>();
 
     private TraitTrees() {
     }
@@ -109,15 +123,17 @@ public final class TraitTrees {
         List<TraitDef> moved = new ArrayList<>();
         for (TraitDef d : l) {
             int cost = TWO_POINT.contains(d.id()) ? 2 : d.cost();
-            moved.add(new TraitDef(d.id(), d.maxRank(), d.parent(), d.parent2(), d.col() + shift, d.row(), d.icon(), d.mods(), cost));
+            TraitDef built = new TraitDef(d.id(), d.maxRank(), d.parent(), d.parent2(), d.col() + shift, d.row(), d.icon(), d.mods(), cost);
+            BASE.putIfAbsent(built.id(), built);
+            moved.add(applyOverride(built));
         }
         l = moved;
         Tree t = new Tree(species, l);
-        TREES.put(species, t);
+        target.put(species, t);
         return t;
     }
 
-    static {
+    private static void buildAll() {
         build("wolf", Items.BONE,
                 n("natural_ferocity", 4, "wolf", 1, 3, Items.IRON_SWORD, m(Stat.DAMAGE_PCT, 0.05)),
                 n("coordinated_attacks", 3, "natural_ferocity", 2, 3, Items.GOAT_HORN, m(Stat.COORD, 0.04)),
@@ -141,10 +157,10 @@ public final class TraitTrees {
                 n("fed_well", 3, "holstein_harvest", 3, 1, Items.WHEAT, m(Stat.FEED_XP, 0.25)),
                 n("milk_production", 3, "metabolic_preservation", 2, 5, Items.BUCKET, m(Stat.PRODUCTION, 1)));
 
-        Tree cowTree = TREES.get("cow");
+        Tree cowTree = target.get("cow");
         List<TraitDef> mooshroomNodes = new ArrayList<>(cowTree.nodes);
-        mooshroomNodes.add(n("very_suspicious", 3, "milk_production", 3, 5, Items.SUSPICIOUS_STEW, m(Stat.STEW, 1)));
-        TREES.put("mooshroom", new Tree("cow", mooshroomNodes));
+        mooshroomNodes.add(applyOverride(baseOf(n("very_suspicious", 3, "milk_production", 3, 5, Items.SUSPICIOUS_STEW, m(Stat.STEW, 1)))));
+        target.put("mooshroom", new Tree("cow", mooshroomNodes));
 
         build("pig", Items.CARROT_ON_A_STICK,
                 n("natural_ferocity", 4, "pig", 1, 3, Items.IRON_SWORD, m(Stat.DAMAGE_PCT, 0.05)),
@@ -235,11 +251,157 @@ public final class TraitTrees {
         build("creature_rideable", Items.OAK_SAPLING);
     }
 
+    private static TraitDef baseOf(TraitDef d) {
+        BASE.putIfAbsent(d.id(), d);
+        return d;
+    }
+
+    private static void rebuild() {
+        Map<String, Tree> next = new LinkedHashMap<>();
+        target = next;
+        buildAll();
+        TREES = next;
+        MERGED = new ConcurrentHashMap<>();
+    }
+
+    static {
+        rebuild();
+    }
+
+    private static List<Mod> parseMods(JsonArray a) {
+        List<Mod> out = new ArrayList<>();
+        for (JsonElement el : a) {
+            if (!el.isJsonObject()) continue;
+            JsonObject j = el.getAsJsonObject();
+            Stat stat = j.has("stat") ? Stat.byId(j.get("stat").getAsString()) : null;
+            if (stat == null) {
+                IcBreed.LOGGER.warn("Unknown trait stat: {}", j.get("stat"));
+                continue;
+            }
+            out.add(new Mod(stat, j.has("per_rank") ? j.get("per_rank").getAsDouble() : 0));
+        }
+        return out;
+    }
+
+    private static TraitDef applyOverride(TraitDef d) {
+        JsonObject o = OVERRIDES.get(d.id());
+        TraitDef base = BASE.get(d.id());
+        if (o == null || base == null) return d;
+        int cost = d.cost();
+        int max = d.maxRank();
+        List<Mod> mods = d.mods();
+        try {
+            if (o.has("cost") && o.get("cost").getAsInt() != base.cost()) cost = Math.max(0, o.get("cost").getAsInt());
+            if (o.has("max_rank") && o.get("max_rank").getAsInt() != base.maxRank()) max = Math.max(1, o.get("max_rank").getAsInt());
+            if (o.has("mods") && o.get("mods").isJsonArray()) {
+                List<Mod> parsed = parseMods(o.getAsJsonArray("mods"));
+                if (!parsed.equals(base.mods())) mods = parsed;
+            }
+        } catch (Exception e) {
+            IcBreed.LOGGER.warn("Invalid override for trait {}", d.id(), e);
+        }
+        return new TraitDef(d.id(), max, d.parent(), d.parent2(), d.col(), d.row(), d.icon(), mods, cost, d.name(), d.description());
+    }
+
+    public static JsonObject defaultsJson() {
+        JsonObject out = new JsonObject();
+        for (TraitDef d : BASE.values()) {
+            JsonObject o = new JsonObject();
+            o.addProperty("cost", d.cost());
+            o.addProperty("max_rank", d.maxRank());
+            JsonArray mods = new JsonArray();
+            for (Mod m : d.mods()) {
+                JsonObject j = new JsonObject();
+                j.addProperty("stat", m.stat().id);
+                j.addProperty("per_rank", m.perRank());
+                mods.add(j);
+            }
+            o.add("mods", mods);
+            out.add(d.id(), o);
+        }
+        return out;
+    }
+
+    private static TraitDef parseTrait(JsonObject j) {
+        String id = j.get("id").getAsString();
+        String parent = j.has("parent") && !j.get("parent").isJsonNull() ? j.get("parent").getAsString() : "wild_fortitude";
+        String parent2 = j.has("parent2") && !j.get("parent2").isJsonNull() ? j.get("parent2").getAsString() : null;
+        Item icon = Items.PAPER;
+        if (j.has("icon")) {
+            Identifier iconId = Identifier.tryParse(j.get("icon").getAsString());
+            Item found = iconId == null ? null : BuiltInRegistries.ITEM.getValue(iconId);
+            if (found == null || found == Items.AIR) IcBreed.LOGGER.warn("Unknown icon for trait {}: {}", id, j.get("icon"));
+            else icon = found;
+        }
+        List<Mod> mods = j.has("mods") && j.get("mods").isJsonArray() ? parseMods(j.getAsJsonArray("mods")) : List.of();
+        return new TraitDef(id, Math.max(1, j.has("max_rank") ? j.get("max_rank").getAsInt() : 1), parent, parent2,
+                j.has("col") ? j.get("col").getAsInt() : 2, j.has("row") ? j.get("row").getAsInt() : 1, icon, mods,
+                Math.max(0, j.has("cost") ? j.get("cost").getAsInt() : 1),
+                j.has("name") ? j.get("name").getAsString() : null, j.has("description") ? j.get("description").getAsString() : null);
+    }
+
+    public static void configure(JsonObject traits, JsonArray mobTraits) {
+        Map<String, JsonObject> overrides = new HashMap<>();
+        for (Map.Entry<String, JsonElement> en : traits.entrySet()) {
+            if (en.getValue().isJsonObject()) overrides.put(en.getKey(), en.getValue().getAsJsonObject());
+        }
+        Map<String, List<TraitDef>> extras = new HashMap<>();
+        for (JsonElement fileEl : mobTraits) {
+            if (!fileEl.isJsonObject()) continue;
+            JsonObject file = fileEl.getAsJsonObject();
+            List<String> entities = new ArrayList<>();
+            if (file.has("entity")) entities.add(file.get("entity").getAsString());
+            if (file.has("entities") && file.get("entities").isJsonArray()) {
+                for (JsonElement e : file.getAsJsonArray("entities")) entities.add(e.getAsString());
+            }
+            List<TraitDef> defs = new ArrayList<>();
+            if (file.has("traits") && file.get("traits").isJsonArray()) {
+                for (JsonElement e : file.getAsJsonArray("traits")) {
+                    try {
+                        if (e.isJsonObject() && e.getAsJsonObject().has("id")) defs.add(parseTrait(e.getAsJsonObject()));
+                    } catch (Exception ex) {
+                        IcBreed.LOGGER.warn("Invalid mob trait entry", ex);
+                    }
+                }
+            }
+            for (String ent : entities) extras.computeIfAbsent(ent, k -> new ArrayList<>()).addAll(defs);
+        }
+        OVERRIDES = overrides;
+        EXTRAS = extras;
+        rebuild();
+    }
+
+    private static Tree merge(Tree base, List<TraitDef> extra) {
+        List<TraitDef> nodes = new ArrayList<>(base.nodes);
+        Map<String, TraitDef> ids = new HashMap<>();
+        for (TraitDef d : nodes) ids.put(d.id(), d);
+        for (TraitDef d : extra) {
+            if (ids.containsKey(d.id())) continue;
+            if (d.parent() != null && !ids.containsKey(d.parent()) || d.parent2() != null && !ids.containsKey(d.parent2())) {
+                IcBreed.LOGGER.warn("Trait {} skipped: parent not found", d.id());
+                continue;
+            }
+            nodes.add(d);
+            ids.put(d.id(), d);
+        }
+        return new Tree(base.species, nodes);
+    }
+
     private static Tree fallback(net.minecraft.world.entity.Mob mob) {
         return com.iiampanda.icbreed.api.AdvancedBreedingApi.isRideableType(mob) ? TREES.get("creature_rideable") : TREES.get("creature");
     }
 
     public static Tree forMob(net.minecraft.world.entity.Mob animal) {
+        Tree base = baseMob(animal);
+        Map<String, List<TraitDef>> extras = EXTRAS;
+        if (extras.isEmpty()) return base;
+        String key = BuiltInRegistries.ENTITY_TYPE.getKey(animal.getType()).toString();
+        List<TraitDef> extra = extras.get(key);
+        if (extra == null) return base;
+        return MERGED.computeIfAbsent(key + "|" + base.species, k -> merge(base, extra));
+    }
+
+    private static Tree baseMob(net.minecraft.world.entity.Mob animal) {
         if (animal instanceof net.minecraft.world.entity.animal.dolphin.Dolphin) return TREES.get("dolphin");
         return animal instanceof Animal a ? forAnimal(a) : fallback(animal);
     }

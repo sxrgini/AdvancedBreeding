@@ -22,7 +22,7 @@ public final class AuraManager {
     private static final Map<UUID, Double> THREAT = new ConcurrentHashMap<>();
     private static final Map<UUID, Double> SATURATION = new ConcurrentHashMap<>();
     private static final java.util.Set<UUID> NINE = ConcurrentHashMap.newKeySet();
-    private static final double CAT_RANGE = 16.0;
+    private static final double CAT_RANGE = com.iiampanda.icbreed.IcBreedConfig.get().catAuraRange;
     private static final Map<UUID, Effects> HIT = new ConcurrentHashMap<>();
 
     public static Effects hitAura(UUID player) {

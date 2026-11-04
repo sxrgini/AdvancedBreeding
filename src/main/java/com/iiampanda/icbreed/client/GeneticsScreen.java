@@ -474,7 +474,7 @@ public class GeneticsScreen extends Screen {
         ctx.text(this.font, Component.translatable("advbreeding.gui.bloodline_effects", Component.translatable(bl.nameKey())).withStyle(ChatFormatting.BOLD), left + 8, ey, TEXT, false);
         ey += 11;
         for (int li = 0; li < bl.mods.length; li++) {
-            fitText(ctx, Component.translatable(bl.lineKey(li)), left + 12, ey, TEXT, left + W - 8 - (left + 12));
+            fitText(ctx, bl.lineComponent(li), left + 12, ey, TEXT, left + W - 8 - (left + 12));
             ey += 10;
         }
 
@@ -659,13 +659,14 @@ public class GeneticsScreen extends Screen {
         if (hover == null) return null;
         int rank = traits.rank(hover.id());
         List<Component> tip = new ArrayList<>();
-        tip.add(Component.translatable(hover.nameKey()).withStyle(ChatFormatting.BOLD));
+        tip.add(hover.displayName().copy().withStyle(ChatFormatting.BOLD));
         tip.add(Component.translatable("advbreeding.gui.trait_rank", rank, hover.maxRank()).withStyle(ChatFormatting.GRAY));
         if (hover.cost() > 1) {
             tip.add(Component.translatable("advbreeding.gui.trait_cost", hover.cost()).withStyle(ChatFormatting.GRAY));
         }
-        if (net.minecraft.locale.Language.getInstance().has(hover.nameKey() + ".desc")) {
-            tip.add(Component.translatable(hover.nameKey() + ".desc").withStyle(ChatFormatting.GREEN));
+        Component traitDesc = hover.descriptionComponent();
+        if (traitDesc != null) {
+            tip.add(traitDesc.copy().withStyle(ChatFormatting.GREEN));
         }
         if (!hover.mods().isEmpty() && hover.mods().get(0).stat() != Stat.PRODUCTION
                 && !java.util.Set.of("hunters_mark", "rip_and_tear", "regen_aura", "axolotl_hat", "saturation_aura", "nine_lives", "cat_scratches", "shearable_feathers", "metal_scraps", "feral_side", "rideable", "fire_resistance_aura", "lava_walker", "captain_now", "buildable", "water_breather", "underwater_vision", "pollination", "increased_honey_production", "honey_block_production", "shoulder_pal", "elytra_boost", "polly_pickup", "llama_thick_hide", "phenotype_mutation", "very_suspicious", "hoppy_aura").contains(hover.id())) {
@@ -687,7 +688,7 @@ public class GeneticsScreen extends Screen {
                 if (pid == null || traits.rank(pid) > 0) continue;
                 TraitDef p = tree.get(pid);
                 tip.add(Component.translatable("advbreeding.gui.trait_need_parent",
-                        Component.translatable(p != null ? p.nameKey() : pid)).withStyle(ChatFormatting.RED));
+                        (p != null ? p.displayName() : Component.translatable(pid))).withStyle(ChatFormatting.RED));
             }
         } else if (points() < hover.cost()) {
             tip.add(Component.translatable("advbreeding.gui.trait_need_points").withStyle(ChatFormatting.RED));

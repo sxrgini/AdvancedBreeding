@@ -89,6 +89,11 @@ public enum Stat {
         applier.apply(e, v);
     }
 
+    public static Stat byId(String id) {
+        for (Stat s : values()) if (s.id.equals(id)) return s;
+        return null;
+    }
+
     public String nameKey() {
         return "advbreeding.stat." + id;
     }

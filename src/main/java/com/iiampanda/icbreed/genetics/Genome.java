@@ -80,12 +80,22 @@ public final class Genome {
         return cost;
     }
 
-    public static int xpForLevel(int level) {
-        int total = 0, cost = 0;
-        for (int l = 1; l <= level; l++) {
+    public static int[] LEVEL_COSTS = defaultCosts();
+
+    public static int[] defaultCosts() {
+        int[] c = new int[MAX_LEVEL + 1];
+        int cost = 0;
+        for (int l = 1; l <= MAX_LEVEL; l++) {
             cost = l == 1 ? 50 : cost + 50 * ((l - 1) / 3 + 1);
-            total += cost;
+            c[l] = cost;
         }
+        return c;
+    }
+
+    public static int xpForLevel(int level) {
+        int[] costs = LEVEL_COSTS;
+        int total = 0;
+        for (int l = 1; l <= Math.min(level, MAX_LEVEL); l++) total += costs[l];
         return total;
     }
 
