@@ -86,12 +86,12 @@ public final class GhastDeck {
                     .syncWith(ByteBufCodecs.fromCodecWithRegistries(Seats.CODEC), AttachmentSyncPredicate.all()));
 
     private static final String TAG = "advbreeding_deck";
-    private static final int RADIUS = 8;
-    private static final int MIN_Y = 4;
-    private static final int MAX_Y = 24;
-    private static final int MAX_BLOCKS = 600;
-    private static final int MAX_SEATS = 4;
-    private static final int SETTLE_TICKS = 30;
+    private static final int RADIUS = com.iiampanda.icbreed.IcBreedConfig.get().ghastDeckRadius;
+    private static final int MIN_Y = com.iiampanda.icbreed.IcBreedConfig.get().ghastDeckMinY;
+    private static final int MAX_Y = com.iiampanda.icbreed.IcBreedConfig.get().ghastDeckMaxY;
+    private static final int MAX_BLOCKS = com.iiampanda.icbreed.IcBreedConfig.get().ghastDeckMaxBlocks;
+    private static final int MAX_SEATS = com.iiampanda.icbreed.IcBreedConfig.get().ghastDeckMaxSeats;
+    private static final int SETTLE_TICKS = com.iiampanda.icbreed.IcBreedConfig.get().ghastDeckSettleTicks;
     private static final int FLAGS = 2 | 16;
 
     private static final class Motion {

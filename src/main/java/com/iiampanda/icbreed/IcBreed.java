@@ -51,6 +51,8 @@ public class IcBreed implements ModInitializer {
                 (dispatcher, registryAccess, environment) -> IcBreedCommand.register(dispatcher));
 
         PayloadTypeRegistry.clientboundPlay().register(OpenGeneticsPayload.TYPE, OpenGeneticsPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(com.iiampanda.icbreed.net.RulesSyncPayload.TYPE, com.iiampanda.icbreed.net.RulesSyncPayload.CODEC);
+        ServerTickEvents.END_SERVER_TICK.register(com.iiampanda.icbreed.config.Rules::tick);
         PayloadTypeRegistry.clientboundPlay().register(com.iiampanda.icbreed.net.StayStatePayload.TYPE, com.iiampanda.icbreed.net.StayStatePayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(OpenInventoryPayload.TYPE, OpenInventoryPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RenamePayload.TYPE, RenamePayload.CODEC);
@@ -133,7 +135,7 @@ public class IcBreed implements ModInitializer {
             if (level.isClientSide()) return InteractionResult.PASS;
             Effects fx = Genetics.effects(cow);
             int rank = fx == null ? 0 : (int) Math.min(3, fx.productionRank);
-            long cooldown = Math.max(2400L, IcBreedConfig.get().milkCooldownSeconds * 20L - rank * 1200L);
+            long cooldown = Math.max(IcBreedConfig.get().milkMinimumSeconds * 20L, IcBreedConfig.get().milkCooldownSeconds * 20L - rank * IcBreedConfig.get().milkReductionSecondsPerRank * 20L);
             cow.setAttached(Genetics.MILK_READY, now + cooldown);
             Genetics.addXp(cow, Genetics.XP_PRODUCE);
             return InteractionResult.PASS;
@@ -153,6 +155,11 @@ public class IcBreed implements ModInitializer {
         com.iiampanda.icbreed.traits.GhastDeck.register();
 
         ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+            com.iiampanda.icbreed.config.Rules.ensureLoaded(world.getServer());
+            if (entity instanceof net.minecraft.server.level.ServerPlayer joined) {
+                com.iiampanda.icbreed.config.Rules.sendTo(joined);
+                return;
+            }
             if (entity instanceof net.minecraft.world.entity.Mob mob && mob.hasAttached(Genetics.CULL) && !mob.isLeashed() && !mob.hasCustomName()) {
                 world.getServer().execute(mob::discard);
                 return;
@@ -236,7 +243,7 @@ public class IcBreed implements ModInitializer {
                     }
 
                     if (dead.isAlive() && dfx.productionRank > 0 && dead instanceof net.minecraft.world.entity.animal.sheep.Sheep
-                            && ctx.getRandom().nextDouble() < 0.11 * Math.min(3, dfx.productionRank)) {
+                            && ctx.getRandom().nextDouble() < IcBreedConfig.get().productionChancePerRank * Math.min(3, dfx.productionRank)) {
                         var extra = new java.util.ArrayList<ItemStack>();
                         for (ItemStack s : drops) if (s.is(net.minecraft.tags.ItemTags.WOOL)) extra.add(s.copy());
                         drops.addAll(extra);

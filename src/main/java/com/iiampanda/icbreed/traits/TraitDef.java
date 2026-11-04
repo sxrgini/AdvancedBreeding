@@ -5,9 +5,23 @@ import java.util.List;
 import com.iiampanda.icbreed.genetics.Stat;
 import net.minecraft.world.item.Item;
 
-public record TraitDef(String id, int maxRank, String parent, String parent2, int col, int row, Item icon, List<Mod> mods, int cost) {
+public record TraitDef(String id, int maxRank, String parent, String parent2, int col, int row, Item icon, List<Mod> mods, int cost, String name, String description) {
+    public TraitDef(String id, int maxRank, String parent, String parent2, int col, int row, Item icon, List<Mod> mods, int cost) {
+        this(id, maxRank, parent, parent2, col, row, icon, mods, cost, null, null);
+    }
+
     public TraitDef(String id, int maxRank, String parent, String parent2, int col, int row, Item icon, List<Mod> mods) {
-        this(id, maxRank, parent, parent2, col, row, icon, mods, 1);
+        this(id, maxRank, parent, parent2, col, row, icon, mods, 1, null, null);
+    }
+
+    public net.minecraft.network.chat.Component displayName() {
+        return net.minecraft.network.chat.Component.translatableWithFallback(nameKey(), name != null ? name : id);
+    }
+
+    public net.minecraft.network.chat.Component descriptionComponent() {
+        if (description != null) return net.minecraft.network.chat.Component.translatableWithFallback(nameKey() + ".desc", description);
+        if (net.minecraft.locale.Language.getInstance().has(nameKey() + ".desc")) return net.minecraft.network.chat.Component.translatable(nameKey() + ".desc");
+        return null;
     }
 
     public net.minecraft.world.item.ItemStack iconStack() {

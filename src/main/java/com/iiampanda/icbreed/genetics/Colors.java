@@ -32,18 +32,17 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 
 public final class Colors {
-    public static final double MUTATION = 0.10;
 
     private Colors() {
     }
 
-    private static double chance = MUTATION;
+    private static double chance = com.iiampanda.icbreed.IcBreedConfig.get().phenotypeMutationChance;
 
     private static double chanceOf(Mob a, Mob b) {
         Effects x = Genetics.effects(a);
         Effects y = Genetics.effects(b);
         double bonus = Math.max(x == null ? 0 : x.phenoMutation, y == null ? 0 : y.phenoMutation);
-        return Math.min(1.0, MUTATION + bonus);
+        return Math.min(1.0, com.iiampanda.icbreed.IcBreedConfig.get().phenotypeMutationChance + bonus);
     }
 
     private static <T> T choose(RandomSource r, T a, T b, List<T> pool) {

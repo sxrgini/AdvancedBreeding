@@ -27,7 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public final class Abilities {
-    private static final long NINE_LIVES_COOLDOWN = 72000L;
+    private static final long NINE_LIVES_COOLDOWN = com.iiampanda.icbreed.IcBreedConfig.get().nineLivesCooldownSeconds * 20L;
 
     private static final java.util.Map<java.util.UUID, Long> TOGGLED = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -112,7 +112,7 @@ public final class Abilities {
                     player.sendOverlayMessage(Component.translatable("advbreeding.wool.wait", String.format("%d:%02d", secs / 60, secs % 60)));
                     return InteractionResult.SUCCESS;
                 }
-                llama.setAttached(Genetics.MILK_READY, now + 300L * 20L);
+                llama.setAttached(Genetics.MILK_READY, now + com.iiampanda.icbreed.IcBreedConfig.get().llamaWoolCooldownSeconds * 20L);
                 net.minecraft.world.item.Item wool = switch (llama.getVariant()) {
                     case BROWN -> Items.WOOL.brown();
                     case GRAY -> Items.WOOL.gray();
