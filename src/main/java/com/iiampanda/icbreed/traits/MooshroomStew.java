@@ -42,7 +42,7 @@ public final class MooshroomStew {
             if (level.isClientSide()) return InteractionResult.SUCCESS;
             Effects fx = Genetics.effects(cow);
             int rank = fx == null ? 0 : (int) Math.min(3, fx.stewRank);
-            long cooldown = Math.max(2400L, IcBreedConfig.get().milkCooldownSeconds * 20L - rank * 1200L);
+            long cooldown = Math.max(IcBreedConfig.get().milkMinimumSeconds * 20L, IcBreedConfig.get().milkCooldownSeconds * 20L - rank * IcBreedConfig.get().milkReductionSecondsPerRank * 20L);
             com.iiampanda.icbreed.platform.Att.set(cow, Genetics.MILK_READY, now + cooldown);
             Item flower = FLOWERS.get(cow.getRandom().nextInt(FLOWERS.size()));
             SuspiciousEffectHolder holder = SuspiciousEffectHolder.tryGet(flower);

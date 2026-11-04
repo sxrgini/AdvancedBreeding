@@ -15,8 +15,12 @@ public final class Ages {
     private Ages() {
     }
 
-    public static boolean supports(net.minecraft.world.entity.Entity e) {
+    public static boolean supportsType(net.minecraft.world.entity.Entity e) {
         return e instanceof Animal || e instanceof Dolphin || e instanceof Tadpole;
+    }
+
+    public static boolean supports(net.minecraft.world.entity.Entity e) {
+        return supportsType(e) && com.iiampanda.icbreed.config.ModdedMobs.enabled(e);
     }
 
     public static boolean isBaby(LivingEntity e) {

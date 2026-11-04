@@ -15,8 +15,8 @@ import net.minecraft.world.entity.animal.dolphin.Dolphin;
 import net.minecraft.world.item.ItemStack;
 
 public final class DolphinBreeding {
-    private static final long LOVE_TICKS = 600L;
-    private static final int COOLDOWN_AGE = 6000;
+    private static final long LOVE_TICKS = com.iiampanda.icbreed.IcBreedConfig.get().dolphinLoveSeconds * 20L;
+    private static final int COOLDOWN_AGE = com.iiampanda.icbreed.IcBreedConfig.get().dolphinBreedCooldownSeconds * 20;
 
     private DolphinBreeding() {
     }

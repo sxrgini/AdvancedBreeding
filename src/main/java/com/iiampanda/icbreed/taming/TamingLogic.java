@@ -28,7 +28,7 @@ import net.minecraft.core.Direction.Axis;
 public final class TamingLogic {
     public static final ThreadLocal<Boolean> ALLOW = ThreadLocal.withInitial(() -> false);
 
-    private static final int PARENT_RANGE = 16;
+    private static final int PARENT_RANGE = com.iiampanda.icbreed.IcBreedConfig.get().parentRange;
 
     private TamingLogic() {
     }
@@ -59,7 +59,7 @@ public final class TamingLogic {
         com.iiampanda.icbreed.platform.Att.set(animal, Genetics.TAMING, t.withFed(until, player));
     }
 
-    private static final double GROWN_YOUNG_CHANCE = 0.01;
+    private static final double GROWN_YOUNG_CHANCE = com.iiampanda.icbreed.IcBreedConfig.get().grownYoungChance;
 
     public static boolean tick(ServerLevel level, Mob animal) {
         Taming t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);

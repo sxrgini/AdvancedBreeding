@@ -29,6 +29,8 @@ public final class AdvancedBreedingApi {
 
     public static boolean isRideableType(Mob mob) {
         EntityType<?> type = mob.getType();
+        Boolean forced = com.iiampanda.icbreed.config.ModdedMobs.rideableOverride(type);
+        if (forced != null) return forced;
         if (net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(NOT_RIDEABLE_TAG)) return false;
         if (RIDEABLE.contains(type) || net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(RIDEABLE_TAG)) return true;
         return mob instanceof PlayerRideable

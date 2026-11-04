@@ -40,6 +40,8 @@ public class IcBreedClient {
             }
             wasUse[0] = down;
         });
+        ClientPlayNetworking.registerGlobalReceiver(com.iiampanda.icbreed.net.RulesSyncPayload.TYPE,
+                (payload, context) -> context.client().execute(() -> com.iiampanda.icbreed.config.Rules.applyRemote(payload.json())));
         ClientPlayNetworking.registerGlobalReceiver(com.iiampanda.icbreed.net.StayStatePayload.TYPE,
                 (payload, context) -> GeneticsScreen.STAY.put(payload.entityId(), new int[] {payload.mode(), payload.canChange() ? 1 : 0}));
         ClientPlayNetworking.registerGlobalReceiver(OpenGeneticsPayload.TYPE, (payload, context) -> {

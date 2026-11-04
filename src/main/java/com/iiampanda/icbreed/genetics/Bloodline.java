@@ -2,6 +2,9 @@ package com.iiampanda.icbreed.genetics;
 
 import java.util.Random;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+
 public enum Bloodline {
     WILD("wild", 300, 0xB0B0B0,
             new Mod(Stat.FOOD_USE, 0.05, 0),
@@ -55,24 +58,54 @@ public enum Bloodline {
     }
 
     public static final Bloodline[] ALL = values();
-    public static final int TOTAL_WEIGHT;
+    public static int TOTAL_WEIGHT;
 
     static {
+        recompute();
+    }
+
+    public static void recompute() {
         int t = 0;
         for (Bloodline b : ALL) t += b.weight;
-        TOTAL_WEIGHT = t;
+        TOTAL_WEIGHT = Math.max(1, t);
     }
 
     public final String id;
-    public final int weight;
+    public int weight;
     public final int color;
-    public final Mod[] mods;
+    public Mod[] mods;
+    public final int defaultWeight;
+    public final Mod[] defaultMods;
 
     Bloodline(String id, int weight, int color, Mod... mods) {
         this.id = id;
         this.weight = weight;
         this.color = color;
         this.mods = mods;
+        this.defaultWeight = weight;
+        this.defaultMods = mods;
+    }
+
+    public void configure(int weight, Mod[] mods) {
+        this.weight = weight;
+        this.mods = mods;
+    }
+
+    public Component lineComponent(int index) {
+        Mod m = mods[index];
+        if (index < defaultMods.length && m.equals(defaultMods[index])) return Component.translatable(lineKey(index));
+        MutableComponent c = Component.empty();
+        boolean first = true;
+        if (m.fixed() != 0) {
+            c.append(Component.literal(m.stat().format(m.fixed()) + " ")).append(Component.translatable(m.stat().nameKey()));
+            first = false;
+        }
+        if (m.perLevel() != 0) {
+            if (!first) c.append(Component.literal(", "));
+            c.append(Component.literal(m.stat().format(m.perLevel()) + " ")).append(Component.translatable(m.stat().nameKey())).append(Component.literal(" "));
+            c.append(m.every() > 1 ? Component.translatable("advbreeding.gui.every_n", m.every()) : Component.translatable("advbreeding.gui.every_one"));
+        }
+        return c;
     }
 
     public String nameKey() {

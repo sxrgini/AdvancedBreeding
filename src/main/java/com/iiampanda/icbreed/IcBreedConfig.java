@@ -11,7 +11,7 @@ import com.google.gson.GsonBuilder;
 import net.neoforged.fml.loading.FMLPaths;
 
 public final class IcBreedConfig {
-    private static final int CURRENT_VERSION = 6;
+    private static final int CURRENT_VERSION = 7;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public int configVersion;
@@ -50,19 +50,42 @@ public final class IcBreedConfig {
 
     public boolean showSexSymbol = true;
 
+    public double phenotypeMutationChance = 0.10;
+    public double grownYoungChance = 0.01;
+    public int parentRange = 16;
+    public double catAuraRange = 16.0;
+    public int nineLivesCooldownSeconds = 3600;
+    public int honeyDripSeconds = 45;
+    public int dolphinLoveSeconds = 30;
+    public int dolphinBreedCooldownSeconds = 300;
+    public int milkReductionSecondsPerRank = 60;
+    public int milkMinimumSeconds = 120;
+    public int llamaWoolCooldownSeconds = 300;
+    public double productionChancePerRank = 0.11;
+    public int ghastDeckRadius = 8;
+    public int ghastDeckMinY = 4;
+    public int ghastDeckMaxY = 24;
+    public int ghastDeckMaxBlocks = 600;
+    public int ghastDeckMaxSeats = 4;
+    public int ghastDeckSettleTicks = 30;
+
     private static IcBreedConfig instance = new IcBreedConfig();
+
+    public static Path configDir() {
+        return FMLPaths.CONFIGDIR.get();
+    }
 
     public static IcBreedConfig get() {
         return instance;
     }
 
     public static void load() {
-        Path path = FMLPaths.CONFIGDIR.get().resolve("advbreeding.json");
+        Path path = configDir().resolve("advbreeding.json");
         if (Files.exists(path)) {
             try (Reader r = Files.newBufferedReader(path)) {
                 IcBreedConfig loaded = GSON.fromJson(r, IcBreedConfig.class);
 
-                if (loaded != null && loaded.configVersion >= CURRENT_VERSION) instance = loaded;
+                if (loaded != null) instance = loaded;
             } catch (Exception e) {
                 IcBreed.LOGGER.warn("Could not read advbreeding.json, using defaults", e);
             }
@@ -86,6 +109,24 @@ public final class IcBreedConfig {
         feedHealAmount = Math.max(0, feedHealAmount);
         postBirthCooldownSeconds = Math.max(0, postBirthCooldownSeconds);
         maxGenotypePoints = Math.max(0, Math.min(70, maxGenotypePoints));
+        phenotypeMutationChance = clamp01(phenotypeMutationChance);
+        grownYoungChance = clamp01(grownYoungChance);
+        productionChancePerRank = clamp01(productionChancePerRank);
+        parentRange = Math.max(1, parentRange);
+        catAuraRange = Math.max(1, catAuraRange);
+        nineLivesCooldownSeconds = Math.max(0, nineLivesCooldownSeconds);
+        honeyDripSeconds = Math.max(1, honeyDripSeconds);
+        dolphinLoveSeconds = Math.max(1, dolphinLoveSeconds);
+        dolphinBreedCooldownSeconds = Math.max(0, dolphinBreedCooldownSeconds);
+        milkReductionSecondsPerRank = Math.max(0, milkReductionSecondsPerRank);
+        milkMinimumSeconds = Math.max(1, milkMinimumSeconds);
+        llamaWoolCooldownSeconds = Math.max(0, llamaWoolCooldownSeconds);
+        ghastDeckRadius = Math.max(1, ghastDeckRadius);
+        ghastDeckMinY = Math.max(0, ghastDeckMinY);
+        ghastDeckMaxY = Math.max(ghastDeckMinY + 1, ghastDeckMaxY);
+        ghastDeckMaxBlocks = Math.max(1, ghastDeckMaxBlocks);
+        ghastDeckMaxSeats = Math.max(0, ghastDeckMaxSeats);
+        ghastDeckSettleTicks = Math.max(1, ghastDeckSettleTicks);
     }
 
     private static double clamp01(double v) {
