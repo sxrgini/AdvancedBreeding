@@ -11,15 +11,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.animal.parrot.Parrot;
+import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,14 +72,11 @@ public final class Shoulder {
     }
 
     private static boolean isParrot(CompoundTag t) {
-        return t != null && !t.isEmpty() && "minecraft:parrot".equals(t.getStringOr("id", ""));
+        return t != null && !t.isEmpty() && "minecraft:parrot".equals(t.getString("id"));
     }
 
     private static int rank(CompoundTag t, String id) {
-        return t.getCompound("neoforge:attachments")
-                .flatMap(a -> a.getCompound("advbreeding:traits"))
-                .flatMap(v -> v.getCompound("v"))
-                .map(c -> c.getIntOr(id, 0)).orElse(0);
+        return t.getCompound("neoforge:attachments").getCompound("advbreeding:traits").getInt(id);
     }
 
     public static int perks(ServerPlayer p) {
@@ -142,7 +135,7 @@ public final class Shoulder {
         int rank = pk == null ? 0 : (pk >> 2) & 3;
         if (rank <= 0 || !p.isAlive() || p.isSpectator()) return;
         Long next = NEXT.get(p.getUUID());
-        ServerLevel level = p.level();
+        ServerLevel level = p.serverLevel();
         if (next != null && level.getGameTime() < next) return;
         CompoundTag left = p.getShoulderEntityLeft();
         boolean useLeft = isParrot(left) && rank(left, "polly_pickup") > 0;
@@ -159,14 +152,7 @@ public final class Shoulder {
             bestD = d;
         }
         if (best == null) return;
-        var reporter = new ProblemReporter.ScopedCollector(() -> "polly", com.iiampanda.icbreed.IcBreed.LOGGER);
-        Entity e;
-        try {
-            e = EntityType.create(TagValueInput.create(reporter, level.registryAccess(), tag), level,
-                    new EntitySpawnRequest(EntitySpawnReason.LOAD, false)).orElse(null);
-        } finally {
-            reporter.close();
-        }
+        Entity e = EntityType.create(tag, level).orElse(null);
         if (!(e instanceof Parrot parrot)) return;
         parrot.setPos(p.getX(), p.getY() + p.getBbHeight() * 0.85, p.getZ());
         parrot.setNoAi(true);
@@ -183,7 +169,7 @@ public final class Shoulder {
     }
 
     private static void mission(ServerPlayer p, Mission m) {
-        ServerLevel level = p.level();
+        ServerLevel level = p.serverLevel();
         Entity pe = level.getEntity(m.parrot);
         if (!(pe instanceof Parrot parrot) || !parrot.isAlive() || !p.isAlive()) {
             MISSIONS.remove(p.getUUID());

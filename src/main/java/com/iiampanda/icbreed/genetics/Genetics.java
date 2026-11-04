@@ -11,7 +11,7 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.AgeableMob;
@@ -24,92 +24,92 @@ import net.minecraft.world.entity.animal.Animal;
 
 public final class Genetics {
     public static final AttachmentType<Genome> GENOME = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "genome"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "genome"),
             builder -> builder.persistent(Genome.CODEC)
                     .syncWith(ByteBufCodecs.fromCodecWithRegistries(Genome.CODEC), AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Pregnancy> PREGNANCY = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "pregnancy"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "pregnancy"),
             builder -> builder.persistent(Pregnancy.CODEC)
                     .syncWith(ByteBufCodecs.fromCodecWithRegistries(Pregnancy.CODEC), AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Taming> TAMING = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "taming"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "taming"),
             builder -> builder.persistent(Taming.CODEC)
                     .syncWith(ByteBufCodecs.fromCodecWithRegistries(Taming.CODEC), AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Integer> GROWTH = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "growth"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "growth"),
             builder -> builder.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Traits> TRAITS = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "traits"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "traits"),
             builder -> builder.persistent(Traits.CODEC)
                     .syncWith(ByteBufCodecs.fromCodecWithRegistries(Traits.CODEC), AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<java.util.List<net.minecraft.world.item.ItemStack>> BAGS = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "bags"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "bags"),
             builder -> builder.persistent(net.minecraft.world.item.ItemStack.OPTIONAL_CODEC.listOf())
                     .syncWith(ByteBufCodecs.fromCodecWithRegistries(net.minecraft.world.item.ItemStack.OPTIONAL_CODEC.listOf()),
                             AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Integer> BAG_STYLE = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "bag_style"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "bag_style"),
             builder -> builder.persistent(com.mojang.serialization.Codec.INT)
                     .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Long> MILK_READY = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "milk_ready"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "milk_ready"),
             builder -> builder.persistent(com.mojang.serialization.Codec.LONG)
                     .syncWith(ByteBufCodecs.VAR_LONG, AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Boolean> CLING = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "cling"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "cling"),
             builder -> builder.syncWith(ByteBufCodecs.BOOL, AttachmentSyncPredicate.targetOnly()));
 
     public static final AttachmentType<Long> NINE_LIVES_READY = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "nine_lives_ready"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "nine_lives_ready"),
             builder -> builder.persistent(com.mojang.serialization.Codec.LONG));
 
     public static final AttachmentType<Boolean> SITTING = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "sitting"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "sitting"),
             builder -> builder.persistent(com.mojang.serialization.Codec.BOOL)
                     .syncWith(net.minecraft.network.codec.ByteBufCodecs.BOOL, com.iiampanda.icbreed.platform.AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Boolean> CULL = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "cull"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "cull"),
             builder -> builder.persistent(com.mojang.serialization.Codec.BOOL));
 
     public static final AttachmentType<Boolean> FOLLOWING = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "following"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "following"),
             builder -> builder.persistent(com.mojang.serialization.Codec.BOOL));
 
     public static final AttachmentType<Integer> PERKS = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "shoulder_perks"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "shoulder_perks"),
             builder -> builder.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
 
     public static final AttachmentType<String> FROG_VARIANT = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "frog_variant"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "frog_variant"),
             builder -> builder.persistent(com.mojang.serialization.Codec.STRING));
 
     public static final AttachmentType<Boolean> JUMP_ROLLED = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "jump_rolled"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "jump_rolled"),
             builder -> builder.persistent(com.mojang.serialization.Codec.BOOL));
 
     public static final AttachmentType<Long> LAST_FED = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "last_fed"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "last_fed"),
             builder -> builder.persistent(com.mojang.serialization.Codec.LONG));
 
     public static final AttachmentType<Boolean> HONEY_HIVE = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "honey_hive"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "honey_hive"),
             builder -> builder.persistent(com.mojang.serialization.Codec.BOOL));
 
     public static final AttachmentType<Integer> HONEY_PROGRESS = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "honey_progress"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "honey_progress"),
             builder -> builder.persistent(com.mojang.serialization.Codec.INT));
 
     public static final AttachmentType<Long> LOVE_UNTIL = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "love_until"));
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "love_until"));
 
     public static final ThreadLocal<net.minecraft.world.entity.animal.frog.Tadpole> CONVERTING = new ThreadLocal<>();
 
@@ -171,12 +171,12 @@ public final class Genetics {
 
     public static boolean isTamedSpecies(Mob animal) {
         return animal instanceof net.minecraft.world.entity.animal.camel.Camel
-                && !(animal instanceof net.minecraft.world.entity.animal.camel.CamelHusk);
+                && !com.iiampanda.icbreed.compat.Compat.isUntameable(animal);
     }
 
     private static boolean alreadyTamed(Mob animal) {
         return (animal instanceof net.minecraft.world.entity.TamableAnimal t && t.isTame())
-                || (animal instanceof net.minecraft.world.entity.animal.equine.AbstractHorse h && h.isTamed());
+                || (animal instanceof net.minecraft.world.entity.animal.horse.AbstractHorse h && h.isTamed());
     }
 
     public static boolean isWild(Mob animal) {
@@ -309,7 +309,7 @@ public final class Genetics {
         AgeableMob baby = am.getBreedOffspring(level, partner);
         if (baby == null) return;
         baby.setBaby(true);
-        baby.snapTo(mother.getX(), mother.getY(), mother.getZ(), 0.0F, 0.0F);
+        baby.moveTo(mother.getX(), mother.getY(), mother.getZ(), 0.0F, 0.0F);
         Colors.inherit(baby, mother, partner);
         {
             Mob child = baby;
@@ -359,7 +359,7 @@ public final class Genetics {
                             AttributeModifier.Operation op) {
         AttributeInstance inst = e.getAttribute(attr);
         if (inst == null) return;
-        Identifier id = Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, name);
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, name);
         inst.removeModifier(id);
         if (Math.abs(value) > 1.0E-6) inst.addTransientModifier(new AttributeModifier(id, value, op));
     }

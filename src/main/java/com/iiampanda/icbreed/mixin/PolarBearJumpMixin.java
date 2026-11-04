@@ -5,7 +5,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(net.minecraft.world.entity.animal.polarbear.PolarBear.class)
+@Mixin(net.minecraft.world.entity.animal.PolarBear.class)
 public abstract class PolarBearJumpMixin implements PlayerRideableJumping {
     @Override
     public void onPlayerJump(int power) {

@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -25,11 +25,11 @@ public final class AttachmentRegistry {
         REGISTER.register(bus);
     }
 
-    public static <A> AttachmentType<A> create(Identifier id) {
+    public static <A> AttachmentType<A> create(ResourceLocation id) {
         return create(id, b -> { });
     }
 
-    public static <A> AttachmentType<A> create(Identifier id, Consumer<Builder<A>> consumer) {
+    public static <A> AttachmentType<A> create(ResourceLocation id, Consumer<Builder<A>> consumer) {
         Builder<A> builder = new Builder<>();
         consumer.accept(builder);
         AttachmentType<A> type = builder.inner.build();
@@ -41,7 +41,7 @@ public final class AttachmentRegistry {
         private final AttachmentType.Builder<A> inner = AttachmentType.builder(() -> (A) null);
 
         public Builder<A> persistent(Codec<A> codec) {
-            inner.serialize(codec.fieldOf("v"));
+            inner.serialize(codec);
             return this;
         }
 

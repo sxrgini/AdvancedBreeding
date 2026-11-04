@@ -11,8 +11,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.animal.equine.AbstractChestedHorse;
-import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
 
@@ -24,8 +24,7 @@ public final class SaddleBags {
 
     public static int styleOf(ItemStack held) {
         if (held.is(net.minecraft.world.item.Items.BARREL)) return 0;
-        if (held.is(net.minecraft.tags.ItemTags.SHULKER_BOXES)
-                && held.getItem() instanceof net.minecraft.world.item.BlockItem bi
+        if (held.getItem() instanceof net.minecraft.world.item.BlockItem bi
                 && bi.getBlock() instanceof net.minecraft.world.level.block.ShulkerBoxBlock box) {
             var color = box.getColor();
             return color == null ? 1 : 2 + color.getId();
@@ -36,7 +35,7 @@ public final class SaddleBags {
     public static ItemStack itemFor(int style) {
         if (style <= 0) return new ItemStack(net.minecraft.world.item.Items.BARREL);
         if (style == 1) return new ItemStack(net.minecraft.world.item.Items.SHULKER_BOX);
-        return new ItemStack(net.minecraft.world.item.Items.DYED_SHULKER_BOX.pick(net.minecraft.world.item.DyeColor.byId(style - 2)));
+        return new ItemStack(net.minecraft.world.level.block.ShulkerBoxBlock.getBlockByColor(net.minecraft.world.item.DyeColor.byId(style - 2)).asItem());
     }
 
     public static boolean canFit(AbstractHorse horse, int style) {
@@ -101,10 +100,10 @@ public final class SaddleBags {
         if (st > 0) {
             drop.set(net.minecraft.core.component.DataComponents.CONTAINER,
                     net.minecraft.world.item.component.ItemContainerContents.fromItems(saved));
-            horse.spawnAtLocation(level, drop);
+            horse.spawnAtLocation(drop);
         } else {
-            horse.spawnAtLocation(level, drop);
-            for (ItemStack s : saved) if (!s.isEmpty()) horse.spawnAtLocation(level, s);
+            horse.spawnAtLocation(drop);
+            for (ItemStack s : saved) if (!s.isEmpty()) horse.spawnAtLocation(s);
         }
     }
 }

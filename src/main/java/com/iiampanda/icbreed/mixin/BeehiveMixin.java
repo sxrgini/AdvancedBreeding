@@ -7,7 +7,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.bee.Bee;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,8 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BeehiveBlockEntity.class)
 public abstract class BeehiveMixin {
     @Inject(method = "addOccupant", at = @At("HEAD"))
-    private void icbreed$flag(Bee bee, CallbackInfo ci) {
-        Effects fx = Genetics.effects(bee);
+    private void icbreed$flag(Entity bee, CallbackInfo ci) {
+        if (!(bee instanceof Bee b)) return;
+        Effects fx = Genetics.effects(b);
         if (fx != null && fx.honeyBlock > 0) com.iiampanda.icbreed.platform.Att.set(((BeehiveBlockEntity) (Object) this), Genetics.HONEY_HIVE, true);
     }
 

@@ -74,7 +74,7 @@ public final class NeoHooks {
 
     private static void onLevelTick(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
-        for (ServerTickEvents.EndLevelTick cb : ServerTickEvents.END_LEVEL_TICK.handlers) cb.onEndTick(level);
+        for (ServerTickEvents.EndWorldTick cb : ServerTickEvents.END_WORLD_TICK.handlers) cb.onEndTick(level);
     }
 
     private static void onDeath(LivingDeathEvent event) {
@@ -98,7 +98,7 @@ public final class NeoHooks {
         LivingEntity entity = event.getEntity();
         if (entity.level().isClientSide()) return;
         for (ServerLivingEntityEvents.AfterDamage cb : ServerLivingEntityEvents.AFTER_DAMAGE.handlers) {
-            cb.afterDamage(entity, event.getSource(), event.getOriginalDamage(), event.getInflictedDamage(), event.getBlockedDamage() > 0.0F);
+            cb.afterDamage(entity, event.getSource(), event.getOriginalDamage(), event.getNewDamage(), event.getBlockedDamage() > 0.0F);
         }
     }
 

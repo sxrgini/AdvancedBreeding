@@ -14,7 +14,17 @@ description = '''Advanced animal genetics: every animal has a sex, a bloodline a
 config = "advbreeding.mixins.json"
 
 [[mixins]]
+config = "advbreeding.compat.mixins.json"
+
+[[mixins]]
 config = "advbreeding.client.mixins.json"
+
+[[dependencies.advbreeding]]
+modId = "vanillabackport"
+type = "optional"
+versionRange = "[1.2,)"
+ordering = "AFTER"
+side = "BOTH"
 
 [[dependencies.advbreeding]]
 modId = "neoforge"

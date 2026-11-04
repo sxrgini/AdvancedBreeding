@@ -42,9 +42,9 @@ public final class NeoClientHooks {
 
     private static void onAddLayers(EntityRenderersEvent.AddLayers event) {
         for (EntityType<?> type : event.getEntityTypes()) {
-            EntityRenderer<?, ?> renderer = event.getRenderer((EntityType) type);
+            EntityRenderer<?> renderer = event.getRenderer((EntityType) type);
             if (renderer == null) continue;
-            for (LivingEntityRenderLayerRegistrationCallback cb : LivingEntityRenderLayerRegistrationCallback.EVENT.handlers) {
+            for (LivingEntityFeatureRendererRegistrationCallback cb : LivingEntityFeatureRendererRegistrationCallback.EVENT.handlers) {
                 cb.registerLayers(type, renderer, layer -> {
                     if (renderer instanceof LivingEntityRenderer living) living.addLayer((RenderLayer) layer);
                 }, event.getContext());

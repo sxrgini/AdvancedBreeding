@@ -5,7 +5,6 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.dolphin.Dolphin;
 import net.minecraft.world.entity.animal.frog.Tadpole;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -16,7 +15,7 @@ public final class Ages {
     }
 
     public static boolean supportsType(net.minecraft.world.entity.Entity e) {
-        return e instanceof Animal || e instanceof Dolphin || e instanceof Tadpole;
+        return e instanceof Animal || e instanceof Tadpole;
     }
 
     public static boolean supports(net.minecraft.world.entity.Entity e) {
@@ -40,7 +39,6 @@ public final class Ages {
 
     public static boolean isFood(Mob m, ItemStack s) {
         if (m instanceof Animal a) return a.isFood(s);
-        if (m instanceof Dolphin) return isFish(s);
         if (m instanceof Tadpole) return s.is(ItemTags.FROG_FOOD);
         return false;
     }

@@ -9,7 +9,7 @@ import com.iiampanda.icbreed.IcBreed;
 import com.iiampanda.icbreed.IcBreedConfig;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Mob;
 
 public final class AuraManager {
-    private static final Identifier AURA_ID = Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "strength_aura");
+    private static final ResourceLocation AURA_ID = ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "strength_aura");
     private static final Map<UUID, Double> THREAT = new ConcurrentHashMap<>();
     private static final Map<UUID, Double> SATURATION = new ConcurrentHashMap<>();
     private static final java.util.Set<UUID> NINE = ConcurrentHashMap.newKeySet();
@@ -104,7 +104,7 @@ public final class AuraManager {
                 p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE, 100, 0, true, false, true));
             }
             if (hop) {
-                p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.JUMP_BOOST, 100, 0, true, false, true));
+                p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.JUMP, 100, 0, true, false, true));
             }
             if (regen) {
                 p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.REGENERATION, 100, 0, true, false, true));

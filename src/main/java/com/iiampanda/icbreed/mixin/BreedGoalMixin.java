@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BreedGoal.class)
 public abstract class BreedGoalMixin {
     @Shadow @Final protected Animal animal;
-    @Shadow @Final protected ServerLevel level;
+    @Shadow @Final protected net.minecraft.world.level.Level level;
     @Shadow @Final private Class<? extends Animal> partnerClass;
     @Shadow @Final private static TargetingConditions PARTNER_TARGETING;
 

@@ -1,7 +1,7 @@
 package com.iiampanda.icbreed.mixin;
 
 import com.iiampanda.icbreed.genetics.Ages;
-import net.minecraft.world.entity.animal.polarbear.PolarBear;
+import net.minecraft.world.entity.animal.PolarBear;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

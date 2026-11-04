@@ -14,11 +14,11 @@ public final class PayloadTypeRegistry {
         this.toServer = toServer;
     }
 
-    public static PayloadTypeRegistry clientboundPlay() {
+    public static PayloadTypeRegistry playS2C() {
         return CLIENTBOUND;
     }
 
-    public static PayloadTypeRegistry serverboundPlay() {
+    public static PayloadTypeRegistry playC2S() {
         return SERVERBOUND;
     }
 

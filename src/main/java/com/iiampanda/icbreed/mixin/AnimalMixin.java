@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.animal.Animal;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,7 +36,7 @@ public abstract class AnimalMixin {
     }
 
     @Inject(method = "finalizeSpawnChildFromBreeding", at = @At("HEAD"))
-    private void icbreed$onBred(ServerLevel level, Animal partner, @Nullable AgeableMob baby, CallbackInfo ci) {
+    private void icbreed$onBred(ServerLevel level, Animal partner, AgeableMob baby, CallbackInfo ci) {
         Animal self = (Animal) (Object) this;
         if (baby instanceof Animal child) Genetics.inherit(self, partner, child);
 
@@ -64,5 +63,10 @@ public abstract class AnimalMixin {
         if (cir.getReturnValueZ() && !self.level().isClientSide() && (Genetics.isPregnant(self) || Genetics.isWild(self))) {
             cir.setReturnValue(false);
         }
+    }
+
+    @Inject(method = "usePlayerItem", at = @At("HEAD"))
+    private void icbreed$fed(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.item.ItemStack stack, CallbackInfo ci) {
+        Genetics.fed((Animal) (Object) this, player.getUUID());
     }
 }

@@ -5,18 +5,18 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ItemSteerable;
 import net.minecraft.world.entity.PlayerRideable;
 import net.minecraft.world.entity.PlayerRideableJumping;
-import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 
 public final class AdvancedBreedingApi {
-    public static final TagKey<EntityType<?>> RIDEABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("advbreeding", "rideable"));
-    public static final TagKey<EntityType<?>> NOT_RIDEABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("advbreeding", "not_rideable"));
+    public static final TagKey<EntityType<?>> RIDEABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("advbreeding", "rideable"));
+    public static final TagKey<EntityType<?>> NOT_RIDEABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("advbreeding", "not_rideable"));
 
     private static final Set<EntityType<?>> RIDEABLE = Collections.newSetFromMap(new ConcurrentHashMap<>());
 

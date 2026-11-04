@@ -20,8 +20,8 @@ public final class MountJump {
 
     public static boolean species(Mob m) {
         return m instanceof net.minecraft.world.entity.monster.hoglin.Hoglin
-                || m instanceof net.minecraft.world.entity.animal.polarbear.PolarBear
-                || m instanceof net.minecraft.world.entity.animal.panda.Panda
+                || m instanceof net.minecraft.world.entity.animal.PolarBear
+                || m instanceof net.minecraft.world.entity.animal.Panda
                 || m instanceof net.minecraft.world.entity.animal.sniffer.Sniffer;
     }
 
@@ -41,12 +41,12 @@ public final class MountJump {
         if (!m.onGround()) return;
         PENDING.remove(m);
         double jump = m.getAttributeValue(Attributes.JUMP_STRENGTH) * s;
-        var boost = m.getEffect(MobEffects.JUMP_BOOST);
+        var boost = m.getEffect(MobEffects.JUMP);
         if (boost != null) jump += 0.1 * (boost.getAmplifier() + 1);
         Vec3 v = m.getDeltaMovement();
         m.setDeltaMovement(v.x, jump, v.z);
         double yaw = m.getYRot() * (Math.PI / 180.0);
-        m.setDeltaMovement(m.getDeltaMovement().add(-0.4 * Mth.sin(yaw) * s, 0, 0.4 * Mth.cos(yaw) * s));
+        m.setDeltaMovement(m.getDeltaMovement().add(-0.4 * Math.sin(yaw) * s, 0, 0.4 * Math.cos(yaw) * s));
     }
 
     public static void roll(Mob m) {

@@ -10,6 +10,26 @@ base {
     archivesName = project.archives_base_name
 }
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven { url 'https://api.modrinth.com/maven' }
+        }
+        filter {
+            includeGroup 'maven.modrinth'
+        }
+    }
+}
+
+dependencies {
+    compileOnly "maven.modrinth:vanillabackport:${project.vb_version}"
+    compileOnly "maven.modrinth:platform:${project.vb_platform_version}"
+    if (project.hasProperty('withVb')) {
+        runtimeOnly "maven.modrinth:vanillabackport:${project.vb_version}"
+        runtimeOnly "maven.modrinth:platform:${project.vb_platform_version}"
+    }
+}
+
 neoForge {
     version = project.neo_version
     runs {
@@ -36,12 +56,12 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.release = 25
+    options.release = 21
     options.encoding = 'UTF-8'
 }
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }

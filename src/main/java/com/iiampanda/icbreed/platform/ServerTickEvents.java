@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 
 public final class ServerTickEvents {
     public static final Ev<EndTick> END_SERVER_TICK = new Ev<>();
-    public static final Ev<EndLevelTick> END_LEVEL_TICK = new Ev<>();
+    public static final Ev<EndWorldTick> END_WORLD_TICK = new Ev<>();
 
     private ServerTickEvents() {
     }
@@ -14,7 +14,7 @@ public final class ServerTickEvents {
         void onEndTick(MinecraftServer server);
     }
 
-    public interface EndLevelTick {
+    public interface EndWorldTick {
         void onEndTick(ServerLevel level);
     }
 }

@@ -2,7 +2,7 @@ package com.iiampanda.icbreed.mixin;
 
 import com.iiampanda.icbreed.genetics.Genetics;
 import com.iiampanda.icbreed.taming.TamingLogic;
-import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

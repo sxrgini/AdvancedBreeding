@@ -9,7 +9,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,8 +24,8 @@ public abstract class LivingEntityMixin {
         return Genetics.effects(mob);
     }
 
-    @ModifyVariable(method = "hurtServer", at = @At("HEAD"), argsOnly = true)
-    private float icbreed$scaleDamage(float amount, ServerLevel level, DamageSource source) {
+    @ModifyVariable(method = "hurt", at = @At("HEAD"), argsOnly = true)
+    private float icbreed$scaleDamage(float amount, DamageSource source) {
         Effects fx = icbreed$effects();
         if (fx == null) return amount;
         if (source.is(DamageTypeTags.IS_FIRE) || source.is(DamageTypeTags.IS_FREEZING)) {
@@ -47,15 +46,15 @@ public abstract class LivingEntityMixin {
     }
 
     @Inject(method = "getVisibilityPercent", at = @At("RETURN"), cancellable = true)
-    private void icbreed$threat(@Nullable Entity entity, CallbackInfoReturnable<Double> cir) {
+    private void icbreed$threat(Entity entity, CallbackInfoReturnable<Double> cir) {
         if (!((Object) this instanceof net.minecraft.server.level.ServerPlayer player)) return;
         double t = com.iiampanda.icbreed.traits.AuraManager.threat(player.getUUID());
         if (t == 0) return;
         cir.setReturnValue(cir.getReturnValueD() * Genetics.clamp(1.0 + t, 0.05, 3.0));
     }
 
-    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
-    private void icbreed$passiveTames(ServerLevel level, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    private void icbreed$passiveTames(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if ((Object) this instanceof net.minecraft.world.entity.player.Player victim
                 && source.getEntity() instanceof net.minecraft.world.entity.animal.Animal attacker
                 && com.iiampanda.icbreed.traits.AttackTames.passive(attacker)
@@ -108,7 +107,7 @@ public abstract class LivingEntityMixin {
         if (!((Object) this instanceof net.minecraft.world.entity.monster.Strider s) || s.level().isClientSide()) return;
         var attr = s.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         if (attr == null) return;
-        var id = net.minecraft.resources.Identifier.fromNamespaceAndPath("advbreeding", "lava_speed");
+        var id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("advbreeding", "lava_speed");
         Effects fx = icbreed$effects();
         double want = fx != null && s.isInLava() ? fx.lavaPct : 0.0;
         var cur = attr.getModifier(id);
@@ -125,7 +124,7 @@ public abstract class LivingEntityMixin {
         if (!((Object) this instanceof net.minecraft.world.entity.animal.camel.Camel c) || c.level().isClientSide()) return;
         var attr = c.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         if (attr == null) return;
-        var id = net.minecraft.resources.Identifier.fromNamespaceAndPath("advbreeding", "sand_speed");
+        var id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("advbreeding", "sand_speed");
         Effects fx = icbreed$effects();
         boolean sand = c.level().getBlockState(c.getOnPos()).is(net.minecraft.tags.BlockTags.SAND);
         double want = fx != null && sand ? fx.sandPct : 0.0;
@@ -166,13 +165,6 @@ public abstract class LivingEntityMixin {
         if ((Object) this instanceof net.minecraft.world.entity.Mob m && !m.level().isClientSide() && m.tickCount % 20 == 0
                 && com.iiampanda.icbreed.platform.Att.has(m, Genetics.TAMING)) {
             com.iiampanda.icbreed.traits.Starvation.tick(m);
-        }
-    }
-
-    @Inject(method = "aiStep", at = @At("TAIL"))
-    private void icbreed$ghastDeck(CallbackInfo ci) {
-        if ((Object) this instanceof net.minecraft.world.entity.animal.happyghast.HappyGhast g && !g.level().isClientSide()) {
-            com.iiampanda.icbreed.traits.GhastDeck.tick(g);
         }
     }
 }

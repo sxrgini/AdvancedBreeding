@@ -18,11 +18,10 @@ import com.google.gson.JsonObject;
 import com.iiampanda.icbreed.IcBreed;
 import com.iiampanda.icbreed.genetics.Ages;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 
 public final class ModdedMobs {
@@ -64,7 +63,7 @@ public final class ModdedMobs {
         }
         ServerLevel level = doScan ? server.overworld() : null;
         boolean changed = doScan && !Files.exists(file);
-        for (Identifier id : doScan && level != null ? BuiltInRegistries.ENTITY_TYPE.keySet() : java.util.Set.<Identifier>of()) {
+        for (ResourceLocation id : doScan && level != null ? BuiltInRegistries.ENTITY_TYPE.keySet() : java.util.Set.<ResourceLocation>of()) {
             String ns = id.getNamespace();
             if (ns.equals("minecraft") || ns.equals(IcBreed.MOD_ID)) continue;
             String name = id.toString();
@@ -72,7 +71,7 @@ public final class ModdedMobs {
             changed = true;
             boolean supported = false;
             try {
-                Entity e = BuiltInRegistries.ENTITY_TYPE.getValue(id).create(level, EntitySpawnReason.LOAD);
+                Entity e = BuiltInRegistries.ENTITY_TYPE.get(id).create(level);
                 supported = e != null && Ages.supportsType(e);
                 if (e != null) e.discard();
             } catch (Throwable t) {

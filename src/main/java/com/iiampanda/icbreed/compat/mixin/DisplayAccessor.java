@@ -1,4 +1,4 @@
-package com.iiampanda.icbreed.mixin;
+package com.iiampanda.icbreed.compat.mixin;
 
 import com.mojang.math.Transformation;
 import net.minecraft.world.entity.Display;

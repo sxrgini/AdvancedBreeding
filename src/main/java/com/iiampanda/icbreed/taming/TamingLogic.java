@@ -19,7 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -139,8 +139,8 @@ public final class TamingLogic {
                 return;
             }
             net.minecraft.world.entity.Entity made = adult instanceof net.minecraft.world.entity.animal.frog.Frog
-                    ? net.minecraft.world.entity.EntityTypes.TADPOLE.create(level, net.minecraft.world.entity.EntitySpawnReason.BREEDING)
-                    : adult.getType().create(level, net.minecraft.world.entity.EntitySpawnReason.BREEDING);
+                    ? net.minecraft.world.entity.EntityType.TADPOLE.create(level)
+                    : adult.getType().create(level);
             if (made instanceof Mob baby && (baby instanceof net.minecraft.world.entity.AgeableMob || baby instanceof net.minecraft.world.entity.animal.frog.Tadpole)) {
                 double x = adult.getX() + (adult.getRandom().nextDouble() - 0.5) * 2;
                 double y = adult.getY();
@@ -156,7 +156,7 @@ public final class TamingLogic {
                 }
                 baby.setPersistenceRequired();
                 adult.setPersistenceRequired();
-                baby.snapTo(x, y, z, adult.getRandom().nextFloat() * 360.0F, 0.0F);
+                baby.moveTo(x, y, z, adult.getRandom().nextFloat() * 360.0F, 0.0F);
                 level.addFreshEntityWithPassengers(baby);
             }
         }
@@ -187,7 +187,7 @@ public final class TamingLogic {
                 else tamable.setTame(true, true);
             } else if (animal instanceof AbstractHorse horse) {
                 horse.setTamed(true);
-                if (owner != null) horse.setOwner(owner);
+                if (owner != null) horse.setOwnerUUID(owner.getUUID());
             }
         } finally {
             ALLOW.set(false);

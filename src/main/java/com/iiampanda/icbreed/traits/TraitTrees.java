@@ -12,15 +12,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.iiampanda.icbreed.IcBreed;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import com.iiampanda.icbreed.genetics.Stat;
 import com.iiampanda.icbreed.traits.TraitDef.Mod;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.cow.AbstractCow;
-import net.minecraft.world.entity.animal.pig.Pig;
-import net.minecraft.world.entity.animal.sheep.Sheep;
-import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -81,7 +81,6 @@ public final class TraitTrees {
             Map.entry("panda", new boolean[] {true, true}),
             Map.entry("polar_bear", new boolean[] {true, true}),
             Map.entry("hoglin", new boolean[] {true, true}),
-            Map.entry("dolphin", new boolean[] {true, false}),
             Map.entry("nautilus", new boolean[] {true, false}),
             Map.entry("strider", new boolean[] {true, false}),
             Map.entry("happy_ghast", new boolean[] {false, false}));
@@ -141,7 +140,7 @@ public final class TraitTrees {
                 n("endless_hunger", 3, "rip_and_tear", 3, 2, Items.ROTTEN_FLESH, m(Stat.LEECH, 0.08)),
                 n("hunters_mark", 3, "wild_fortitude", 2, 1, Items.GLOWSTONE_DUST, m(Stat.MARK, 5)));
 
-        build("sheep", Items.WOOL.white(),
+        build("sheep", Items.WHITE_WOOL,
                 n("calming_baas", 3, "sheep", 1, 3, Items.NOTE_BLOCK, m(Stat.THREAT, -0.08)),
                 n("calming_presence", 4, "calming_baas", 2, 3, Items.CAMPFIRE, m(Stat.CALMING, -0.10)),
                 n("thick_hide", 3, "tough_as_leather", 2, 2, Items.IRON_CHESTPLATE, m(Stat.ARMOR, 1)),
@@ -170,10 +169,16 @@ public final class TraitTrees {
                 n("thump_thump", 3, "wild_fortitude", 2, 1, Items.MACE, m(Stat.STUN, 0.10)),
                 n("hunters_mark", 3, "thump_thump", 3, 1, Items.GLOWSTONE_DUST, m(Stat.MARK, 5)));
 
-        build("horse", Items.SADDLE,
-                n("unseat", 1, "tough_as_leather", 2, 2, Items.IRON_SPEAR, m(Stat.UNSEAT, 0.25)),
-                n2("saddle_bags", 1, "unseat", "mount_jump", 3, 2, Items.BARREL),
-                n3("shulker_bags", 1, "saddle_bags", 2, 4, 2, Items.SHULKER_BOX));
+        if (com.iiampanda.icbreed.compat.Backport.spears()) {
+            build("horse", Items.SADDLE,
+                    n("unseat", 1, "tough_as_leather", 2, 2, com.iiampanda.icbreed.compat.Backport.spearIcon(), m(Stat.UNSEAT, 0.25)),
+                    n2("saddle_bags", 1, "unseat", "mount_jump", 3, 2, Items.BARREL),
+                    n3("shulker_bags", 1, "saddle_bags", 2, 4, 2, Items.SHULKER_BOX));
+        } else {
+            build("horse", Items.SADDLE,
+                    n("saddle_bags", 1, "mount_jump", 3, 2, Items.BARREL),
+                    n3("shulker_bags", 1, "saddle_bags", 2, 4, 2, Items.SHULKER_BOX));
+        }
 
         build("chicken", Items.FEATHER,
                 n("egg_drops", 3, "metabolic_preservation", 2, 5, Items.EGG, m(Stat.PRODUCTION, 1)),
@@ -199,9 +204,9 @@ public final class TraitTrees {
                 n("saturation_aura", 1, "camel", 1, 3, Items.CAMPFIRE, m(Stat.SAT_AURA, 1)),
                 n("desert_walker", 3, "tough_as_leather", 2, 2, Items.SAND, m(Stat.SAND_SPEED, 0.10)));
 
-        build("llama", Items.CARPET.white(),
+        build("llama", Items.WHITE_CARPET,
                 n("rideable", 1, "wild_fortitude", 2, 1, Items.SADDLE, m(Stat.RIDEABLE, 1)),
-                n("llama_thick_hide", 3, "tough_as_leather", 2, 2, Items.WOOL.white(), m(Stat.LLAMA_WOOL, 1)));
+                n("llama_thick_hide", 3, "tough_as_leather", 2, 2, Items.WHITE_WOOL, m(Stat.LLAMA_WOOL, 1)));
 
         build("cat", Items.COD,
                 n("nine_lives", 1, "cat", 1, 3, Items.TOTEM_OF_UNDYING, m(Stat.NINE_LIVES, 1)),
@@ -226,23 +231,22 @@ public final class TraitTrees {
                 n("natural_ferocity", 4, "hoglin", 1, 3, Items.IRON_SWORD, m(Stat.DAMAGE_PCT, 0.05)),
                 n("rideable", 1, "wild_fortitude", 2, 1, Items.SADDLE, m(Stat.RIDEABLE, 1)));
 
-        build("dolphin", Items.COD,
-                n("rideable", 1, "wild_fortitude", 2, 1, Items.SADDLE, m(Stat.RIDEABLE, 1)),
-                n("water_breather", 1, "rideable", 3, 1, Items.POTION, m(Stat.WATER_BREATH, 1)),
-                n("underwater_vision", 1, "water_breather", 4, 1, Items.POTION, m(Stat.WATER_VISION, 1)));
-
-        build("nautilus", Items.NAUTILUS_SHELL,
-                n("water_breather", 1, "wild_fortitude", 2, 1, Items.POTION, m(Stat.WATER_BREATH, 1)),
-                n("underwater_vision", 1, "water_breather", 3, 1, Items.POTION, m(Stat.WATER_VISION, 1)));
+        if (com.iiampanda.icbreed.compat.Backport.present()) {
+            build("nautilus", Items.NAUTILUS_SHELL,
+                    n("water_breather", 1, "wild_fortitude", 2, 1, Items.POTION, m(Stat.WATER_BREATH, 1)),
+                    n("underwater_vision", 1, "water_breather", 3, 1, Items.POTION, m(Stat.WATER_VISION, 1)));
+        }
 
         build("strider", Items.WARPED_FUNGUS_ON_A_STICK,
                 n("fire_resistance_aura", 1, "strider", 1, 3, Items.POTION, m(Stat.FIRE_AURA, 1)),
                 n("lava_walker", 3, "fire_resistance_aura", 2, 3, Items.LAVA_BUCKET, m(Stat.LAVA_SPEED, 0.08)),
                 n("captain_now", 1, "lava_walker", 3, 3, Items.SADDLE, m(Stat.CAPTAIN, 1)));
 
-        build("happy_ghast", Items.GHAST_TEAR,
-                n("buildable", 1, "happy_ghast", 1, 0, Items.OAK_LOG, m(Stat.BUILDABLE, 1)),
-                n("flying_speed", 3, "happy_ghast", 1, 3, Items.WIND_CHARGE, m(Stat.FLY_SPEED, 0.11)));
+        if (com.iiampanda.icbreed.compat.Backport.present()) {
+            build("happy_ghast", Items.GHAST_TEAR,
+                    n("buildable", 1, "happy_ghast", 1, 0, Items.OAK_LOG, m(Stat.BUILDABLE, 1)),
+                    n("flying_speed", 3, "happy_ghast", 1, 3, Items.WIND_CHARGE, m(Stat.FLY_SPEED, 0.11)));
+        }
 
         build("rabbit", Items.RABBIT_FOOT,
                 n("hoppy_aura", 1, "wild_fortitude", 2, 1, Items.RABBIT_FOOT, m(Stat.HOP_AURA, 1)));
@@ -328,8 +332,8 @@ public final class TraitTrees {
         String parent2 = j.has("parent2") && !j.get("parent2").isJsonNull() ? j.get("parent2").getAsString() : null;
         Item icon = Items.PAPER;
         if (j.has("icon")) {
-            Identifier iconId = Identifier.tryParse(j.get("icon").getAsString());
-            Item found = iconId == null ? null : BuiltInRegistries.ITEM.getValue(iconId);
+            ResourceLocation iconId = ResourceLocation.tryParse(j.get("icon").getAsString());
+            Item found = iconId == null ? null : BuiltInRegistries.ITEM.get(iconId);
             if (found == null || found == Items.AIR) IcBreed.LOGGER.warn("Unknown icon for trait {}: {}", id, j.get("icon"));
             else icon = found;
         }
@@ -402,35 +406,34 @@ public final class TraitTrees {
     }
 
     private static Tree baseMob(net.minecraft.world.entity.Mob animal) {
-        if (animal instanceof net.minecraft.world.entity.animal.dolphin.Dolphin) return TREES.get("dolphin");
         return animal instanceof Animal a ? forAnimal(a) : fallback(animal);
     }
 
     public static Tree forAnimal(Animal animal) {
+        String compat = com.iiampanda.icbreed.compat.Compat.treeFor(animal);
+        if (compat != null && TREES.containsKey(compat)) return TREES.get(compat);
         if (animal instanceof Wolf) return TREES.get("wolf");
-        if (animal instanceof net.minecraft.world.entity.animal.nautilus.AbstractNautilus) return TREES.get("nautilus");
-        if (animal instanceof net.minecraft.world.entity.animal.happyghast.HappyGhast) return TREES.get("happy_ghast");
         if (animal instanceof net.minecraft.world.entity.monster.Strider) return TREES.get("strider");
         if (animal instanceof net.minecraft.world.entity.animal.camel.Camel) return TREES.get("camel");
         if (animal instanceof net.minecraft.world.entity.animal.axolotl.Axolotl) return TREES.get("axolotl");
-        if (animal instanceof net.minecraft.world.entity.animal.parrot.Parrot) return TREES.get("parrot");
-        if (animal instanceof net.minecraft.world.entity.animal.bee.Bee) return TREES.get("bee");
-        if (animal instanceof net.minecraft.world.entity.animal.feline.Cat
-                || animal instanceof net.minecraft.world.entity.animal.feline.Ocelot) return TREES.get("cat");
+        if (animal instanceof net.minecraft.world.entity.animal.Parrot) return TREES.get("parrot");
+        if (animal instanceof net.minecraft.world.entity.animal.Bee) return TREES.get("bee");
+        if (animal instanceof net.minecraft.world.entity.animal.Cat
+                || animal instanceof net.minecraft.world.entity.animal.Ocelot) return TREES.get("cat");
         if (animal instanceof net.minecraft.world.entity.animal.sniffer.Sniffer) return TREES.get("sniffer");
-        if (animal instanceof net.minecraft.world.entity.animal.fox.Fox) return TREES.get("fox");
-        if (animal instanceof net.minecraft.world.entity.animal.panda.Panda) return TREES.get("panda");
-        if (animal instanceof net.minecraft.world.entity.animal.polarbear.PolarBear) return TREES.get("polar_bear");
+        if (animal instanceof net.minecraft.world.entity.animal.Fox) return TREES.get("fox");
+        if (animal instanceof net.minecraft.world.entity.animal.Panda) return TREES.get("panda");
+        if (animal instanceof net.minecraft.world.entity.animal.PolarBear) return TREES.get("polar_bear");
         if (animal instanceof net.minecraft.world.entity.monster.hoglin.Hoglin) return TREES.get("hoglin");
         if (animal instanceof Sheep) return TREES.get("sheep");
-        if (animal instanceof net.minecraft.world.entity.animal.cow.MushroomCow) return TREES.get("mooshroom");
-        if (animal instanceof AbstractCow) return TREES.get("cow");
-        if (animal instanceof net.minecraft.world.entity.animal.equine.Llama) return TREES.get("llama");
-        if (animal instanceof net.minecraft.world.entity.animal.equine.AbstractHorse) return TREES.get("horse");
-        if (animal instanceof net.minecraft.world.entity.animal.rabbit.Rabbit) return TREES.get("rabbit");
+        if (animal instanceof net.minecraft.world.entity.animal.MushroomCow) return TREES.get("mooshroom");
+        if (animal instanceof Cow) return TREES.get("cow");
+        if (animal instanceof net.minecraft.world.entity.animal.horse.Llama) return TREES.get("llama");
+        if (animal instanceof net.minecraft.world.entity.animal.horse.AbstractHorse) return TREES.get("horse");
+        if (animal instanceof net.minecraft.world.entity.animal.Rabbit) return TREES.get("rabbit");
         if (animal instanceof net.minecraft.world.entity.animal.frog.Frog) return TREES.get("frog");
         if (animal instanceof Pig) return TREES.get("pig");
-        if (animal instanceof net.minecraft.world.entity.animal.chicken.Chicken) return TREES.get("chicken");
+        if (animal instanceof net.minecraft.world.entity.animal.Chicken) return TREES.get("chicken");
         if (animal instanceof net.minecraft.world.entity.animal.armadillo.Armadillo) return TREES.get("armadillo");
         return fallback(animal);
     }

@@ -7,10 +7,10 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class IcBreedClient {
     public void onInitializeClient() {
-        com.iiampanda.icbreed.platform.LivingEntityRenderLayerRegistrationCallback.EVENT.register(
+        com.iiampanda.icbreed.platform.LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
                 (type, renderer, helper, context) -> {
                     if (renderer instanceof net.minecraft.client.renderer.entity.HorseRenderer horseRenderer) {
-                        registerBags(helper, new BagsLayer(horseRenderer, context.getItemModelResolver()));
+                        registerBags(helper, new BagsLayer(horseRenderer));
                     }
                 });
         com.iiampanda.icbreed.platform.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
@@ -26,16 +26,16 @@ public class IcBreedClient {
         com.iiampanda.icbreed.platform.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             var p = mc.player;
             boolean down = mc.options.keyUse.isDown();
-            if (p != null && down && !wasUse[0] && mc.gui.screen() == null && p.getXRot() < -50.0F && p.getMainHandItem().isEmpty()
+            if (p != null && down && !wasUse[0] && mc.screen == null && p.getXRot() < -50.0F && p.getMainHandItem().isEmpty()
                     && (p.getPassengers().stream().anyMatch(e -> e instanceof net.minecraft.world.entity.animal.axolotl.Axolotl)
                     || (com.iiampanda.icbreed.platform.Att.getOrElse(p, com.iiampanda.icbreed.genetics.Genetics.PERKS, 0) & 1) != 0)) {
                 ClientPlayNetworking.send(new com.iiampanda.icbreed.net.RemoveHatPayload());
             }
-            if (p != null && down && !wasUse[0] && mc.gui.screen() == null && p.getMainHandItem().isEmpty()
+            if (p != null && down && !wasUse[0] && mc.screen == null && p.getMainHandItem().isEmpty()
                     && (p.getVehicle() instanceof net.minecraft.world.entity.monster.hoglin.Hoglin
-                    || p.getVehicle() instanceof net.minecraft.world.entity.animal.polarbear.PolarBear
-                    || p.getVehicle() instanceof net.minecraft.world.entity.animal.panda.Panda
-                    || p.getVehicle() instanceof net.minecraft.world.entity.animal.fox.Fox)) {
+                    || p.getVehicle() instanceof net.minecraft.world.entity.animal.PolarBear
+                    || p.getVehicle() instanceof net.minecraft.world.entity.animal.Panda
+                    || p.getVehicle() instanceof net.minecraft.world.entity.animal.Fox)) {
                 ClientPlayNetworking.send(new com.iiampanda.icbreed.net.RideAttackPayload());
             }
             wasUse[0] = down;
@@ -47,13 +47,13 @@ public class IcBreedClient {
         ClientPlayNetworking.registerGlobalReceiver(OpenGeneticsPayload.TYPE, (payload, context) -> {
             Entity e = context.client().level == null ? null : context.client().level.getEntity(payload.entityId());
             if (e instanceof LivingEntity living) {
-                context.client().gui.setScreen(new GeneticsScreen(living, payload.genome(), payload.canOpenInventory(), payload.pregnantTicks()));
+                context.client().setScreen(new GeneticsScreen(living, payload.genome(), payload.canOpenInventory(), payload.pregnantTicks()));
             }
         });
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void registerBags(com.iiampanda.icbreed.platform.LivingEntityRenderLayerRegistrationCallback.RegistrationHelper helper,
+    private static void registerBags(com.iiampanda.icbreed.platform.LivingEntityFeatureRendererRegistrationCallback.RegistrationHelper helper,
                                      BagsLayer layer) {
         helper.register((net.minecraft.client.renderer.entity.layers.RenderLayer) layer);
     }

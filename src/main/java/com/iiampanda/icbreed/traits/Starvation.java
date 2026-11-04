@@ -35,7 +35,7 @@ public final class Starvation {
                 }
             }
             fed(m);
-            m.playSound(net.minecraft.sounds.SoundEvents.GENERIC_EAT.value(), 1.0F, 1.0F);
+            m.playSound(net.minecraft.sounds.SoundEvents.GENERIC_EAT, 1.0F, 1.0F);
             return InteractionResult.SUCCESS;
         });
     }
@@ -80,6 +80,6 @@ public final class Starvation {
         if (over % interval >= 20) return;
         float room = m.getHealth() - 1.0F;
         if (room <= 0) return;
-        m.hurtServer(level, level.damageSources().starve(), Math.min(1.0F, room));
+        m.hurt(level.damageSources().starve(), Math.min(1.0F, room));
     }
 }

@@ -1,10 +1,10 @@
-package com.iiampanda.icbreed.traits;
+package com.iiampanda.icbreed.compat.vb;
 
 import com.iiampanda.icbreed.IcBreed;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
-import com.iiampanda.icbreed.mixin.BlockDisplayAccessor;
-import com.iiampanda.icbreed.mixin.DisplayAccessor;
+import com.iiampanda.icbreed.compat.mixin.BlockDisplayAccessor;
+import com.iiampanda.icbreed.compat.mixin.DisplayAccessor;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -25,7 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.core.UUIDUtil;
@@ -33,9 +33,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.happyghast.HappyGhast;
+import com.blackgear.vanillabackport.common.level.entities.mob.animal.happy_ghast.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -77,11 +76,11 @@ public final class GhastDeck {
     }
 
     public static final AttachmentType<Deck> DECK = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "ghast_deck"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "ghast_deck"),
             builder -> builder.persistent(Deck.CODEC));
 
     public static final AttachmentType<Seats> SEATS = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(IcBreed.MOD_ID, "ghast_seats"),
+            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "ghast_seats"),
             builder -> builder.persistent(Seats.CODEC)
                     .syncWith(ByteBufCodecs.fromCodecWithRegistries(Seats.CODEC), AttachmentSyncPredicate.all()));
 
@@ -118,7 +117,7 @@ public final class GhastDeck {
     }
 
     public static boolean isDeckPart(Entity e) {
-        return e instanceof Display.BlockDisplay && e.entityTags().contains(TAG);
+        return e instanceof Display.BlockDisplay && e.getTags().contains(TAG);
     }
 
     public static boolean hasBlocks(HappyGhast g) {
@@ -197,7 +196,7 @@ public final class GhastDeck {
             if (!inBounds(off) || !sl.getBlockState(target).canBeReplaced()) return InteractionResult.PASS;
             if (d != null && d.offsets().size() >= MAX_BLOCKS) return InteractionResult.PASS;
             if (d == null) {
-                g.snapTo(anchor.getX(), anchor.getY(), anchor.getZ());
+                g.moveTo(anchor.getX(), anchor.getY(), anchor.getZ(), g.getYRot(), g.getXRot());
                 g.setDeltaMovement(Vec3.ZERO);
                 DOCK.put(g.getUUID(), g.position());
                 FIX.put(g.getUUID(), Vec3.ZERO);
@@ -269,7 +268,7 @@ public final class GhastDeck {
         riders.add(player.getUUID());
         offs.add(off.asLong());
         com.iiampanda.icbreed.platform.Att.set(g, SEATS, new Seats(riders, offs));
-        return player.startRiding(g, true, false);
+        return player.startRiding(g, true);
     }
 
     private static void cleanSeats(HappyGhast g) {
@@ -318,12 +317,12 @@ public final class GhastDeck {
         }
         BlockPos anchor = BlockPos.of(d.anchor());
         if (seated(g) == null) {
-            ((com.iiampanda.icbreed.mixin.HappyGhastAccessor) g).icbreed$setStill(10);
+            ((com.iiampanda.icbreed.compat.mixin.HappyGhastAccessor) g).icbreed$setStill(10);
             AABB zone = new AABB(anchor.getX() - RADIUS - 1, anchor.getY() - 1, anchor.getZ() - RADIUS - 1,
                     anchor.getX() + RADIUS + 2, anchor.getY() + MAX_Y + 1, anchor.getZ() + RADIUS + 2);
             for (Player p : level.players()) {
                 if (!p.isSpectator() && !p.isPassenger() && zone.contains(p.position())) {
-                    ((com.iiampanda.icbreed.mixin.HappyGhastAccessor) g).icbreed$setStill(80);
+                    ((com.iiampanda.icbreed.compat.mixin.HappyGhastAccessor) g).icbreed$setStill(80);
                     break;
                 }
             }
@@ -388,7 +387,7 @@ public final class GhastDeck {
         }
         for (Entry e : entries) {
             BlockPos o = BlockPos.of(e.off());
-            Display.BlockDisplay bd = net.minecraft.world.entity.EntityTypes.BLOCK_DISPLAY.create(level, EntitySpawnReason.TRIGGERED);
+            Display.BlockDisplay bd = net.minecraft.world.entity.EntityType.BLOCK_DISPLAY.create(level);
             if (bd == null) continue;
             bd.setPos(pos);
             ((BlockDisplayAccessor) bd).icbreed$setBlockState(e.state());
@@ -396,7 +395,7 @@ public final class GhastDeck {
             ((DisplayAccessor) bd).icbreed$setTransformation(new Transformation(t, new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
             bd.addTag(TAG);
             level.addFreshEntity(bd);
-            bd.startRiding(g, true, false);
+            bd.startRiding(g, true);
         }
         com.iiampanda.icbreed.platform.Att.set(g, DECK, new Deck(d.anchor(), kept, entries));
         MOTION.remove(g.getUUID());
@@ -411,7 +410,7 @@ public final class GhastDeck {
             land(g, level, d, true);
             return;
         }
-        if (seated(g) == null) ((com.iiampanda.icbreed.mixin.HappyGhastAccessor) g).icbreed$setStill(10);
+        if (seated(g) == null) ((com.iiampanda.icbreed.compat.mixin.HappyGhastAccessor) g).icbreed$setStill(10);
         Motion m = MOTION.computeIfAbsent(g.getUUID(), k -> new Motion());
         Vec3 now = g.position();
         if (m.ref != null && now.distanceToSqr(m.ref) < 0.16) {
