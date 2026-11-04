@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[1,)"
+loaderVersion = "[47,)"
 license = "LGPL-3.0-only"
 
 [[mods]]
@@ -7,35 +7,27 @@ modId = "advbreeding"
 version = "${version}"
 displayName = "Advanced Breeding"
 authors = "iiAmPanda"
-iconFile = "assets/advbreeding/icon.png"
+logoFile = "assets/advbreeding/icon.png"
+displayTest = "IGNORE_SERVER_VERSION"
 description = '''Advanced animal genetics: every animal has a sex, a bloodline and seven genotype trait levels. Breed animals to pass on and improve traits. Shift + right-click an animal to inspect its genes.'''
 
-[[mixins]]
-config = "advbreeding.mixins.json"
-
-[[mixins]]
-config = "advbreeding.compat.mixins.json"
-
-[[mixins]]
-config = "advbreeding.client.mixins.json"
-
 [[dependencies.advbreeding]]
-modId = "vanillabackport"
-type = "optional"
-versionRange = "[1.2,)"
-ordering = "AFTER"
-side = "BOTH"
-
-[[dependencies.advbreeding]]
-modId = "neoforge"
-type = "required"
-versionRange = "[${minecraft_version},)"
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.advbreeding]]
 modId = "minecraft"
-type = "required"
-versionRange = "[${minecraft_version},)"
+mandatory = true
+versionRange = "[1.20.1,1.21)"
 ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.advbreeding]]
+modId = "vanillabackport"
+mandatory = false
+versionRange = "[1.2,)"
+ordering = "AFTER"
 side = "BOTH"

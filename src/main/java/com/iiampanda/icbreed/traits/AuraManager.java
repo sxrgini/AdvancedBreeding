@@ -18,7 +18,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Mob;
 
 public final class AuraManager {
-    private static final ResourceLocation AURA_ID = ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "strength_aura");
+    private static final java.util.UUID AURA_ID = com.iiampanda.icbreed.platform.ModId.of("strength_aura");
     private static final Map<UUID, Double> THREAT = new ConcurrentHashMap<>();
     private static final Map<UUID, Double> SATURATION = new ConcurrentHashMap<>();
     private static final java.util.Set<UUID> NINE = ConcurrentHashMap.newKeySet();
@@ -121,10 +121,10 @@ public final class AuraManager {
             if (dmg != null) {
                 AttributeModifier cur = dmg.getModifier(AURA_ID);
                 double want = Genetics.clamp(aura, -0.9, 5.0);
-                if (cur == null ? want != 0 : cur.amount() != want) {
+                if (cur == null ? want != 0 : cur.getAmount() != want) {
                     dmg.removeModifier(AURA_ID);
                     if (want != 0) {
-                        dmg.addTransientModifier(new AttributeModifier(AURA_ID, want, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                        dmg.addTransientModifier(new AttributeModifier(AURA_ID, "advbreeding", want, AttributeModifier.Operation.MULTIPLY_TOTAL));
                     }
                 }
             }

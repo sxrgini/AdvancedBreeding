@@ -4,20 +4,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public final class NeoClientHooks {
-    private NeoClientHooks() {
+public final class ForgeClientHooks {
+    private ForgeClientHooks() {
     }
 
-    public static void init(net.neoforged.bus.api.IEventBus modBus) {
-        modBus.addListener(NeoClientHooks::onAddLayers);
-        NeoForge.EVENT_BUS.addListener(NeoClientHooks::onClientTick);
+    public static void init(IEventBus modBus) {
+        modBus.addListener(ForgeClientHooks::onAddLayers);
+        MinecraftForge.EVENT_BUS.addListener(ForgeClientHooks::onClientTick);
+        AttSync.initClient();
         Net.clientBridge = (payload, handler) -> {
             ClientPlayNetworking.PlayPayloadHandler h = (ClientPlayNetworking.PlayPayloadHandler) handler;
             Minecraft mc = Minecraft.getInstance();
@@ -35,13 +36,14 @@ public final class NeoClientHooks {
         };
     }
 
-    private static void onClientTick(ClientTickEvent.Post event) {
+    private static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
         for (ClientTickEvents.EndTick cb : ClientTickEvents.END_CLIENT_TICK.handlers) cb.onEndTick(mc);
     }
 
     private static void onAddLayers(EntityRenderersEvent.AddLayers event) {
-        for (EntityType<?> type : event.getEntityTypes()) {
+        for (EntityType<?> type : net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES) {
             EntityRenderer<?> renderer = event.getRenderer((EntityType) type);
             if (renderer == null) continue;
             for (LivingEntityFeatureRendererRegistrationCallback cb : LivingEntityFeatureRendererRegistrationCallback.EVENT.handlers) {

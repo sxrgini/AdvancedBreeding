@@ -1,6 +1,6 @@
 package com.iiampanda.icbreed.compat.mixin;
 
-import net.neoforged.fml.loading.LoadingModList;
+import net.minecraftforge.fml.loading.LoadingModList;
 import java.util.List;
 import java.util.Set;
 import org.objectweb.asm.tree.ClassNode;

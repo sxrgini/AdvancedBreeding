@@ -1,24 +1,24 @@
 package com.iiampanda.icbreed.net;
 
 import com.iiampanda.icbreed.IcBreed;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import com.iiampanda.icbreed.platform.StreamCodec;
+import com.iiampanda.icbreed.platform.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 public record RenamePayload(int entityId, String name) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<RenamePayload> TYPE =
-            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "rename"));
+            new CustomPacketPayload.Type<>(new ResourceLocation(IcBreed.MOD_ID, "rename"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, RenamePayload> CODEC =
+    public static final StreamCodec<FriendlyByteBuf, RenamePayload> CODEC =
             StreamCodec.ofMember(RenamePayload::write, RenamePayload::read);
 
-    private void write(RegistryFriendlyByteBuf buf) {
+    private void write(FriendlyByteBuf buf) {
         buf.writeVarInt(entityId);
         buf.writeUtf(name, 64);
     }
 
-    private static RenamePayload read(RegistryFriendlyByteBuf buf) {
+    private static RenamePayload read(FriendlyByteBuf buf) {
         return new RenamePayload(buf.readVarInt(), buf.readUtf(64));
     }
 

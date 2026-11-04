@@ -90,7 +90,8 @@ public final class AttackTames {
     }
 
     private static void ensureGoals(Animal a) {
-        if (a instanceof Hoglin || !(a instanceof PathfinderMob pm)) return;
+        if (a instanceof Hoglin) return;
+        PathfinderMob pm = a;
         if (GOALED.add(a)) {
             var goals = ((MobAccessor) (Object) a).icbreed$goals();
             goals.addGoal(2, new MeleeAttackGoal(pm, 1.3D, true));

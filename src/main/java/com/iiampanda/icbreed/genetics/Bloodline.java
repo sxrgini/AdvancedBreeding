@@ -43,7 +43,6 @@ public enum Bloodline {
             new Mod(Stat.REGEN_PCT, -0.50, 0),
             new Mod(Stat.LEECH, 0, 0.01)),
     ALPHA("alpha", 10, 0xFFC93C,
-            new Mod(Stat.SCALE_PCT, 0.20, 0),
             new Mod(Stat.DAMAGE_PCT, 0, 0.01),
             new Mod(Stat.HEALTH_PCT, 0, 0.01));
 

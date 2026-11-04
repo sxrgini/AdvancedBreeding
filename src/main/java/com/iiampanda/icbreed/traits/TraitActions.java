@@ -19,7 +19,7 @@ import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.phys.AABB;
 
 public final class TraitActions {
-    private static final ResourceLocation COORD_ID = ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "coordinated");
+    private static final java.util.UUID COORD_ID = com.iiampanda.icbreed.platform.ModId.of("coordinated");
 
     private TraitActions() {
     }
@@ -62,8 +62,8 @@ public final class TraitActions {
                     if (++allies >= 3) break;
                 }
                 if (allies > 0) {
-                    dmg.addTransientModifier(new AttributeModifier(COORD_ID, fx.coordPct * allies,
-                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                    dmg.addTransientModifier(new AttributeModifier(COORD_ID, "advbreeding", fx.coordPct * allies,
+                            AttributeModifier.Operation.MULTIPLY_TOTAL));
                 }
             }
         }
@@ -92,7 +92,7 @@ public final class TraitActions {
         if (fx.extraDropChance <= 0) return;
         var extra = new java.util.ArrayList<net.minecraft.world.item.ItemStack>();
         for (var s : drops) {
-            if (s.has(net.minecraft.core.component.DataComponents.FOOD) && dead.getRandom().nextDouble() < fx.extraDropChance) {
+            if (s.getItem().isEdible() && dead.getRandom().nextDouble() < fx.extraDropChance) {
                 extra.add(s.copy());
             }
         }

@@ -26,9 +26,13 @@ public abstract class ParrotMixin {
         ((MobAccessor) (Object) self).icbreed$goals().addGoal(1, new BreedGoal(self, 1.0D));
     }
 
+    private static final java.util.Set<net.minecraft.world.item.Item> SEEDS = java.util.Set.of(net.minecraft.world.item.Items.WHEAT_SEEDS,
+            net.minecraft.world.item.Items.MELON_SEEDS, net.minecraft.world.item.Items.PUMPKIN_SEEDS, net.minecraft.world.item.Items.BEETROOT_SEEDS,
+            net.minecraft.world.item.Items.TORCHFLOWER_SEEDS, net.minecraft.world.item.Items.PITCHER_POD);
+
     @Inject(method = "isFood", at = @At("RETURN"), cancellable = true)
     private void icbreed$seeds(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-        if (stack.is(ItemTags.PARROT_FOOD)) cir.setReturnValue(true);
+        if (SEEDS.contains(stack.getItem())) cir.setReturnValue(true);
     }
 
     @Inject(method = "canMate", at = @At("HEAD"), cancellable = true)
@@ -52,7 +56,7 @@ public abstract class ParrotMixin {
     private void icbreed$feedSeeds(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         Parrot self = (Parrot) (Object) this;
         ItemStack stack = player.getItemInHand(hand);
-        if (!self.isTame() || !stack.is(ItemTags.PARROT_FOOD)) return;
+        if (!self.isTame() || !SEEDS.contains(stack.getItem())) return;
         if (self.isBaby()) {
             if (!self.level().isClientSide()) {
                 ((AnimalUseAccessor) (Object) self).icbreed$use(player, hand, stack);

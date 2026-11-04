@@ -36,8 +36,9 @@ public class GeneticsScreen extends Screen {
     private static final int W = 256;
     private static final int H = 284;
     private static final int TEXT = 0xFF404040;
-    private static final ResourceLocation XP_BG = ResourceLocation.withDefaultNamespace("hud/experience_bar_background");
-    private static final ResourceLocation XP_FG = ResourceLocation.withDefaultNamespace("hud/experience_bar_progress");
+    private static final ResourceLocation ICONS = new ResourceLocation("textures/gui/icons.png");
+    private static final ResourceLocation TABS_TEX = new ResourceLocation("textures/gui/advancements/tabs.png");
+    private static final ResourceLocation WIDGETS_TEX = new ResourceLocation("textures/gui/advancements/widgets.png");
     private static final int XP_W = 182;
     private static final int XP_H = 5;
 
@@ -60,20 +61,11 @@ public class GeneticsScreen extends Screen {
     private double treeOffY;
     private boolean dragged;
 
-    private static final int TAB_W = 28;
-    private static final int TAB_H = 32;
+    private static final int TAB_W = 32;
+    private static final int TAB_H = 28;
     private static final int NODE = 26;
     private static final int COL_STEP = 50;
     private static final int ROW_STEP = 35;
-    private static final ResourceLocation TAB_TOP = ResourceLocation.withDefaultNamespace("advancements/tab_right_top");
-    private static final ResourceLocation TAB_TOP_SEL = ResourceLocation.withDefaultNamespace("advancements/tab_right_top_selected");
-    private static final ResourceLocation TAB_MIDDLE = ResourceLocation.withDefaultNamespace("advancements/tab_right_middle");
-    private static final ResourceLocation TAB_MIDDLE_SEL = ResourceLocation.withDefaultNamespace("advancements/tab_right_middle_selected");
-    private static final ResourceLocation TAB_BOTTOM = ResourceLocation.withDefaultNamespace("advancements/tab_right_bottom");
-    private static final ResourceLocation TAB_BOTTOM_SEL = ResourceLocation.withDefaultNamespace("advancements/tab_right_bottom_selected");
-    private static final ResourceLocation FRAME_OFF = ResourceLocation.withDefaultNamespace("advancements/task_frame_unobtained");
-    private static final ResourceLocation FRAME_ON = ResourceLocation.withDefaultNamespace("advancements/task_frame_obtained");
-    private static final ResourceLocation FRAME_MAX = ResourceLocation.withDefaultNamespace("advancements/goal_frame_obtained");
 
     private int left;
     private int top;
@@ -214,8 +206,8 @@ public class GeneticsScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
-        super.renderBackground(ctx, mouseX, mouseY, delta);
+    public void renderBackground(GuiGraphics ctx) {
+        super.renderBackground(ctx);
         panel(ctx, left, top, W, H);
     }
 
@@ -239,6 +231,7 @@ public class GeneticsScreen extends Screen {
             stayButton.active = stayButton.visible && (st == null || st[1] == 1);
             stayButton.setMessage(stayLabel());
         }
+        renderBackground(ctx);
         super.render(ctx, mouseX, mouseY, delta);
 
         Genome live = com.iiampanda.icbreed.platform.Att.get(entity, Genetics.GENOME);
@@ -254,7 +247,7 @@ public class GeneticsScreen extends Screen {
         int level = genome.level();
         int barX = left + (W - XP_W) / 2;
         int barY = top + 16;
-        ctx.blitSprite(XP_BG, barX, barY, XP_W, XP_H);
+        ctx.blit(ICONS, barX, barY, 0, 64, XP_W, XP_H);
         float progress = 1.0F;
         int into = 0;
         int need = 0;
@@ -265,7 +258,7 @@ public class GeneticsScreen extends Screen {
         }
         int filled = (int) (progress * XP_W);
         if (filled > 0) {
-            ctx.blitSprite(XP_FG, XP_W, XP_H, 0, 0, barX, barY, filled, XP_H);
+            ctx.blit(ICONS, barX, barY, 0, 69, filled, XP_H);
         }
         String lvl = String.valueOf(level);
         int lx = left + (W - this.font.width(lvl)) / 2;
@@ -281,7 +274,7 @@ public class GeneticsScreen extends Screen {
         int tameY = barY + XP_H + 2;
         boolean overTame = false;
         if (growth != null) {
-            ctx.blitSprite(XP_BG, barX, tameY, XP_W, XP_H);
+            ctx.blit(ICONS, barX, tameY, 0, 64, XP_W, XP_H);
             int tf = (int) (Math.max(0, Math.min(100, growth)) / 100.0 * XP_W);
             if (tf > 0) {
                 ctx.fill(barX, tameY, barX + tf, tameY + 1, TAME_COLOR_TOP);
@@ -313,8 +306,12 @@ public class GeneticsScreen extends Screen {
         int bx = left + 8, by = top + 43, bw = 76, bh = 74;
         inset(ctx, bx, by, bw, bh);
         float size = (float) Math.max(entity.getBbWidth() * 1.15, entity.getBbHeight());
-        InventoryScreen.renderEntityInInventoryFollowsMouse(ctx, bx + 1, by + 1, bx + bw - 1, by + bh - 1,
-                (int) Math.max(8, 52 / size), 0.0625F, mouseX, mouseY, entity);
+        int cx = bx + bw / 2;
+        int cy = by + bh - 8;
+        ctx.enableScissor(bx + 1, by + 1, bx + bw - 1, by + bh - 1);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(ctx, cx, cy, (int) Math.max(8, 56 / size),
+                (float) (cx - mouseX), (float) (cy - 40 - mouseY), entity);
+        ctx.disableScissor();
 
         Bloodline bl = genome.bloodline;
         Component[] labels = {
@@ -453,7 +450,7 @@ public class GeneticsScreen extends Screen {
                 tooltip.add(Component.translatable("advbreeding.gui.wild_baby").withStyle(ChatFormatting.GRAY));
             } else {
                 tooltip.add(req(true, Component.translatable("advbreeding.gui.req_parent")));
-                tooltip.add(req(taming.started() || entity instanceof net.minecraft.world.entity.Leashable l && l.isLeashed(),
+                tooltip.add(req(taming.started() || entity instanceof net.minecraft.world.entity.Mob lm && lm.isLeashed(),
                         Component.translatable("advbreeding.gui.req_led")));
                 tooltip.add(req(taming.pen(), Component.translatable("advbreeding.gui.req_pen")));
                 tooltip.add(req(taming.fed(now), Component.translatable("advbreeding.gui.req_fed")));
@@ -534,11 +531,9 @@ public class GeneticsScreen extends Screen {
         for (int i = 0; i < count; i++) {
             Tab t = tabs.get(i);
             boolean selected = (t == Tab.TRAITS && page == Page.TRAITS) || (t == Tab.STATS && page == Page.STATS);
-            ResourceLocation sprite = i == 0 ? (selected ? TAB_TOP_SEL : TAB_TOP)
-                    : i == count - 1 ? (selected ? TAB_BOTTOM_SEL : TAB_BOTTOM)
-                    : (selected ? TAB_MIDDLE_SEL : TAB_MIDDLE);
+            int tabU = 96 + (i == 0 ? 0 : i == count - 1 ? 64 : 32);
             int y = top + TAB_H * i + 8;
-            ctx.blitSprite(sprite, x, y, TAB_W, TAB_H);
+            ctx.blit(TABS_TEX, x, y, tabU, selected ? 92 : 64, TAB_W, TAB_H);
             net.minecraft.world.item.Item icon = switch (t) {
                 case TRAITS -> net.minecraft.world.item.Items.OAK_SAPLING;
                 case STATS -> net.minecraft.world.item.Items.BOOK;
@@ -644,8 +639,9 @@ public class GeneticsScreen extends Screen {
             int x = nodeX(d), y = nodeY(d);
             int rank = traits.rank(d.id());
             boolean unlocked = d.missing(traits::rank) == null;
-            ResourceLocation frame = rank >= d.maxRank() ? FRAME_MAX : rank > 0 ? FRAME_ON : FRAME_OFF;
-            ctx.blitSprite(frame, x, y, NODE, NODE);
+            int frameU = rank >= d.maxRank() ? 52 : 0;
+            int frameV = rank > 0 ? 128 : 154;
+            ctx.blit(WIDGETS_TEX, x, y, frameU, frameV, NODE, NODE);
             var effectIcon = effectIcon(d.id());
             if (effectIcon != null) ctx.blit(x + 4, y + 4, 0, 18, 18, this.minecraft.getMobEffectTextures().get(effectIcon));
             else ctx.renderItem(d.iconStack(), x + 5, y + 5);
@@ -698,7 +694,7 @@ public class GeneticsScreen extends Screen {
         return tip;
     }
 
-    private static net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effectIcon(String id) {
+    private static net.minecraft.world.effect.MobEffect effectIcon(String id) {
         return switch (id) {
             case "regen_aura" -> net.minecraft.world.effect.MobEffects.REGENERATION;
             case "fire_resistance_aura" -> net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE;

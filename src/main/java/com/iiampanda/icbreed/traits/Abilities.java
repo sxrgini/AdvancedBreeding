@@ -97,7 +97,7 @@ public final class Abilities {
                 com.iiampanda.icbreed.platform.Att.set(chicken, Genetics.MILK_READY, now + IcBreedConfig.get().milkCooldownSeconds * 20L);
                 chicken.spawnAtLocation(new ItemStack(Items.FEATHER, (int) fx.feathers));
                 sl.playSound(null, chicken, SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1.0F, 1.0F);
-                held.hurtAndBreak(1, player, net.minecraft.world.entity.LivingEntity.getSlotForHand(hand));
+                held.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
                 Genetics.addXp(chicken, Genetics.XP_PRODUCE);
                 return InteractionResult.SUCCESS;
             }
@@ -120,7 +120,7 @@ public final class Abilities {
                 };
                 llama.spawnAtLocation(new ItemStack(wool, (int) Math.min(3, fx.llamaWool)));
                 sl.playSound(null, llama, SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1.0F, 1.0F);
-                held.hurtAndBreak(1, player, net.minecraft.world.entity.LivingEntity.getSlotForHand(hand));
+                held.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
                 Genetics.addXp(llama, Genetics.XP_PRODUCE);
                 return InteractionResult.SUCCESS;
             }

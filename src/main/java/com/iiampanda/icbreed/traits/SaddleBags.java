@@ -49,10 +49,10 @@ public final class SaddleBags {
         List<ItemStack> empty = new ArrayList<>();
         for (int i = 0; i < SLOTS; i++) empty.add(ItemStack.EMPTY);
 
-        var contents = held.get(net.minecraft.core.component.DataComponents.CONTAINER);
+        net.minecraft.nbt.CompoundTag contents = style > 0 ? held.getTagElement("BlockEntityTag") : null;
         if (style > 0 && contents != null) {
             var items = net.minecraft.core.NonNullList.withSize(SLOTS, ItemStack.EMPTY);
-            contents.copyInto(items);
+            net.minecraft.world.ContainerHelper.loadAllItems(contents, items);
             for (int i = 0; i < SLOTS; i++) empty.set(i, items.get(i));
         }
         com.iiampanda.icbreed.platform.Att.set(horse, Genetics.BAG_STYLE, style);
@@ -85,8 +85,7 @@ public final class SaddleBags {
     public static void remove(AbstractHorse horse, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
         dropAll(horse);
         horse.playSound(SoundEvents.SHEEP_SHEAR, 1.0F, 1.0F);
-        player.getItemInHand(hand).hurtAndBreak(1, player, hand == net.minecraft.world.InteractionHand.MAIN_HAND
-                ? net.minecraft.world.entity.EquipmentSlot.MAINHAND : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
+        player.getItemInHand(hand).hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
     }
 
     public static void dropAll(AbstractHorse horse) {
@@ -98,8 +97,10 @@ public final class SaddleBags {
         int st = style == null ? 0 : style;
         ItemStack drop = itemFor(st);
         if (st > 0) {
-            drop.set(net.minecraft.core.component.DataComponents.CONTAINER,
-                    net.minecraft.world.item.component.ItemContainerContents.fromItems(saved));
+            var items = net.minecraft.core.NonNullList.withSize(SLOTS, ItemStack.EMPTY);
+            for (int i = 0; i < SLOTS && i < saved.size(); i++) items.set(i, saved.get(i));
+            net.minecraft.nbt.CompoundTag data = net.minecraft.world.ContainerHelper.saveAllItems(new net.minecraft.nbt.CompoundTag(), items);
+            net.minecraft.world.item.BlockItem.setBlockEntityData(drop, net.minecraft.world.level.block.entity.BlockEntityType.SHULKER_BOX, data);
             horse.spawnAtLocation(drop);
         } else {
             horse.spawnAtLocation(drop);

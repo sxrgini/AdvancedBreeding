@@ -22,7 +22,7 @@ public abstract class MobMixin {
 
     @Inject(method = "finalizeSpawn", at = @At("HEAD"))
     private void icbreed$thinSpawns(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty,
-                                    net.minecraft.world.entity.MobSpawnType reason, net.minecraft.world.entity.SpawnGroupData data,
+                                    net.minecraft.world.entity.MobSpawnType reason, net.minecraft.world.entity.SpawnGroupData data, net.minecraft.nbt.CompoundTag tag,
                                     org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<net.minecraft.world.entity.SpawnGroupData> cir) {
         Mob self = (Mob) (Object) this;
         if ((reason == net.minecraft.world.entity.MobSpawnType.NATURAL || reason == net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION)

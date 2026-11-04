@@ -6,7 +6,6 @@ import com.iiampanda.icbreed.IcBreedConfig;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
 import com.iiampanda.icbreed.platform.UseEntityCallback;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.SuspiciousStewEffects;
+import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.level.block.SuspiciousEffectHolder;
 
 public final class MooshroomStew {
@@ -47,7 +46,7 @@ public final class MooshroomStew {
             Item flower = FLOWERS.get(cow.getRandom().nextInt(FLOWERS.size()));
             SuspiciousEffectHolder holder = SuspiciousEffectHolder.tryGet(flower);
             ItemStack stew = new ItemStack(Items.SUSPICIOUS_STEW);
-            if (holder != null) stew.set(DataComponents.SUSPICIOUS_STEW_EFFECTS, holder.getSuspiciousEffects());
+            if (holder != null) SuspiciousStewItem.saveMobEffect(stew, holder.getSuspiciousEffect(), holder.getEffectDuration());
             player.setItemInHand(hand, ItemUtils.createFilledResult(held, player, stew, false));
             level.playSound(null, cow, SoundEvents.MOOSHROOM_MILK_SUSPICIOUSLY, SoundSource.NEUTRAL, 1.0F, 1.0F);
             Genetics.addXp(cow, Genetics.XP_PRODUCE);

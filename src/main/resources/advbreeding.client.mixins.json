@@ -1,8 +1,9 @@
 {
   "required": true,
+  "refmap": "advbreeding.refmap.json",
   "minVersion": "0.8",
   "package": "com.iiampanda.icbreed.mixin.client",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_17",
   "client": [
     "HorseModelAccessor",
     "ParrotRendererMixin"

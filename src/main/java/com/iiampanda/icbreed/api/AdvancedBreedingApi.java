@@ -15,8 +15,8 @@ import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 
 public final class AdvancedBreedingApi {
-    public static final TagKey<EntityType<?>> RIDEABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("advbreeding", "rideable"));
-    public static final TagKey<EntityType<?>> NOT_RIDEABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("advbreeding", "not_rideable"));
+    public static final TagKey<EntityType<?>> RIDEABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation("advbreeding", "rideable"));
+    public static final TagKey<EntityType<?>> NOT_RIDEABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation("advbreeding", "not_rideable"));
 
     private static final Set<EntityType<?>> RIDEABLE = Collections.newSetFromMap(new ConcurrentHashMap<>());
 

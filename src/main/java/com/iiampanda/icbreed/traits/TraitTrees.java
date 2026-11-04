@@ -166,7 +166,7 @@ public final class TraitTrees {
                 n("charge", 3, "natural_ferocity", 2, 3, Items.SUGAR, m(Stat.SPEED_PCT, 0.05)),
                 n("rip_and_tear", 1, "tough_as_leather", 2, 2, Items.POTION, m(Stat.BITE, 10)),
                 n("endless_hunger", 3, "rip_and_tear", 3, 2, Items.ROTTEN_FLESH, m(Stat.LEECH, 0.08)),
-                n("thump_thump", 3, "wild_fortitude", 2, 1, Items.MACE, m(Stat.STUN, 0.10)),
+                n("thump_thump", 3, "wild_fortitude", 2, 1, Items.IRON_AXE, m(Stat.STUN, 0.10)),
                 n("hunters_mark", 3, "thump_thump", 3, 1, Items.GLOWSTONE_DUST, m(Stat.MARK, 5)));
 
         if (com.iiampanda.icbreed.compat.Backport.spears()) {
@@ -183,8 +183,6 @@ public final class TraitTrees {
         build("chicken", Items.FEATHER,
                 n("egg_drops", 3, "metabolic_preservation", 2, 5, Items.EGG, m(Stat.PRODUCTION, 1)),
                 n("shearable_feathers", 3, "egg_drops", 3, 5, Items.SHEARS, m(Stat.FEATHERS, 1)));
-        build("armadillo", Items.ARMADILLO_SCUTE,
-                n("scute_drops", 3, "metabolic_preservation", 2, 5, Items.ARMADILLO_SCUTE, m(Stat.PRODUCTION, 1)));
 
         build("axolotl", Items.TROPICAL_FISH_BUCKET,
                 n("regen_aura", 1, "axolotl", 1, 3, Items.POTION, m(Stat.REGEN_AURA, 1)),
@@ -245,7 +243,7 @@ public final class TraitTrees {
         if (com.iiampanda.icbreed.compat.Backport.present()) {
             build("happy_ghast", Items.GHAST_TEAR,
                     n("buildable", 1, "happy_ghast", 1, 0, Items.OAK_LOG, m(Stat.BUILDABLE, 1)),
-                    n("flying_speed", 3, "happy_ghast", 1, 3, Items.WIND_CHARGE, m(Stat.FLY_SPEED, 0.11)));
+                    n("flying_speed", 3, "happy_ghast", 1, 3, Items.FEATHER, m(Stat.FLY_SPEED, 0.11)));
         }
 
         build("rabbit", Items.RABBIT_FOOT,
@@ -434,7 +432,6 @@ public final class TraitTrees {
         if (animal instanceof net.minecraft.world.entity.animal.frog.Frog) return TREES.get("frog");
         if (animal instanceof Pig) return TREES.get("pig");
         if (animal instanceof net.minecraft.world.entity.animal.Chicken) return TREES.get("chicken");
-        if (animal instanceof net.minecraft.world.entity.animal.armadillo.Armadillo) return TREES.get("armadillo");
         return fallback(animal);
     }
 

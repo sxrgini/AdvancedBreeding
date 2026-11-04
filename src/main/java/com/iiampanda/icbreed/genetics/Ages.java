@@ -39,7 +39,7 @@ public final class Ages {
 
     public static boolean isFood(Mob m, ItemStack s) {
         if (m instanceof Animal a) return a.isFood(s);
-        if (m instanceof Tadpole) return s.is(ItemTags.FROG_FOOD);
+        if (m instanceof Tadpole) return s.is(net.minecraft.world.item.Items.SLIME_BALL);
         return false;
     }
 

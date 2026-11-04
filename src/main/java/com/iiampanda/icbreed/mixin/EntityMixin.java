@@ -27,4 +27,12 @@ public abstract class EntityMixin {
         cir.setReturnValue(Component.empty().append(base)
                 .append(Component.literal(" " + g.sex.symbol).withStyle(Style.EMPTY.withColor(g.sex.color))));
     }
+
+    @Inject(method = "getMyRidingOffset", at = @At("RETURN"), cancellable = true)
+    private void icbreed$hatOffset(CallbackInfoReturnable<Double> cir) {
+        Entity self = (Entity) (Object) this;
+        if (self instanceof net.minecraft.world.entity.animal.axolotl.Axolotl && self.getVehicle() instanceof net.minecraft.world.entity.player.Player) {
+            cir.setReturnValue(cir.getReturnValue() + 0.5D);
+        }
+    }
 }

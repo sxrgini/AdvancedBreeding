@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import com.iiampanda.icbreed.platform.AttachmentRegistry;
 import com.iiampanda.icbreed.platform.AttachmentSyncPredicate;
-import net.neoforged.neoforge.attachment.AttachmentType;
+import com.iiampanda.icbreed.platform.AttachmentType;
 import com.iiampanda.icbreed.platform.ServerLivingEntityEvents;
 import com.iiampanda.icbreed.platform.ServerTickEvents;
 import com.iiampanda.icbreed.platform.UseBlockCallback;
@@ -24,7 +24,6 @@ import com.iiampanda.icbreed.platform.UseEntityCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -76,13 +75,13 @@ public final class GhastDeck {
     }
 
     public static final AttachmentType<Deck> DECK = AttachmentRegistry.create(
-            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "ghast_deck"),
+            new ResourceLocation(IcBreed.MOD_ID, "ghast_deck"),
             builder -> builder.persistent(Deck.CODEC));
 
     public static final AttachmentType<Seats> SEATS = AttachmentRegistry.create(
-            ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "ghast_seats"),
+            new ResourceLocation(IcBreed.MOD_ID, "ghast_seats"),
             builder -> builder.persistent(Seats.CODEC)
-                    .syncWith(ByteBufCodecs.fromCodecWithRegistries(Seats.CODEC), AttachmentSyncPredicate.all()));
+                    .syncWith(Seats.CODEC, AttachmentSyncPredicate.all()));
 
     private static final String TAG = "advbreeding_deck";
     private static final int RADIUS = com.iiampanda.icbreed.IcBreedConfig.get().ghastDeckRadius;
@@ -368,7 +367,7 @@ public final class GhastDeck {
             BlockState s = level.getBlockState(p);
             if (s.isAir()) continue;
             BlockEntity be = level.getBlockEntity(p);
-            entries.add(new Entry(o, s, be == null ? Optional.empty() : Optional.of(be.saveWithFullMetadata(level.registryAccess()))));
+            entries.add(new Entry(o, s, be == null ? Optional.empty() : Optional.of(be.saveWithFullMetadata())));
             kept.add(o);
             world.add(p);
         }
@@ -446,7 +445,7 @@ public final class GhastDeck {
             }
             level.setBlock(np, e.state(), FLAGS);
             if (e.tag().isPresent()) {
-                BlockEntity be = BlockEntity.loadStatic(np, e.state(), e.tag().get(), level.registryAccess());
+                BlockEntity be = BlockEntity.loadStatic(np, e.state(), e.tag().get());
                 if (be != null) level.setBlockEntity(be);
             }
             kept.add(e.off());

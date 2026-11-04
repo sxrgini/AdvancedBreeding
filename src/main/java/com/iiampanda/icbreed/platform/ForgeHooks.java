@@ -4,35 +4,38 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 
-public final class NeoHooks {
-    private NeoHooks() {
+public final class ForgeHooks {
+    private ForgeHooks() {
     }
 
     public static void init() {
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onEntityInteract);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onRightClickBlock);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onRightClickItem);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onServerTick);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onLevelTick);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onDeath);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, LivingDeathEvent.class, NeoHooks::afterDeath);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::afterDamage);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onLogout);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onStopping);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onJoin);
-        NeoForge.EVENT_BUS.addListener(NeoHooks::onCommands);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onEntityInteract);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onRightClickBlock);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onRightClickItem);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onLevelTick);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onDeath);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, LivingDeathEvent.class, ForgeHooks::afterDeath);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::afterDamage);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onLogout);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onStopping);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onJoin);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onCommands);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onStartTracking);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onPlayerLogin);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onPlayerRespawn);
+        MinecraftForge.EVENT_BUS.addListener(ForgeHooks::onPlayerDimension);
     }
 
     private static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
@@ -68,12 +71,13 @@ public final class NeoHooks {
         }
     }
 
-    private static void onServerTick(ServerTickEvent.Post event) {
+    private static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         for (ServerTickEvents.EndTick cb : ServerTickEvents.END_SERVER_TICK.handlers) cb.onEndTick(event.getServer());
     }
 
-    private static void onLevelTick(LevelTickEvent.Post event) {
-        if (!(event.getLevel() instanceof ServerLevel level)) return;
+    private static void onLevelTick(TickEvent.LevelTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || !(event.level instanceof ServerLevel level)) return;
         for (ServerTickEvents.EndWorldTick cb : ServerTickEvents.END_WORLD_TICK.handlers) cb.onEndTick(level);
     }
 
@@ -94,17 +98,17 @@ public final class NeoHooks {
         for (ServerLivingEntityEvents.AfterDeath cb : ServerLivingEntityEvents.AFTER_DEATH.handlers) cb.afterDeath(entity, event.getSource());
     }
 
-    private static void afterDamage(LivingDamageEvent.Post event) {
+    private static void afterDamage(LivingDamageEvent event) {
         LivingEntity entity = event.getEntity();
-        if (entity.level().isClientSide()) return;
+        if (entity.level().isClientSide() || event.isCanceled()) return;
         for (ServerLivingEntityEvents.AfterDamage cb : ServerLivingEntityEvents.AFTER_DAMAGE.handlers) {
-            cb.afterDamage(entity, event.getSource(), event.getOriginalDamage(), event.getNewDamage(), event.getBlockedDamage() > 0.0F);
+            cb.afterDamage(entity, event.getSource(), event.getAmount(), event.getAmount(), false);
         }
     }
 
     private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.connection == null) return;
-        for (ServerPlayConnectionEvents.Disconnect cb : ServerPlayConnectionEvents.DISCONNECT.handlers) cb.onPlayDisconnect(player.connection, player.level().getServer());
+        for (ServerPlayConnectionEvents.Disconnect cb : ServerPlayConnectionEvents.DISCONNECT.handlers) cb.onPlayDisconnect(player.connection, player.getServer());
     }
 
     private static void onStopping(ServerStoppingEvent event) {
@@ -120,5 +124,21 @@ public final class NeoHooks {
         for (CommandRegistrationCallback cb : CommandRegistrationCallback.EVENT.handlers) {
             cb.register(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
         }
+    }
+
+    private static void onStartTracking(PlayerEvent.StartTracking event) {
+        if (event.getEntity() instanceof ServerPlayer viewer) AttSync.sendTracked(viewer, event.getTarget());
+    }
+
+    private static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer p) AttSync.sendTracked(p, p);
+    }
+
+    private static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer p) AttSync.sendTracked(p, p);
+    }
+
+    private static void onPlayerDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer p) AttSync.sendTracked(p, p);
     }
 }

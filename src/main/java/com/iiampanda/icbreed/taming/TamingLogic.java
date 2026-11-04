@@ -184,7 +184,7 @@ public final class TamingLogic {
         try {
             if (animal instanceof TamableAnimal tamable) {
                 if (owner != null) tamable.tame(owner);
-                else tamable.setTame(true, true);
+                else tamable.setTame(true);
             } else if (animal instanceof AbstractHorse horse) {
                 horse.setTamed(true);
                 if (owner != null) horse.setOwnerUUID(owner.getUUID());

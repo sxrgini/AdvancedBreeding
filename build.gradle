@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'net.neoforged.moddev' version '2.0.148'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.148'
 }
 
 version = project.mod_version
@@ -11,6 +11,7 @@ base {
 }
 
 repositories {
+    maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
     exclusiveContent {
         forRepository {
             maven { url 'https://api.modrinth.com/maven' }
@@ -21,17 +22,8 @@ repositories {
     }
 }
 
-dependencies {
-    compileOnly "maven.modrinth:vanillabackport:${project.vb_version}"
-    compileOnly "maven.modrinth:platform:${project.vb_platform_version}"
-    if (project.hasProperty('withVb')) {
-        runtimeOnly "maven.modrinth:vanillabackport:${project.vb_version}"
-        runtimeOnly "maven.modrinth:platform:${project.vb_platform_version}"
-    }
-}
-
-neoForge {
-    version = project.neo_version
+legacyForge {
+    version = project.forge_version
     runs {
         server {
             server()
@@ -48,20 +40,43 @@ neoForge {
     }
 }
 
-processResources {
-    inputs.property "version", project.version
-    filesMatching("META-INF/neoforge.mods.toml") {
-        expand "version": inputs.properties.version, "minecraft_version": project.minecraft_version
+mixin {
+    add sourceSets.main, 'advbreeding.refmap.json'
+    config 'advbreeding.mixins.json'
+    config 'advbreeding.client.mixins.json'
+    config 'advbreeding.compat.mixins.json'
+}
+
+dependencies {
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    modCompileOnly "maven.modrinth:vanillabackport:${project.vb_version}"
+    modCompileOnly "maven.modrinth:platform:${project.vb_platform_version}"
+    if (project.hasProperty('withVb')) {
+        modRuntimeOnly "maven.modrinth:vanillabackport:${project.vb_version}"
+        modRuntimeOnly "maven.modrinth:platform:${project.vb_platform_version}"
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.release = 21
+    options.release = 17
     options.encoding = 'UTF-8'
 }
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+    manifest.attributes([
+        "MixinConfigs": "advbreeding.mixins.json,advbreeding.client.mixins.json,advbreeding.compat.mixins.json"
+    ])
+}
+
+processResources {
+    inputs.property 'version', project.mod_version
+    filesMatching('META-INF/mods.toml') {
+        expand 'version': project.mod_version
+    }
 }

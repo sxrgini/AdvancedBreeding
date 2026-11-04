@@ -4,7 +4,6 @@ import com.iiampanda.icbreed.IcBreedConfig;
 import com.iiampanda.icbreed.genetics.Effects;
 import com.iiampanda.icbreed.genetics.Genetics;
 import com.iiampanda.icbreed.platform.UseEntityCallback;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
@@ -42,7 +41,7 @@ public final class Starvation {
 
     public static boolean isFood(Mob m, ItemStack stack) {
         if (m instanceof Animal a) return a.isFood(stack);
-        return stack.has(DataComponents.FOOD) || stack.is(ItemTags.FISHES);
+        return stack.getItem().isEdible() || stack.is(ItemTags.FISHES);
     }
 
     private static long threshold(Mob m) {

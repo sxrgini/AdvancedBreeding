@@ -88,13 +88,11 @@ public abstract class LivingEntityMixin {
         self.yRotO = self.yBodyRot = self.yHeadRot = self.getYRot();
     }
 
-    @com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(
+    @org.spongepowered.asm.mixin.injection.ModifyArg(
             method = "aiStep",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V"))
-    private void icbreed$stayTravel(LivingEntity self, net.minecraft.world.phys.Vec3 input,
-                                    com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original) {
-        if (com.iiampanda.icbreed.traits.StayPut.holding(self)) original.call(self, net.minecraft.world.phys.Vec3.ZERO);
-        else original.call(self, input);
+    private net.minecraft.world.phys.Vec3 icbreed$stayTravel(net.minecraft.world.phys.Vec3 input) {
+        return com.iiampanda.icbreed.traits.StayPut.holding((LivingEntity) (Object) this) ? net.minecraft.world.phys.Vec3.ZERO : input;
     }
 
     @Inject(method = "jumpFromGround", at = @At("HEAD"), cancellable = true)
@@ -107,15 +105,15 @@ public abstract class LivingEntityMixin {
         if (!((Object) this instanceof net.minecraft.world.entity.monster.Strider s) || s.level().isClientSide()) return;
         var attr = s.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         if (attr == null) return;
-        var id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("advbreeding", "lava_speed");
+        var id = com.iiampanda.icbreed.platform.ModId.of("lava_speed");
         Effects fx = icbreed$effects();
         double want = fx != null && s.isInLava() ? fx.lavaPct : 0.0;
         var cur = attr.getModifier(id);
-        if (cur == null ? want == 0.0 : cur.amount() == want) return;
+        if (cur == null ? want == 0.0 : cur.getAmount() == want) return;
         attr.removeModifier(id);
         if (want != 0.0) {
-            attr.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(id, want,
-                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            attr.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(id, "advbreeding", want,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL));
         }
     }
 
@@ -124,16 +122,16 @@ public abstract class LivingEntityMixin {
         if (!((Object) this instanceof net.minecraft.world.entity.animal.camel.Camel c) || c.level().isClientSide()) return;
         var attr = c.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         if (attr == null) return;
-        var id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("advbreeding", "sand_speed");
+        var id = com.iiampanda.icbreed.platform.ModId.of("sand_speed");
         Effects fx = icbreed$effects();
         boolean sand = c.level().getBlockState(c.getOnPos()).is(net.minecraft.tags.BlockTags.SAND);
         double want = fx != null && sand ? fx.sandPct : 0.0;
         var cur = attr.getModifier(id);
-        if (cur == null ? want == 0.0 : cur.amount() == want) return;
+        if (cur == null ? want == 0.0 : cur.getAmount() == want) return;
         attr.removeModifier(id);
         if (want != 0.0) {
-            attr.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(id, want,
-                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            attr.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(id, "advbreeding", want,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL));
         }
     }
 

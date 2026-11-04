@@ -2,7 +2,6 @@ package com.iiampanda.icbreed.client;
 
 import java.util.Locale;
 
-import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.animal.MushroomCow;
@@ -24,9 +23,8 @@ public final class Phenotypes {
             if (compat != null) return compat;
             if (e instanceof Sheep s) return title(s.getColor().getName());
             if (e instanceof MushroomCow m) return title(m.getVariant().name());
-            if (e instanceof net.minecraft.world.entity.animal.frog.Frog f) return holder(f.getVariant());
-            if (e instanceof Cat c) return cat(holder(c.getVariant()));
-            if (e instanceof net.minecraft.world.entity.animal.Wolf w) return holder(w.getVariant());
+            if (e instanceof net.minecraft.world.entity.animal.frog.Frog f) return reg(net.minecraft.core.registries.BuiltInRegistries.FROG_VARIANT, f.getVariant());
+            if (e instanceof Cat c) return cat(reg(net.minecraft.core.registries.BuiltInRegistries.CAT_VARIANT, c.getVariant()));
             if (e instanceof Horse h) {
                 String coat = title(h.getVariant().name());
                 String mark = switch (h.getMarkings()) {
@@ -70,9 +68,9 @@ public final class Phenotypes {
         };
     }
 
-    private static String holder(Holder<?> h) {
-        if (h == null) return null;
-        return h.unwrapKey().map(k -> title(k.location().getPath())).orElse(null);
+    private static <T> String reg(net.minecraft.core.Registry<T> registry, T value) {
+        net.minecraft.resources.ResourceLocation key = registry.getKey(value);
+        return key == null ? null : title(key.getPath());
     }
 
     private static String title(String id) {

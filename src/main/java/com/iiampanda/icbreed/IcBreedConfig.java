@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.neoforged.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 public final class IcBreedConfig {
     private static final int CURRENT_VERSION = 7;

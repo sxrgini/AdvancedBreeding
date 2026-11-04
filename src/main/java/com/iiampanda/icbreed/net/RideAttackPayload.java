@@ -1,16 +1,16 @@
 package com.iiampanda.icbreed.net;
 
 import com.iiampanda.icbreed.IcBreed;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import com.iiampanda.icbreed.platform.StreamCodec;
+import com.iiampanda.icbreed.platform.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 public record RideAttackPayload() implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<RideAttackPayload> TYPE =
-            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(IcBreed.MOD_ID, "ride_attack"));
+            new CustomPacketPayload.Type<>(new ResourceLocation(IcBreed.MOD_ID, "ride_attack"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, RideAttackPayload> CODEC =
+    public static final StreamCodec<FriendlyByteBuf, RideAttackPayload> CODEC =
             StreamCodec.unit(new RideAttackPayload());
 
     @Override

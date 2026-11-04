@@ -8,7 +8,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
@@ -23,7 +23,6 @@ import net.minecraft.world.entity.animal.frog.Tadpole;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.animal.Sheep;
-import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 
@@ -50,9 +49,9 @@ public final class Colors {
         return c.get(r.nextInt(c.size()));
     }
 
-    private static <T> List<Holder<T>> pool(Level level, ResourceKey<? extends Registry<T>> key) {
-        List<Holder<T>> out = new ArrayList<>();
-        level.registryAccess().lookupOrThrow(key).listElements().forEach(out::add);
+    private static <T> List<T> registryList(Registry<T> registry) {
+        List<T> out = new ArrayList<>();
+        registry.forEach(out::add);
         return out;
     }
 
@@ -70,9 +69,7 @@ public final class Colors {
         } else if (baby instanceof MushroomCow c && a instanceof MushroomCow x && b instanceof MushroomCow y) {
             ((PhenoMushroomCowAccessor) (Object) c).icbreed$set(choose(r, x.getVariant(), y.getVariant(), all(MushroomCow.MushroomType.values())));
         } else if (baby instanceof Cat c && a instanceof Cat x && b instanceof Cat y) {
-            ((PhenoCatAccessor) (Object) c).icbreed$set(choose(r, x.getVariant(), y.getVariant(), pool(lv, Registries.CAT_VARIANT)));
-        } else if (baby instanceof Wolf c && a instanceof Wolf x && b instanceof Wolf y) {
-            ((PhenoWolfAccessor) (Object) c).icbreed$set(choose(r, x.getVariant(), y.getVariant(), pool(lv, Registries.WOLF_VARIANT)));
+            c.setVariant(choose(r, x.getVariant(), y.getVariant(), registryList(BuiltInRegistries.CAT_VARIANT)));
         } else if (baby instanceof Rabbit c && a instanceof Rabbit x && b instanceof Rabbit y) {
             List<Rabbit.Variant> pool = all(Rabbit.Variant.values());
             pool.remove(Rabbit.Variant.EVIL);
@@ -101,8 +98,9 @@ public final class Colors {
             }
             ((PhenoHorseAccessor) (Object) c).icbreed$set(coat, marks);
         } else if (baby instanceof Tadpole t && a instanceof Frog x && b instanceof Frog y) {
-            Holder<net.minecraft.world.entity.animal.FrogVariant> h = choose(r, x.getVariant(), y.getVariant(), pool(lv, Registries.FROG_VARIANT));
-            h.unwrapKey().ifPresent(k -> com.iiampanda.icbreed.platform.Att.set(t, Genetics.FROG_VARIANT, k.location().toString()));
+            net.minecraft.world.entity.animal.FrogVariant h = choose(r, x.getVariant(), y.getVariant(), registryList(BuiltInRegistries.FROG_VARIANT));
+            ResourceLocation key = BuiltInRegistries.FROG_VARIANT.getKey(h);
+            if (key != null) com.iiampanda.icbreed.platform.Att.set(t, Genetics.FROG_VARIANT, key.toString());
         }
     }
 
@@ -111,8 +109,7 @@ public final class Colors {
         if (id == null) return;
         ResourceLocation parsed = ResourceLocation.tryParse(id);
         if (parsed == null) return;
-        frog.level().registryAccess().lookupOrThrow(Registries.FROG_VARIANT)
-                .get(ResourceKey.create(Registries.FROG_VARIANT, parsed))
-                .ifPresent(h -> ((PhenoFrogAccessor) (Object) frog).icbreed$set(h));
+        net.minecraft.world.entity.animal.FrogVariant v = BuiltInRegistries.FROG_VARIANT.get(parsed);
+        if (v != null) frog.setVariant(v);
     }
 }

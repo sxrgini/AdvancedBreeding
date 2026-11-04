@@ -1,12 +1,12 @@
 {
   "required": true,
+  "refmap": "advbreeding.refmap.json",
   "minVersion": "0.8",
   "package": "com.iiampanda.icbreed.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AbstractHorseMixin",
     "AnimalMixin",
-    "ArmadilloMixin",
     "BreedGoalMixin",
     "ChickenMixin",
     "EntityMixin",
@@ -36,9 +36,6 @@
     "HorseSaddledMixin",
     "ParrotAccessor",
     "PhenoMushroomCowAccessor",
-    "PhenoFrogAccessor",
-    "PhenoCatAccessor",
-    "PhenoWolfAccessor",
     "PhenoHorseAccessor",
     "PhenoRabbitAccessor",
     "PhenoLlamaAccessor",
@@ -49,8 +46,12 @@
     "ServerPlayerAccessor",
     "ServerPlayerMixin",
     "ShoulderRidingEntityMixin",
+    "AttEntityMixin",
+    "AttBlockEntityMixin",
     "BeePollinateMixin",
-    "BeehiveMixin"
+    "BeehiveMixin",
+    "BeeDataAccessor",
+    "BeehiveAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

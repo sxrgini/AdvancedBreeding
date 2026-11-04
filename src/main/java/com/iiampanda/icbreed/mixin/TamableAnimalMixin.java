@@ -16,7 +16,7 @@ public abstract class TamableAnimalMixin {
     }
 
     @Inject(method = "setTame", at = @At("HEAD"), cancellable = true)
-    private void icbreed$noVanillaTame(boolean tame, boolean updateAttributes, CallbackInfo ci) {
+    private void icbreed$noVanillaTame(boolean tame, CallbackInfo ci) {
         if (tame && TamingLogic.blocksVanillaTaming(this)) ci.cancel();
     }
 }
