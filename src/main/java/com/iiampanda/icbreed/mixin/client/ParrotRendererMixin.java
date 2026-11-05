@@ -13,6 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ParrotRendererMixin {
     @Inject(method = "scale", at = @At("HEAD"))
     private void icbreed$babyParrot(LivingEntity entity, PoseStack poseStack, float partialTick, CallbackInfo ci) {
-        if (entity instanceof Parrot && entity.isBaby()) poseStack.scale(0.5F, 0.5F, 0.5F);
+        if ((entity instanceof Parrot || entity instanceof net.minecraft.world.entity.ambient.Bat) && entity.isBaby()) poseStack.scale(0.5F, 0.5F, 0.5F);
     }
 }

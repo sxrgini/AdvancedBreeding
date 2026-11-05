@@ -39,6 +39,14 @@ public class IcBreed {
     public static final String MOD_ID = "advbreeding";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+    public static void registerFrogVariants() {
+        for (String v : new String[] {"blue_poison_dart", "bumblebee_poison_dart", "strawberry_poison_dart"}) {
+            net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.FROG_VARIANT,
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MOD_ID, v),
+                    new net.minecraft.world.entity.animal.FrogVariant(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/entity/frog/" + v + ".png")));
+        }
+    }
+
     public void onInitialize() {
         IcBreedConfig.load();
         Genetics.init();
@@ -145,8 +153,10 @@ public class IcBreed {
                 horse.openCustomInventoryScreen(player);
             }
         });
+        com.iiampanda.icbreed.traits.BatBreeding.register();
 
         com.iiampanda.icbreed.traits.Abilities.register();
+        com.iiampanda.icbreed.traits.PoisonTouch.register();
         com.iiampanda.icbreed.traits.MooshroomStew.register();
         com.iiampanda.icbreed.compat.Compat.init();
 
@@ -285,12 +295,20 @@ public class IcBreed {
                 Genome g = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.GENOME);
                 if (g == null) continue;
                 com.iiampanda.icbreed.genetics.Taming tm = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
-                if (tm != null && (tm.tamed() || tm.started() || tm.orphan() || tm.young() || com.iiampanda.icbreed.genetics.Ages.isBaby(animal) || animal.isLeashed())) animal.setPersistenceRequired();
+                if (tm != null) {
+                    if (tm.tamed() || tm.started() || tm.orphan() || animal.isLeashed()) animal.setPersistenceRequired();
+                    else if (animal instanceof net.minecraft.world.entity.animal.Animal && animal.isPersistenceRequired() && !animal.hasCustomName() && !animal.isPassenger() && !animal.isVehicle()) {
+                        ((com.iiampanda.icbreed.mixin.MobAccessor) (Object) animal).icbreed$persistent(false);
+                    }
+                }
                 Effects fx = Genetics.effects(animal);
                 TraitActions.upkeep(level, animal, fx);
+                com.iiampanda.icbreed.traits.PoisonTouch.track(animal, fx);
                 com.iiampanda.icbreed.traits.StayPut.followUpkeep(animal);
+                if (animal instanceof net.minecraft.world.entity.ambient.Bat bat) com.iiampanda.icbreed.traits.BatBreeding.tick(level, bat);
                 com.iiampanda.icbreed.traits.AttackTames.tick(animal, level);
                 Genetics.tickPregnancy(level, animal);
+                if (animal instanceof net.minecraft.world.entity.ambient.Bat bat) com.iiampanda.icbreed.traits.BatBreeding.ageTick(bat);
                 boolean grows = TamingLogic.tick(level, animal);
                 Genetics.updateGrowth(animal);
                 if (!grows) continue;

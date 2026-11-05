@@ -12,4 +12,7 @@ public interface MobAccessor {
 
     @Accessor("targetSelector")
     GoalSelector icbreed$targets();
+
+    @Accessor("persistenceRequired")
+    void icbreed$persistent(boolean value);
 }

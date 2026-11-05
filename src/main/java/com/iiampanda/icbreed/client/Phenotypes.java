@@ -51,6 +51,9 @@ public final class Phenotypes {
                 case YELLOW_BLUE -> "Yellow-Blue";
                 default -> title(p.getVariant().name());
             };
+            if (e instanceof Axolotl a && com.iiampanda.icbreed.platform.Att.get(a, com.iiampanda.icbreed.genetics.Genetics.AXO_COLOR) != null) {
+                return com.iiampanda.icbreed.genetics.AxolotlColors.displayName(com.iiampanda.icbreed.platform.Att.get(a, com.iiampanda.icbreed.genetics.Genetics.AXO_COLOR));
+            }
             if (e instanceof Axolotl a) return switch (a.getVariant()) {
                 case LUCY -> "Leucistic";
                 case WILD -> "Wild";

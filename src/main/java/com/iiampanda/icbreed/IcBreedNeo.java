@@ -20,5 +20,6 @@ public final class IcBreedNeo {
 
     private static void onRegister(RegisterEvent event) {
         if (event.getRegistryKey().equals(Registries.BLOCK)) com.iiampanda.icbreed.block.ModBlocks.init();
+        if (event.getRegistryKey().equals(Registries.FROG_VARIANT)) IcBreed.registerFrogVariants();
     }
 }

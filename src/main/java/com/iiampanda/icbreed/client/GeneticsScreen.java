@@ -664,12 +664,17 @@ public class GeneticsScreen extends Screen {
         if (hover.cost() > 1) {
             tip.add(Component.translatable("advbreeding.gui.trait_cost", hover.cost()).withStyle(ChatFormatting.GRAY));
         }
-        Component traitDesc = hover.descriptionComponent();
+        Component traitDesc = hover.id().equals("shoulder_pal") && entity instanceof net.minecraft.world.entity.ambient.Bat
+                ? Component.translatable("advbreeding.trait.shoulder_pal.desc.bat") : hover.descriptionComponent();
         if (traitDesc != null) {
             tip.add(traitDesc.copy().withStyle(ChatFormatting.GREEN));
         }
+        if (hover.id().equals("polly_pickup")) {
+            tip.add(Component.translatable("advbreeding.gui.trait_per_level").withStyle(ChatFormatting.DARK_GRAY)
+                    .append(Component.translatable("advbreeding.trait.polly_pickup.per_level").withStyle(ChatFormatting.GREEN)));
+        }
         if (!hover.mods().isEmpty() && hover.mods().get(0).stat() != Stat.PRODUCTION
-                && !java.util.Set.of("hunters_mark", "rip_and_tear", "regen_aura", "axolotl_hat", "saturation_aura", "nine_lives", "cat_scratches", "shearable_feathers", "metal_scraps", "feral_side", "rideable", "fire_resistance_aura", "lava_walker", "captain_now", "buildable", "water_breather", "underwater_vision", "pollination", "increased_honey_production", "honey_block_production", "shoulder_pal", "elytra_boost", "polly_pickup", "llama_thick_hide", "phenotype_mutation", "very_suspicious", "hoppy_aura").contains(hover.id())) {
+                && !java.util.Set.of("hunters_mark", "rip_and_tear", "regen_aura", "axolotl_hat", "saturation_aura", "nine_lives", "cat_scratches", "shearable_feathers", "metal_scraps", "feral_side", "rideable", "fire_resistance_aura", "lava_walker", "captain_now", "buildable", "water_breather", "underwater_vision", "pollination", "increased_honey_production", "honey_block_production", "shoulder_pal", "elytra_boost", "bat_glider", "polly_pickup", "llama_thick_hide", "phenotype_mutation", "very_suspicious", "hoppy_aura", "poison_touch").contains(hover.id())) {
             tip.add(Component.translatable("advbreeding.gui.trait_per_rank").withStyle(ChatFormatting.DARK_GRAY));
             for (TraitDef.Mod m : hover.mods()) {
                 if (m.stat() == Stat.PRODUCTION) continue;
@@ -704,6 +709,7 @@ public class GeneticsScreen extends Screen {
             case "fire_resistance_aura" -> net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE;
             case "saturation_aura" -> net.minecraft.world.effect.MobEffects.SATURATION;
             case "hoppy_aura" -> net.minecraft.world.effect.MobEffects.JUMP;
+            case "poison_touch" -> net.minecraft.world.effect.MobEffects.POISON;
             default -> null;
         };
     }
