@@ -67,11 +67,13 @@ public final class Effects {
     public double shoulderPal;
     public double elytraBoost;
     public double pollyPickup;
+    public double batGlider;
     public double llamaWool;
     public double phenoMutation;
     public double stewRank;
     public double sandPct;
     public double hopAura;
+    public double poisonTouch;
 
     public void add(Effects o) {
         healthPct += o.healthPct; healthFlat += o.healthFlat; damagePct += o.damagePct; damageFlat += o.damageFlat;
@@ -95,6 +97,7 @@ public final class Effects {
         satAura += o.satAura;
         nineLives += o.nineLives;
         cling += o.cling;
+        poisonTouch += o.poisonTouch;
         feathers += o.feathers;
         nuggets += o.nuggets;
         hat += o.hat;
@@ -106,6 +109,7 @@ public final class Effects {
         shoulderPal += o.shoulderPal;
         elytraBoost += o.elytraBoost;
         pollyPickup += o.pollyPickup;
+        batGlider += o.batGlider;
         llamaWool += o.llamaWool;
         foodUse += o.foodUse; satRate += o.satRate; physRes += o.physRes; regenPct += o.regenPct;
         phenoMutation += o.phenoMutation;

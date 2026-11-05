@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "HorseRendererMixin",
-    "ParrotRendererMixin"
+    "ParrotRendererMixin",
+    "AxolotlRenderStateMixin",
+    "AxolotlRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

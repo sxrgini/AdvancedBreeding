@@ -153,6 +153,56 @@ public abstract class LivingEntityMixin {
         }
     }
 
+    @Inject(method = "isBaby", at = @At("HEAD"), cancellable = true)
+    private void icbreed$batBaby(CallbackInfoReturnable<Boolean> cir) {
+        if ((Object) this instanceof net.minecraft.world.entity.ambient.Bat bat) {
+            Integer age = bat.getAttached(Genetics.BAT_AGE);
+            if (age != null && age < 0) cir.setReturnValue(true);
+        }
+    }
+
+    @org.spongepowered.asm.mixin.Shadow
+    protected boolean jumping;
+
+    @Inject(method = "aiStep", at = @At("TAIL"))
+    private void icbreed$batGlide(CallbackInfo ci) {
+        if (!((Object) this instanceof net.minecraft.world.entity.player.Player p)) return;
+        Integer perks = p.getAttached(Genetics.PERKS);
+        boolean glider = perks != null && (perks & 16) != 0;
+        boolean gliding = false;
+        if (glider && !p.onGround() && !p.isFallFlying() && !p.isInWater() && !p.isInLava() && !p.isPassenger()
+                && !p.getAbilities().flying && !p.isSpectator()) {
+            boolean held = p instanceof net.minecraft.server.level.ServerPlayer sp ? sp.getLastClientInput().jump() : this.jumping;
+            net.minecraft.world.phys.Vec3 dm = p.getDeltaMovement();
+            if (held && dm.y < 0.0) {
+                gliding = true;
+                net.minecraft.world.phys.Vec3 look = p.getLookAngle();
+                double lx = look.x, lz = look.z;
+                double len = Math.sqrt(lx * lx + lz * lz);
+                double hx = dm.x, hz = dm.z;
+                if (len > 1.0E-4) {
+                    hx += lx / len * 0.045;
+                    hz += lz / len * 0.045;
+                }
+                double speed = Math.sqrt(hx * hx + hz * hz);
+                if (speed > 0.42) {
+                    hx *= 0.42 / speed;
+                    hz *= 0.42 / speed;
+                }
+                p.setDeltaMovement(hx, Math.max(dm.y, -0.1), hz);
+                p.resetFallDistance();
+            }
+        }
+        if (!p.level().isClientSide()) {
+            int cur = p.getAttachedOrElse(Genetics.BAT_SHOULDER, 0);
+            int want = gliding ? (cur | 4) : (cur & ~4);
+            if (want != cur) {
+                if (want == 0) p.removeAttached(Genetics.BAT_SHOULDER);
+                else p.setAttached(Genetics.BAT_SHOULDER, want);
+            }
+        }
+    }
+
     @Inject(method = "aiStep", at = @At("TAIL"))
     private void icbreed$elytraBoost(CallbackInfo ci) {
         if ((Object) this instanceof net.minecraft.world.entity.player.Player p && p.isFallFlying()) {
