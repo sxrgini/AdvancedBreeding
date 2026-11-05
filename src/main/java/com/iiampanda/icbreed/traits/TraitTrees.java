@@ -193,6 +193,10 @@ public final class TraitTrees {
                 n("increased_honey_production", 1, "pollination", 2, 3, Items.HONEY_BOTTLE, m(Stat.HONEY_FAST, 1)),
                 n("honey_block_production", 1, "increased_honey_production", 3, 3, Items.HONEY_BLOCK, m(Stat.HONEY_BLOCK, 1)));
 
+        build("bat", Items.MELON_SLICE,
+                n("shoulder_pal", 1, "bat", 1, 3, Items.FEATHER, m(Stat.SHOULDER_PAL, 1)),
+                new TraitDef("bat_glider", 1, "shoulder_pal", null, 2, 3, com.iiampanda.icbreed.block.ModBlocks.WIND_CHARGE_ICON, List.of(m(Stat.BAT_GLIDER, 1)), 2));
+
         build("parrot", Items.WHEAT_SEEDS,
                 n("shoulder_pal", 1, "parrot", 1, 3, Items.FEATHER, m(Stat.SHOULDER_PAL, 1)),
                 new TraitDef("elytra_boost", 1, "shoulder_pal", null, 2, 3, Items.ELYTRA, List.of(m(Stat.ELYTRA_BOOST, 1)), 2),
@@ -248,7 +252,8 @@ public final class TraitTrees {
 
         build("rabbit", Items.RABBIT_FOOT,
                 n("hoppy_aura", 1, "wild_fortitude", 2, 1, Items.RABBIT_FOOT, m(Stat.HOP_AURA, 1)));
-        build("frog", Items.LILY_PAD);
+        build("frog", Items.LILY_PAD, 1,
+                n("poison_touch", 2, "frog", -1, 3, Items.POTION, m(Stat.POISON_TOUCH, 1)));
         build("creature", Items.OAK_SAPLING);
         build("creature_rideable", Items.OAK_SAPLING);
     }
@@ -404,6 +409,7 @@ public final class TraitTrees {
     }
 
     private static Tree baseMob(net.minecraft.world.entity.Mob animal) {
+        if (animal instanceof net.minecraft.world.entity.ambient.Bat) return TREES.get("bat");
         return animal instanceof Animal a ? forAnimal(a) : fallback(animal);
     }
 

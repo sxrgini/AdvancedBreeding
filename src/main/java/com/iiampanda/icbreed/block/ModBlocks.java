@@ -21,6 +21,11 @@ public final class ModBlocks {
 
     public static final Item HAY_CARPET_ITEM = new BlockItem(HAY_CARPET, new Item.Properties());
 
+    private static final ResourceLocation WIND_CHARGE_ICON_ID = new ResourceLocation(IcBreed.MOD_ID, "wind_charge_icon");
+
+    /** GUI-only icon: the Wind Charge item does not exist in 1.20.1, so its texture is carried over. */
+    public static final Item WIND_CHARGE_ICON = new Item(new Item.Properties());
+
     public static final Block HONEY_CAULDRON = new HoneyCauldronBlock(BlockBehaviour.Properties.of()
             .strength(2.0F)
             .requiresCorrectToolForDrops()
@@ -34,7 +39,10 @@ public final class ModBlocks {
             helper.register(HAY_CARPET_ID, HAY_CARPET);
             helper.register(HONEY_CAULDRON_ID, HONEY_CAULDRON);
         });
-        event.register(Registries.ITEM, helper -> helper.register(HAY_CARPET_ID, HAY_CARPET_ITEM));
+        event.register(Registries.ITEM, helper -> {
+            helper.register(HAY_CARPET_ID, HAY_CARPET_ITEM);
+            helper.register(WIND_CHARGE_ICON_ID, WIND_CHARGE_ICON);
+        });
     }
 
     public static void init() {

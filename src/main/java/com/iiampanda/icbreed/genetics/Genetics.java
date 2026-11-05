@@ -87,9 +87,23 @@ public final class Genetics {
             new ResourceLocation(IcBreed.MOD_ID, "shoulder_perks"),
             builder -> builder.syncWith(com.mojang.serialization.Codec.INT, AttachmentSyncPredicate.targetOnly()));
 
+    public static final AttachmentType<Integer> BAT_SHOULDER = AttachmentRegistry.create(
+            new ResourceLocation(IcBreed.MOD_ID, "bat_shoulder"),
+            builder -> builder.syncWith(com.mojang.serialization.Codec.INT, AttachmentSyncPredicate.all()));
+
+    public static final AttachmentType<Integer> BAT_AGE = AttachmentRegistry.create(
+            new ResourceLocation(IcBreed.MOD_ID, "bat_age"),
+            builder -> builder.persistent(com.mojang.serialization.Codec.INT)
+                    .syncWith(com.mojang.serialization.Codec.INT, AttachmentSyncPredicate.all()));
+
     public static final AttachmentType<String> FROG_VARIANT = AttachmentRegistry.create(
             new ResourceLocation(IcBreed.MOD_ID, "frog_variant"),
             builder -> builder.persistent(com.mojang.serialization.Codec.STRING));
+
+    public static final AttachmentType<String> AXO_COLOR = AttachmentRegistry.create(
+            new ResourceLocation(IcBreed.MOD_ID, "axolotl_color"),
+            builder -> builder.persistent(com.mojang.serialization.Codec.STRING)
+                    .syncWith(com.mojang.serialization.Codec.STRING, AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Boolean> JUMP_ROLLED = AttachmentRegistry.create(
             new ResourceLocation(IcBreed.MOD_ID, "jump_rolled"),
@@ -300,16 +314,25 @@ public final class Genetics {
 
     private static void giveBirth(ServerLevel level, Mob mother, Pregnancy p) {
         com.iiampanda.icbreed.platform.Att.remove(mother, PREGNANCY);
-        if (!(mother instanceof AgeableMob am)) return;
-        AgeableMob partner = am;
-        if (p.fatherId().isPresent() && level.getEntity(p.fatherId().get()) instanceof AgeableMob dad && dad.isAlive()) {
-            partner = dad;
+        Mob baby;
+        AgeableMob partner = null;
+        if (mother instanceof net.minecraft.world.entity.ambient.Bat) {
+            baby = com.iiampanda.icbreed.traits.BatBreeding.newBaby(level);
+            if (baby == null) return;
+        } else if (mother instanceof AgeableMob am) {
+            partner = am;
+            if (p.fatherId().isPresent() && level.getEntity(p.fatherId().get()) instanceof AgeableMob dad && dad.isAlive()) {
+                partner = dad;
+            }
+            AgeableMob born = am.getBreedOffspring(level, partner);
+            if (born == null) return;
+            born.setBaby(true);
+            baby = born;
+        } else {
+            return;
         }
-        AgeableMob baby = am.getBreedOffspring(level, partner);
-        if (baby == null) return;
-        baby.setBaby(true);
         baby.moveTo(mother.getX(), mother.getY(), mother.getZ(), 0.0F, 0.0F);
-        Colors.inherit(baby, mother, partner);
+        if (partner != null) Colors.inherit(baby, mother, partner);
         {
             Mob child = baby;
             Genome mom = getOrCreate(mother);
@@ -320,9 +343,13 @@ public final class Genetics {
                     displayName(mother), p.fatherName()));
         }
         level.addFreshEntityWithPassengers(baby);
-        level.broadcastEntityEvent(mother, (byte) 18);
+        if (mother instanceof net.minecraft.world.entity.ambient.Bat) {
+            level.sendParticles(net.minecraft.core.particles.ParticleTypes.HEART, mother.getX(), mother.getEyeY() + 0.3, mother.getZ(), 7, 0.3, 0.3, 0.3, 0.02);
+        } else {
+            level.broadcastEntityEvent(mother, (byte) 18);
+        }
 
-        am.setAge(Math.max(0, am.getAge()) + IcBreedConfig.get().postBirthCooldownSeconds * 20);
+        Ages.setAge(mother, Math.max(0, Ages.getAge(mother)) + IcBreedConfig.get().postBirthCooldownSeconds * 20);
 
         if (mother.hasCustomName()) {
             Component msg = Component.literal(mother.getCustomName().getString() + " has given birth!");

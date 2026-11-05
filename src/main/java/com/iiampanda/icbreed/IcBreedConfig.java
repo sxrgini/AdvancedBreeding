@@ -58,6 +58,8 @@ public final class IcBreedConfig {
     public int honeyDripSeconds = 45;
     public int dolphinLoveSeconds = 30;
     public int dolphinBreedCooldownSeconds = 300;
+    public int batLoveSeconds = 30;
+    public int batBreedCooldownSeconds = 300;
     public int milkReductionSecondsPerRank = 60;
     public int milkMinimumSeconds = 120;
     public int llamaWoolCooldownSeconds = 300;
@@ -67,6 +69,11 @@ public final class IcBreedConfig {
     public int ghastDeckMaxY = 24;
     public int ghastDeckMaxBlocks = 600;
     public int ghastDeckMaxSeats = 4;
+    public double axolotlChimeraEggChance = 0.01;
+    public double axolotlChimeraParentChance = 0.0005;
+    public double axolotlChimeraRandomChance = 0.00005;
+    public double jungleFrogVariantChance = 0.001;
+    public int jungleFrogSpawnWeight = 4;
     public int ghastDeckSettleTicks = 30;
 
     private static IcBreedConfig instance = new IcBreedConfig();
@@ -101,6 +108,11 @@ public final class IcBreedConfig {
 
     private void sanitize() {
         statIncreaseChance = clamp01(statIncreaseChance);
+        axolotlChimeraEggChance = clamp01(axolotlChimeraEggChance);
+        axolotlChimeraParentChance = clamp01(axolotlChimeraParentChance);
+        axolotlChimeraRandomChance = clamp01(axolotlChimeraRandomChance);
+        jungleFrogVariantChance = Math.max(0, Math.min(0.33, jungleFrogVariantChance));
+        jungleFrogSpawnWeight = Math.max(0, jungleFrogSpawnWeight);
         worseChanceOnHit = clamp01(worseChanceOnHit);
         baseMutationChance = clamp01(baseMutationChance);
         gestationSeconds = Math.max(1, gestationSeconds);
@@ -118,6 +130,8 @@ public final class IcBreedConfig {
         honeyDripSeconds = Math.max(1, honeyDripSeconds);
         dolphinLoveSeconds = Math.max(1, dolphinLoveSeconds);
         dolphinBreedCooldownSeconds = Math.max(0, dolphinBreedCooldownSeconds);
+        batLoveSeconds = Math.max(1, batLoveSeconds);
+        batBreedCooldownSeconds = Math.max(0, batBreedCooldownSeconds);
         milkReductionSecondsPerRank = Math.max(0, milkReductionSecondsPerRank);
         milkMinimumSeconds = Math.max(1, milkMinimumSeconds);
         llamaWoolCooldownSeconds = Math.max(0, llamaWoolCooldownSeconds);

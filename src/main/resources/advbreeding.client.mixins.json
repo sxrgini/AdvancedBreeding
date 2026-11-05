@@ -6,7 +6,8 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "HorseModelAccessor",
-    "ParrotRendererMixin"
+    "ParrotRendererMixin",
+    "AxolotlRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

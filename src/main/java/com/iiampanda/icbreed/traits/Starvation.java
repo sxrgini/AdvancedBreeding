@@ -34,6 +34,7 @@ public final class Starvation {
                 }
             }
             fed(m);
+            com.iiampanda.icbreed.taming.TamingLogic.onFed(m, player.getUUID());
             m.playSound(net.minecraft.sounds.SoundEvents.GENERIC_EAT, 1.0F, 1.0F);
             return InteractionResult.SUCCESS;
         });

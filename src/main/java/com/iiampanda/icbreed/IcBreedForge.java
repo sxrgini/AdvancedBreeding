@@ -12,6 +12,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public final class IcBreedForge {
     public IcBreedForge() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(com.iiampanda.icbreed.block.ModBlocks::register);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener((net.minecraftforge.registries.RegisterEvent e) -> {
+            if (e.getRegistryKey().equals(net.minecraft.core.registries.Registries.FROG_VARIANT)) IcBreed.registerFrogVariants();
+        });
         ForgeHooks.init();
         AttSync.init();
         new IcBreed().onInitialize();

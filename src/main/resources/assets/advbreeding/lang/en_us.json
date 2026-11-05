@@ -257,10 +257,15 @@
   "advbreeding.trait.parrot": "Parrot",
   "advbreeding.trait.shoulder_pal": "Shoulder Pal",
   "advbreeding.trait.shoulder_pal.desc": "Put the Parrot on your Shoulder",
+  "advbreeding.trait.shoulder_pal.desc.bat": "Put the Bat on your Shoulder",
+  "advbreeding.trait.bat": "Bat",
+  "advbreeding.trait.bat_glider": "Bat Glider",
+  "advbreeding.trait.bat_glider.desc": "Use your Pet Bat as a Glider",
+  "advbreeding.stat.bat_glider": "Bat Glider",
   "advbreeding.trait.elytra_boost": "Elytra Boost",
   "advbreeding.trait.elytra_boost.desc": "+10% Movement Speed with the Elytra while holding your Parrot",
   "advbreeding.trait.polly_pickup": "Polly Pickup",
-  "advbreeding.trait.polly_pickup.desc": "Your Parrot picks up items within 5 blocks of you (10 blocks at level 2) and brings them back",
+  "advbreeding.trait.polly_pickup.desc": "Send out your Parrot to retrieve items",
   "advbreeding.stat.shoulder_pal": "Shoulder Pal",
   "advbreeding.stat.elytra_boost": "Elytra Boost",
   "advbreeding.stat.polly_pickup": "Polly Pickup",
@@ -319,5 +324,10 @@
   "advbreeding.gui.trait_cost": "Costs %s trait points",
   "advbreeding.trait.hunters_mark.desc": "Applies Glowing Effect on hit for 5 seconds",
   "advbreeding.trait.rip_and_tear.desc": "Gives the Poison Effect for 10 seconds",
-  "advbreeding.stat.bite": "Poison Duration (s)"
+  "advbreeding.stat.bite": "Poison Duration (s)",
+  "advbreeding.trait.poison_touch": "Poison Touch",
+  "advbreeding.trait.poison_touch.desc": "A Slimy & Poisonous Touch!",
+  "advbreeding.stat.poison_touch": "Poison Touch",
+  "advbreeding.trait.polly_pickup.per_level": "+5 Blocks",
+  "advbreeding.gui.trait_per_level": "Per Level: "
 }
