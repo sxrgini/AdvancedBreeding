@@ -52,7 +52,8 @@ public final class TamingLogic {
 
     public static void onFed(Mob animal, UUID player) {
         Taming t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
-        if (t == null || t.tamed() || !t.orphan() || !Ages.isBaby(animal)) return;
+        if (t == null || !Ages.isBaby(animal)) return;
+        if (t.tamed() ? !needsFeeding(animal) : !t.orphan()) return;
         var fx = Genetics.effects(animal);
         double stretch = fx == null ? 1.0 : fx.hungerStretch();
         long until = animal.level().getGameTime() + Math.round(IcBreedConfig.get().tamingFoodSeconds * 20L * stretch);
@@ -61,9 +62,25 @@ public final class TamingLogic {
 
     private static final double GROWN_YOUNG_CHANCE = com.iiampanda.icbreed.IcBreedConfig.get().grownYoungChance;
 
+    public static boolean needsFeeding(Mob animal) {
+        return animal instanceof net.minecraft.world.entity.animal.parrot.Parrot || animal instanceof net.minecraft.world.entity.ambient.Bat;
+    }
+
+    public static boolean saturated(Mob animal) {
+        Taming t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
+        return t != null && t.fed(animal.level().getGameTime());
+    }
+
     public static boolean tick(ServerLevel level, Mob animal) {
         Taming t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
-        if (t == null || t.tamed()) return true;
+        if (t == null) return true;
+        if (t.tamed()) {
+            if (Ages.isBaby(animal) && needsFeeding(animal) && !t.fed(level.getGameTime())) {
+                Ages.setAge(animal, Math.min(Ages.getAge(animal) - 20, -40));
+                return false;
+            }
+            return true;
+        }
         if (!Ages.isBaby(animal) && !t.young()) {
             ensureYoung(level, animal, t.orphan() || t.started() ? GROWN_YOUNG_CHANCE : IcBreedConfig.get().youngSpawnChance);
             t = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
@@ -75,8 +92,9 @@ public final class TamingLogic {
 
         long now = level.getGameTime();
         boolean leashed = animal.isLeashed();
-        boolean pen = Ages.isBaby(animal) ? isEnclosed(level, animal.blockPosition()) : t.pen();
-        boolean bed = Ages.isBaby(animal) ? hasBed(level, animal.blockPosition(), IcBreedConfig.get().bedRadius) : t.bed();
+        BlockPos stand = standPos(level, animal);
+        boolean pen = Ages.isBaby(animal) ? isEnclosed(level, stand) : t.pen();
+        boolean bed = Ages.isBaby(animal) ? hasBed(level, stand, IcBreedConfig.get().bedRadius) : t.bed();
 
         if (!Ages.isBaby(animal)) {
             if (t.started() && t.pen() && t.bed()) complete(level, animal, t);
@@ -100,6 +118,17 @@ public final class TamingLogic {
             return false;
         }
         return true;
+    }
+
+    private static BlockPos standPos(ServerLevel level, Mob animal) {
+        BlockPos p = animal.blockPosition();
+        if (!(animal instanceof net.minecraft.world.entity.ambient.Bat)) return p;
+        BlockPos.MutableBlockPos m = p.mutable();
+        for (int i = 0; i < 16 && m.getY() > level.getMinY(); i++) {
+            if (hasFloor(level, m)) return m.immutable();
+            m.move(Direction.DOWN);
+        }
+        return p;
     }
 
     public static Class<? extends Mob> babyClass(Mob adult) {
@@ -141,7 +170,7 @@ public final class TamingLogic {
             net.minecraft.world.entity.Entity made = adult instanceof net.minecraft.world.entity.animal.frog.Frog
                     ? net.minecraft.world.entity.EntityTypes.TADPOLE.create(level, net.minecraft.world.entity.EntitySpawnReason.BREEDING)
                     : adult.getType().create(level, net.minecraft.world.entity.EntitySpawnReason.BREEDING);
-            if (made instanceof Mob baby && (baby instanceof net.minecraft.world.entity.AgeableMob || baby instanceof net.minecraft.world.entity.animal.frog.Tadpole)) {
+            if (made instanceof Mob baby && (baby instanceof net.minecraft.world.entity.AgeableMob || baby instanceof net.minecraft.world.entity.animal.frog.Tadpole || baby instanceof net.minecraft.world.entity.ambient.Bat)) {
                 double x = adult.getX() + (adult.getRandom().nextDouble() - 0.5) * 2;
                 double y = adult.getY();
                 double z = adult.getZ() + (adult.getRandom().nextDouble() - 0.5) * 2;
@@ -153,9 +182,11 @@ public final class TamingLogic {
                     z = water.getZ() + 0.5;
                 } else if (baby instanceof net.minecraft.world.entity.AgeableMob am) {
                     am.setBaby(true);
+                } else if (baby instanceof net.minecraft.world.entity.ambient.Bat bat) {
+                    Ages.setAge(bat, net.minecraft.world.entity.AgeableMob.BABY_START_AGE);
+                    bat.setResting(false);
                 }
-                baby.setPersistenceRequired();
-                adult.setPersistenceRequired();
+                if (baby instanceof net.minecraft.world.entity.animal.frog.Tadpole) baby.setPersistenceRequired();
                 baby.snapTo(x, y, z, adult.getRandom().nextFloat() * 360.0F, 0.0F);
                 level.addFreshEntityWithPassengers(baby);
             }

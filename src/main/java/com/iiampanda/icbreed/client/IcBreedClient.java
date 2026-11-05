@@ -9,6 +9,12 @@ public class IcBreedClient {
     public void onInitializeClient() {
         com.iiampanda.icbreed.platform.LivingEntityRenderLayerRegistrationCallback.EVENT.register(
                 (type, renderer, helper, context) -> {
+                    if (renderer instanceof net.minecraft.client.renderer.entity.AxolotlRenderer axolotlRenderer) {
+                        registerBags(helper, new AxolotlLegLayer((net.minecraft.client.renderer.entity.RenderLayerParent) axolotlRenderer, context));
+                    }
+                    if (renderer instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer avatarRenderer) {
+                        registerBags(helper, new BatShoulderLayer((net.minecraft.client.renderer.entity.RenderLayerParent) avatarRenderer, context.getModelSet()));
+                    }
                     if (renderer instanceof net.minecraft.client.renderer.entity.HorseRenderer horseRenderer) {
                         registerBags(helper, new BagsLayer(horseRenderer, context.getItemModelResolver()));
                     }
@@ -54,7 +60,7 @@ public class IcBreedClient {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static void registerBags(com.iiampanda.icbreed.platform.LivingEntityRenderLayerRegistrationCallback.RegistrationHelper helper,
-                                     BagsLayer layer) {
+                                     net.minecraft.client.renderer.entity.layers.RenderLayer<?, ?> layer) {
         helper.register((net.minecraft.client.renderer.entity.layers.RenderLayer) layer);
     }
 }

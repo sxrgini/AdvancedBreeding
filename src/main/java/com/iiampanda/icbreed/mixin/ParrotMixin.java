@@ -60,9 +60,9 @@ public abstract class ParrotMixin {
         ItemStack stack = player.getItemInHand(hand);
         if (!self.isTame() || !stack.is(ItemTags.PARROT_FOOD)) return;
         if (self.isBaby()) {
+            if (com.iiampanda.icbreed.taming.TamingLogic.saturated(self)) return;
             if (!self.level().isClientSide()) {
                 ((MobAccessor) (Object) self).icbreed$use(player, hand, stack);
-                self.ageUp(AgeableMob.getSpeedUpSecondsWhenFeeding(-self.getAge()), true);
             }
         } else if (self.getAge() == 0 && self.canFallInLove()) {
             if (!self.level().isClientSide()) {
