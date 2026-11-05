@@ -18,7 +18,7 @@ public final class StayPut {
     }
 
     public static boolean holding(net.minecraft.world.entity.LivingEntity e) {
-        return e instanceof Mob m && !m.isVehicle() && Boolean.TRUE.equals(m.getAttached(Genetics.SITTING));
+        return e instanceof Mob m && !(m instanceof net.minecraft.world.entity.ambient.Bat) && !m.isVehicle() && Boolean.TRUE.equals(m.getAttached(Genetics.SITTING));
     }
 
     public static boolean can(Mob mob, Player player) {
@@ -81,7 +81,9 @@ public final class StayPut {
     }
 
     public static Mode cycle(Mob mob, Player who) {
-        Mode next = Mode.values()[(mode(mob).ordinal() + 1) % Mode.values().length];
+        Mode next = mob instanceof net.minecraft.world.entity.ambient.Bat
+                ? (staying(mob) ? Mode.WANDER : Mode.STAY)
+                : Mode.values()[(mode(mob).ordinal() + 1) % Mode.values().length];
         setMode(mob, next, who);
         return next;
     }
@@ -125,6 +127,9 @@ public final class StayPut {
         if (mob instanceof TamableAnimal t) {
             sit(t, on);
             t.setInSittingPose(on);
+        } else if (mob instanceof net.minecraft.world.entity.ambient.Bat bat) {
+            if (on) BatHang.begin(bat);
+            else BatHang.end(bat);
         } else if (mob instanceof Fox f) {
             f.setSitting(on);
         } else if (mob instanceof Panda p) {
@@ -136,6 +141,7 @@ public final class StayPut {
     }
 
     public static void enforce(Mob mob) {
+        if (mob instanceof net.minecraft.world.entity.ambient.Bat) return;
         if (!AttackTames.sitting(mob)) {
             if (mob instanceof TamableAnimal t && t.isOrderedToSit()) mob.setAttached(Genetics.SITTING, true);
             return;

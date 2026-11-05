@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractHorseMixin",
+    "FrogSpawnMixin",
     "AnimalMixin",
     "ArmadilloMixin",
     "BreedGoalMixin",
@@ -15,6 +16,8 @@
     "MobMixin",
     "PigMixin",
     "HoglinAiMixin",
+    "BatLeashMixin",
+    "BatMixin",
     "LeashMixin",
     "LootDropsMixin",
     "PlayerMixin",

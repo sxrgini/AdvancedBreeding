@@ -26,7 +26,7 @@ public abstract class MobMixin {
                                     org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<net.minecraft.world.entity.SpawnGroupData> cir) {
         Mob self = (Mob) (Object) this;
         if ((reason == net.minecraft.world.entity.MobSpawnType.NATURAL || reason == net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION)
-                && Genetics.supports(self) && self.getRandom().nextDouble() >= com.iiampanda.icbreed.IcBreedConfig.get().naturalSpawnKeep) {
+                && Genetics.supports(self) && !(self instanceof net.minecraft.world.entity.ambient.Bat) && self.getRandom().nextDouble() >= com.iiampanda.icbreed.IcBreedConfig.get().naturalSpawnKeep) {
             self.setAttached(Genetics.CULL, true);
         }
     }

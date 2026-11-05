@@ -11,6 +11,12 @@ public class IcBreedClient implements ClientModInitializer {
     public void onInitializeClient() {
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
                 (type, renderer, helper, context) -> {
+                    if (renderer instanceof net.minecraft.client.renderer.entity.AxolotlRenderer axolotlRenderer) {
+                        registerBags(helper, new AxolotlLegLayer((net.minecraft.client.renderer.entity.RenderLayerParent) axolotlRenderer, context));
+                    }
+                    if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer avatarRenderer) {
+                        registerBags(helper, new BatShoulderLayer((net.minecraft.client.renderer.entity.RenderLayerParent) avatarRenderer, context.getModelSet()));
+                    }
                     if (renderer instanceof net.minecraft.client.renderer.entity.HorseRenderer horseRenderer) {
                         registerBags(helper, new BagsLayer(horseRenderer));
                     }
@@ -56,7 +62,7 @@ public class IcBreedClient implements ClientModInitializer {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static void registerBags(net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.RegistrationHelper helper,
-                                     BagsLayer layer) {
+                                     net.minecraft.client.renderer.entity.layers.RenderLayer<?, ?> layer) {
         helper.register((net.minecraft.client.renderer.entity.layers.RenderLayer) layer);
     }
 }

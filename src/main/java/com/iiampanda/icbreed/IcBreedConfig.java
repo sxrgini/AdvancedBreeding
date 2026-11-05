@@ -58,6 +58,8 @@ public final class IcBreedConfig {
     public int honeyDripSeconds = 45;
     public int dolphinLoveSeconds = 30;
     public int dolphinBreedCooldownSeconds = 300;
+    public int batLoveSeconds = 30;
+    public int batBreedCooldownSeconds = 300;
     public int milkReductionSecondsPerRank = 60;
     public int milkMinimumSeconds = 120;
     public int llamaWoolCooldownSeconds = 300;
@@ -67,6 +69,11 @@ public final class IcBreedConfig {
     public int ghastDeckMaxY = 24;
     public int ghastDeckMaxBlocks = 600;
     public int ghastDeckMaxSeats = 4;
+    public double axolotlChimeraEggChance = 0.01;
+    public double axolotlChimeraParentChance = 0.0005;
+    public double axolotlChimeraRandomChance = 0.00005;
+    public double jungleFrogVariantChance = 0.001;
+    public int jungleFrogSpawnWeight = 4;
     public int ghastDeckSettleTicks = 30;
 
     private static IcBreedConfig instance = new IcBreedConfig();
@@ -118,6 +125,8 @@ public final class IcBreedConfig {
         honeyDripSeconds = Math.max(1, honeyDripSeconds);
         dolphinLoveSeconds = Math.max(1, dolphinLoveSeconds);
         dolphinBreedCooldownSeconds = Math.max(0, dolphinBreedCooldownSeconds);
+        batLoveSeconds = Math.max(1, batLoveSeconds);
+        batBreedCooldownSeconds = Math.max(0, batBreedCooldownSeconds);
         milkReductionSecondsPerRank = Math.max(0, milkReductionSecondsPerRank);
         milkMinimumSeconds = Math.max(1, milkMinimumSeconds);
         llamaWoolCooldownSeconds = Math.max(0, llamaWoolCooldownSeconds);
@@ -126,6 +135,11 @@ public final class IcBreedConfig {
         ghastDeckMaxY = Math.max(ghastDeckMinY + 1, ghastDeckMaxY);
         ghastDeckMaxBlocks = Math.max(1, ghastDeckMaxBlocks);
         ghastDeckMaxSeats = Math.max(0, ghastDeckMaxSeats);
+        axolotlChimeraEggChance = Math.max(0, Math.min(1, axolotlChimeraEggChance));
+        axolotlChimeraParentChance = Math.max(0, Math.min(1, axolotlChimeraParentChance));
+        axolotlChimeraRandomChance = Math.max(0, Math.min(1, axolotlChimeraRandomChance));
+        jungleFrogVariantChance = Math.max(0, Math.min(0.33, jungleFrogVariantChance));
+        jungleFrogSpawnWeight = Math.max(0, jungleFrogSpawnWeight);
         ghastDeckSettleTicks = Math.max(1, ghastDeckSettleTicks);
     }
 

@@ -45,6 +45,17 @@ public class IcBreed implements ModInitializer {
         IcBreedConfig.load();
         Genetics.init();
         ModBlocks.init();
+        for (String v : new String[] {"blue_poison_dart", "bumblebee_poison_dart", "strawberry_poison_dart"}) {
+            net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.FROG_VARIANT,
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MOD_ID, v),
+                    new net.minecraft.world.entity.animal.FrogVariant(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/entity/frog/" + v + ".png")));
+        }
+        if (IcBreedConfig.get().jungleFrogSpawnWeight > 0) {
+            net.fabricmc.fabric.api.biome.v1.BiomeModifications.addSpawn(
+                    net.fabricmc.fabric.api.biome.v1.BiomeSelectors.tag(net.minecraft.tags.BiomeTags.IS_JUNGLE),
+                    net.minecraft.world.entity.MobCategory.CREATURE, net.minecraft.world.entity.EntityType.FROG,
+                    IcBreedConfig.get().jungleFrogSpawnWeight, 1, 2);
+        }
         com.iiampanda.icbreed.traits.Starvation.register();
         com.iiampanda.icbreed.traits.Shoulder.register();
         net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register(
@@ -148,8 +159,10 @@ public class IcBreed implements ModInitializer {
                 horse.openCustomInventoryScreen(player);
             }
         });
+        com.iiampanda.icbreed.traits.BatBreeding.register();
 
         com.iiampanda.icbreed.traits.Abilities.register();
+        com.iiampanda.icbreed.traits.PoisonTouch.register();
         com.iiampanda.icbreed.traits.MooshroomStew.register();
         com.iiampanda.icbreed.compat.Compat.init();
 
@@ -288,12 +301,20 @@ public class IcBreed implements ModInitializer {
                 Genome g = animal.getAttached(Genetics.GENOME);
                 if (g == null) continue;
                 com.iiampanda.icbreed.genetics.Taming tm = animal.getAttached(Genetics.TAMING);
-                if (tm != null && (tm.tamed() || tm.started() || tm.orphan() || tm.young() || com.iiampanda.icbreed.genetics.Ages.isBaby(animal) || animal.isLeashed())) animal.setPersistenceRequired();
+                if (tm != null) {
+                    if (tm.tamed() || tm.started() || tm.orphan() || animal.isLeashed()) animal.setPersistenceRequired();
+                    else if (animal instanceof net.minecraft.world.entity.animal.Animal && animal.isPersistenceRequired() && !animal.hasCustomName() && !animal.isPassenger() && !animal.isVehicle()) {
+                        ((com.iiampanda.icbreed.mixin.MobAccessor) (Object) animal).icbreed$persistent(false);
+                    }
+                }
                 Effects fx = Genetics.effects(animal);
                 TraitActions.upkeep(level, animal, fx);
+                com.iiampanda.icbreed.traits.PoisonTouch.track(animal, fx);
                 com.iiampanda.icbreed.traits.StayPut.followUpkeep(animal);
+                if (animal instanceof net.minecraft.world.entity.ambient.Bat bat) com.iiampanda.icbreed.traits.BatBreeding.tick(level, bat);
                 com.iiampanda.icbreed.traits.AttackTames.tick(animal, level);
                 Genetics.tickPregnancy(level, animal);
+                if (animal instanceof net.minecraft.world.entity.ambient.Bat bat) com.iiampanda.icbreed.traits.BatBreeding.ageTick(bat);
                 boolean grows = TamingLogic.tick(level, animal);
                 Genetics.updateGrowth(animal);
                 if (!grows) continue;

@@ -84,7 +84,15 @@ public final class Colors {
         } else if (baby instanceof Parrot c && a instanceof Parrot x && b instanceof Parrot y) {
             ((ParrotAccessor) (Object) c).icbreed$setVariant(choose(r, x.getVariant(), y.getVariant(), all(Parrot.Variant.values())));
         } else if (baby instanceof Axolotl c && a instanceof Axolotl x && b instanceof Axolotl y) {
-            ((PhenoAxolotlAccessor) (Object) c).icbreed$set(choose(r, x.getVariant(), y.getVariant(), all(Axolotl.Variant.values())));
+            com.iiampanda.icbreed.IcBreedConfig cfg = com.iiampanda.icbreed.IcBreedConfig.get();
+            double chimeraRoll = r.nextDouble();
+            if (chimeraRoll < cfg.axolotlChimeraRandomChance) {
+                AxolotlColors.apply(c, AxolotlColors.chimeraDivergent(r, AxolotlColors.keyOf(x), AxolotlColors.keyOf(y)));
+            } else if (chimeraRoll < cfg.axolotlChimeraRandomChance + cfg.axolotlChimeraParentChance) {
+                AxolotlColors.apply(c, AxolotlColors.chimeraFromParents(r, AxolotlColors.keyOf(x), AxolotlColors.keyOf(y)));
+            } else {
+                AxolotlColors.apply(c, choose(r, AxolotlColors.keyOf(x), AxolotlColors.keyOf(y), AxolotlColors.pool()));
+            }
         } else if (baby instanceof Horse c && a instanceof Horse x && b instanceof Horse y) {
             Horse src = r.nextBoolean() ? x : y;
             net.minecraft.world.entity.animal.horse.Variant coat = src.getVariant();
