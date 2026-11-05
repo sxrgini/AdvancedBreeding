@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.TagValueInput;
@@ -47,6 +48,7 @@ public final class Shoulder {
     public static void register() {
         net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             if (hand != net.minecraft.world.InteractionHand.MAIN_HAND || player.isShiftKeyDown() || player.isSpectator()) return net.minecraft.world.InteractionResult.PASS;
+            if (entity instanceof Bat bat) return batToShoulder(player, level, bat);
             if (!(entity instanceof Parrot parrot) || !player.getMainHandItem().isEmpty() || !parrot.isTame() || !parrot.isOwnedBy(player)) return net.minecraft.world.InteractionResult.PASS;
             if (parrot.getAttachedOrElse(Genetics.TRAITS, com.iiampanda.icbreed.genetics.Traits.NONE).rank("shoulder_pal") <= 0) return net.minecraft.world.InteractionResult.PASS;
             if (level.isClientSide()) return net.minecraft.world.InteractionResult.SUCCESS;
@@ -75,6 +77,32 @@ public final class Shoulder {
         });
     }
 
+    private static net.minecraft.world.InteractionResult batToShoulder(net.minecraft.world.entity.player.Player player, net.minecraft.world.level.Level level, Bat bat) {
+        if (!player.getMainHandItem().isEmpty() || !Genetics.isTamed(bat) || !StayPut.isOwner(bat, player)) return net.minecraft.world.InteractionResult.PASS;
+        if (bat.getAttachedOrElse(Genetics.TRAITS, com.iiampanda.icbreed.genetics.Traits.NONE).rank("shoulder_pal") <= 0) return net.minecraft.world.InteractionResult.PASS;
+        if (level.isClientSide()) return net.minecraft.world.InteractionResult.SUCCESS;
+        if (player instanceof ServerPlayer sp && MISSIONS.get(sp.getUUID()) == null) {
+            StayPut.release(bat);
+            var reporter = new ProblemReporter.ScopedCollector(() -> "bat_shoulder", com.iiampanda.icbreed.IcBreed.LOGGER);
+            try {
+                var out = net.minecraft.world.level.storage.TagValueOutput.createWithContext(reporter, bat.registryAccess());
+                bat.saveWithoutId(out);
+                out.putString("id", net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(bat.getType()).toString());
+                if (sp.setEntityOnShoulder(out.buildResult())) {
+                    bat.discard();
+                    refresh(sp);
+                }
+            } finally {
+                reporter.close();
+            }
+        }
+        return net.minecraft.world.InteractionResult.SUCCESS;
+    }
+
+    private static boolean isBat(CompoundTag t) {
+        return t != null && !t.isEmpty() && "minecraft:bat".equals(t.getStringOr("id", ""));
+    }
+
     private static boolean isParrot(CompoundTag t) {
         return t != null && !t.isEmpty() && "minecraft:parrot".equals(t.getStringOr("id", ""));
     }
@@ -88,15 +116,31 @@ public final class Shoulder {
     public static int perks(ServerPlayer p) {
         int v = 0;
         for (CompoundTag t : new CompoundTag[] {p.getShoulderEntityLeft(), p.getShoulderEntityRight()}) {
-            if (!isParrot(t) || rank(t, "shoulder_pal") <= 0) continue;
+            if ((!isParrot(t) && !isBat(t)) || rank(t, "shoulder_pal") <= 0) continue;
             v |= 1;
+            if (isBat(t)) {
+                if (rank(t, "bat_glider") > 0) v |= 16;
+                continue;
+            }
             if (rank(t, "elytra_boost") > 0) v |= 2;
             v |= Math.min(2, rank(t, "polly_pickup")) << 2;
         }
         return v;
     }
 
+    private static void refreshBats(ServerPlayer p) {
+        int bits = 0;
+        if (isBat(p.getShoulderEntityLeft())) bits |= 1;
+        if (isBat(p.getShoulderEntityRight())) bits |= 2;
+        int cur = p.getAttachedOrElse(Genetics.BAT_SHOULDER, 0);
+        int want = bits == 0 ? 0 : bits | (cur & 4);
+        if (want == cur) return;
+        if (want == 0) p.removeAttached(Genetics.BAT_SHOULDER);
+        else p.setAttached(Genetics.BAT_SHOULDER, want);
+    }
+
     public static void refresh(ServerPlayer p) {
+        refreshBats(p);
         int v = perks(p);
         Integer cur = p.getAttached(Genetics.PERKS);
         if (v == 0) {
@@ -119,6 +163,10 @@ public final class Shoulder {
         for (Parrot parrot : p.level().getEntitiesOfClass(Parrot.class, p.getBoundingBox().inflate(2.0), x -> x.isOwnedBy(p))) {
             StayPut.sit(parrot, true);
         }
+        for (Bat bat : p.level().getEntitiesOfClass(Bat.class, p.getBoundingBox().inflate(2.0), x -> Genetics.isTamed(x) && StayPut.isOwner(x, p))) {
+            StayPut.setMode(bat, StayPut.Mode.STAY, p);
+        }
+        refreshBats(p);
     }
 
     private static void tick(ServerPlayer p) {

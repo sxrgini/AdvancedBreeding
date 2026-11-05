@@ -60,10 +60,12 @@ public enum Stat {
     SHOULDER_PAL("shoulder_pal", false, (e, v) -> e.shoulderPal += v, e -> e.shoulderPal),
     ELYTRA_BOOST("elytra_boost", false, (e, v) -> e.elytraBoost += v, e -> e.elytraBoost),
     POLLY_PICKUP("polly_pickup", false, (e, v) -> e.pollyPickup += v, e -> e.pollyPickup),
+    BAT_GLIDER("bat_glider", false, (e, v) -> e.batGlider += v, e -> e.batGlider),
     FOOD_USE("food_use", true, (e, v) -> e.foodUse += v, e -> e.foodUse),
     SAT_RATE("sat_rate", true, (e, v) -> e.satRate += v, e -> e.satRate),
     PHYS_RES("phys_res", true, (e, v) -> e.physRes += v, e -> e.physRes),
     REGEN_PCT("regen_pct", true, (e, v) -> e.regenPct += v, e -> e.regenPct),
+    POISON_TOUCH("poison_touch", false, (e, v) -> e.poisonTouch += v, e -> e.poisonTouch),
     LLAMA_WOOL("llama_wool", false, (e, v) -> e.llamaWool += v, e -> e.llamaWool);
 
     public interface Applier { void apply(Effects e, double v); }
