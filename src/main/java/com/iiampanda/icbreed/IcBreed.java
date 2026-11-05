@@ -147,8 +147,10 @@ public class IcBreed {
         });
 
         com.iiampanda.icbreed.traits.Abilities.register();
+        com.iiampanda.icbreed.traits.PoisonTouch.register();
         com.iiampanda.icbreed.traits.MooshroomStew.register();
         com.iiampanda.icbreed.traits.DolphinBreeding.register();
+        com.iiampanda.icbreed.traits.BatBreeding.register();
         com.iiampanda.icbreed.traits.GhastDeck.register();
 
         ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
@@ -312,13 +314,21 @@ public class IcBreed {
                 Genome g = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.GENOME);
                 if (g == null) continue;
                 com.iiampanda.icbreed.genetics.Taming tm = com.iiampanda.icbreed.platform.Att.get(animal, Genetics.TAMING);
-                if (tm != null && (tm.tamed() || tm.started() || tm.orphan() || tm.young() || com.iiampanda.icbreed.genetics.Ages.isBaby(animal) || animal.isLeashed())) animal.setPersistenceRequired();
+                if (tm != null) {
+                    if (tm.tamed() || tm.started() || tm.orphan() || animal.isLeashed()) animal.setPersistenceRequired();
+                    else if (animal instanceof net.minecraft.world.entity.animal.Animal && animal.isPersistenceRequired() && !animal.hasCustomName() && !animal.isPassenger() && !animal.isVehicle()) {
+                        ((com.iiampanda.icbreed.mixin.MobAccessor) (Object) animal).icbreed$persistent(false);
+                    }
+                }
                 Effects fx = Genetics.effects(animal);
                 TraitActions.upkeep(level, animal, fx);
+                com.iiampanda.icbreed.traits.PoisonTouch.track(animal, fx);
                 com.iiampanda.icbreed.traits.StayPut.followUpkeep(animal);
                 if (animal instanceof net.minecraft.world.entity.animal.dolphin.Dolphin dolphin) com.iiampanda.icbreed.traits.DolphinBreeding.tick(level, dolphin);
+                if (animal instanceof net.minecraft.world.entity.ambient.Bat bat) com.iiampanda.icbreed.traits.BatBreeding.tick(level, bat);
                 com.iiampanda.icbreed.traits.AttackTames.tick(animal, level);
                 Genetics.tickPregnancy(level, animal);
+                if (animal instanceof net.minecraft.world.entity.ambient.Bat bat) com.iiampanda.icbreed.traits.BatBreeding.ageTick(bat);
                 boolean grows = TamingLogic.tick(level, animal);
                 Genetics.updateGrowth(animal);
                 if (!grows) continue;
