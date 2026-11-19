@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 public class IcBreedClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper.registerKeyBinding(OpenGuiKey.KEY);
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
                 (type, renderer, helper, context) -> {
                     if (renderer instanceof net.minecraft.client.renderer.entity.AxolotlRenderer axolotlRenderer) {
@@ -21,6 +22,14 @@ public class IcBreedClient implements ClientModInitializer {
                         registerBags(helper, new BagsLayer(horseRenderer));
                     }
                 });
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+            while (OpenGuiKey.KEY.consumeClick()) {
+                if (mc.player == null || mc.screen != null) continue;
+                if (mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit && hit.getEntity() instanceof net.minecraft.world.entity.Mob mob) {
+                    ClientPlayNetworking.send(new com.iiampanda.icbreed.net.OpenGuiPayload(mob.getId()));
+                }
+            }
+        });
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             var p = mc.player;
             if (p == null || !p.hasAttached(com.iiampanda.icbreed.genetics.Genetics.CLING)) return;

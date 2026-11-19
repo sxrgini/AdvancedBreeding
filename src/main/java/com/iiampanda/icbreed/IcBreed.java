@@ -66,6 +66,7 @@ public class IcBreed implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(com.iiampanda.icbreed.config.Rules::tick);
         PayloadTypeRegistry.playS2C().register(com.iiampanda.icbreed.net.StayStatePayload.TYPE, com.iiampanda.icbreed.net.StayStatePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenInventoryPayload.TYPE, OpenInventoryPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(com.iiampanda.icbreed.net.OpenGuiPayload.TYPE, com.iiampanda.icbreed.net.OpenGuiPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RenamePayload.TYPE, RenamePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(UpgradeTraitPayload.TYPE, UpgradeTraitPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenBagsPayload.TYPE, OpenBagsPayload.CODEC);
@@ -152,6 +153,13 @@ public class IcBreed implements ModInitializer {
             return InteractionResult.PASS;
         });
 
+        ServerPlayNetworking.registerGlobalReceiver(com.iiampanda.icbreed.net.OpenGuiPayload.TYPE, (payload, context) -> {
+            ServerPlayer keyPlayer = context.player();
+            if (!"KEYBIND".equals(IcBreedConfig.get().guiOpenMode) || keyPlayer.isSpectator()) return;
+            Entity target = keyPlayer.level().getEntity(payload.entityId());
+            if (target instanceof net.minecraft.world.entity.Mob mob && Genetics.supports(mob) && keyPlayer.distanceToSqr(mob) < 100) openFor(keyPlayer, mob);
+        });
+
         ServerPlayNetworking.registerGlobalReceiver(OpenInventoryPayload.TYPE, (payload, context) -> {
             ServerPlayer player = context.player();
             Entity e = player.level().getEntity(payload.entityId());
@@ -180,7 +188,7 @@ public class IcBreed implements ModInitializer {
         });
 
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
-            if (hand != InteractionHand.MAIN_HAND || !player.isShiftKeyDown() || player.isSpectator()) {
+            if (hand != InteractionHand.MAIN_HAND || !com.iiampanda.icbreed.traits.GuiOpen.allowed(player, entity) || player.isSpectator()) {
                 return InteractionResult.PASS;
             }
             if (!(entity instanceof net.minecraft.world.entity.Mob animal) || !Genetics.supports(animal)) return InteractionResult.PASS;
@@ -193,12 +201,7 @@ public class IcBreed implements ModInitializer {
             }
             if (level.isClientSide()) return InteractionResult.SUCCESS;
             if (player instanceof ServerPlayer sp) {
-                Genome g = Genetics.getOrCreate(animal);
-                boolean horse = animal instanceof AbstractHorse h && h.isTamed();
-                Pregnancy pregnancy = animal.getAttached(Genetics.PREGNANCY);
-                ServerPlayNetworking.send(sp, new OpenGeneticsPayload(animal.getId(), g, horse,
-                        pregnancy == null ? -1 : (int) pregnancy.ticksLeft(animal.level().getGameTime())));
-                ServerPlayNetworking.send(sp, new com.iiampanda.icbreed.net.StayStatePayload(animal.getId(), com.iiampanda.icbreed.traits.StayPut.mode(animal).ordinal(), com.iiampanda.icbreed.traits.StayPut.isOwner(animal, sp)));
+                openFor(sp, animal);
             }
             return InteractionResult.SUCCESS;
         });
@@ -334,5 +337,14 @@ public class IcBreed implements ModInitializer {
         });
 
         LOGGER.info("Advanced Breeding loaded: animals now have a sex, bloodline and genotypes. Shift + right-click one to inspect it.");
+    }
+
+    static void openFor(ServerPlayer sp, net.minecraft.world.entity.Mob animal) {
+        Genome g = Genetics.getOrCreate(animal);
+        boolean horse = animal instanceof AbstractHorse h && h.isTamed();
+        Pregnancy pregnancy = animal.getAttached(Genetics.PREGNANCY);
+        ServerPlayNetworking.send(sp, new OpenGeneticsPayload(animal.getId(), g, horse,
+                pregnancy == null ? -1 : (int) pregnancy.ticksLeft(animal.level().getGameTime())));
+        ServerPlayNetworking.send(sp, new com.iiampanda.icbreed.net.StayStatePayload(animal.getId(), com.iiampanda.icbreed.traits.StayPut.mode(animal).ordinal(), com.iiampanda.icbreed.traits.StayPut.isOwner(animal, sp)));
     }
 }

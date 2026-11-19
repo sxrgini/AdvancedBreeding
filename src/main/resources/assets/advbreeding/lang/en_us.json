@@ -329,5 +329,7 @@
   "advbreeding.trait.poison_touch.desc": "A Slimy & Poisonous Touch!",
   "advbreeding.stat.poison_touch": "Poison Touch",
   "advbreeding.trait.polly_pickup.per_level": "+5 Blocks",
-  "advbreeding.gui.trait_per_level": "Per Level: "
+  "advbreeding.gui.trait_per_level": "Per Level: ",
+  "key.advbreeding.open_gui": "Open Genetics GUI (Keybind mode)",
+  "key.categories.advbreeding": "Advanced Breeding"
 }
