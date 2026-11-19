@@ -10,6 +10,7 @@ public final class IcBreedForgeClient {
 
     public static void init(IEventBus modBus) {
         ForgeClientHooks.init(modBus);
+        modBus.addListener((net.minecraftforge.client.event.RegisterKeyMappingsEvent e) -> e.register(com.iiampanda.icbreed.client.OpenGuiKey.KEY));
         new IcBreedClient().onInitializeClient();
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.client.event.RenderLivingEvent.Pre<?, ?> e) -> {
             var mc = net.minecraft.client.Minecraft.getInstance();
