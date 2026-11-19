@@ -20,6 +20,14 @@ public class IcBreedClient {
                     }
                 });
         com.iiampanda.icbreed.platform.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+            while (OpenGuiKey.KEY.consumeClick()) {
+                if (mc.player == null || mc.screen != null) continue;
+                if (mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit && hit.getEntity() instanceof net.minecraft.world.entity.Mob mob) {
+                    ClientPlayNetworking.send(new com.iiampanda.icbreed.net.OpenGuiPayload(mob.getId()));
+                }
+            }
+        });
+        com.iiampanda.icbreed.platform.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             var p = mc.player;
             if (p == null || !com.iiampanda.icbreed.platform.Att.has(p, com.iiampanda.icbreed.genetics.Genetics.CLING)) return;
             if (p.isShiftKeyDown() && p.horizontalCollision && !p.onGround() && !p.getAbilities().flying) {

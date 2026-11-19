@@ -10,6 +10,7 @@ import net.neoforged.fml.common.Mod;
 public final class IcBreedNeoClient {
     public IcBreedNeoClient(IEventBus modBus) {
         NeoClientHooks.init(modBus);
+        modBus.addListener((net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent e) -> e.register(com.iiampanda.icbreed.client.OpenGuiKey.KEY));
         new IcBreedClient().onInitializeClient();
     }
 }
