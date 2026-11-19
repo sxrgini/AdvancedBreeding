@@ -76,6 +76,8 @@ public final class IcBreedConfig {
     public double jungleFrogVariantChance = 0.001;
     public int jungleFrogSpawnWeight = 4;
 
+    public String guiOpenMode = "SHIFT_RIGHT_CLICK";
+
     private static IcBreedConfig instance = new IcBreedConfig();
 
     public static Path configDir() {
@@ -141,6 +143,15 @@ public final class IcBreedConfig {
         axolotlChimeraRandomChance = clamp01(axolotlChimeraRandomChance);
         jungleFrogVariantChance = Math.max(0, Math.min(0.33, jungleFrogVariantChance));
         jungleFrogSpawnWeight = Math.max(0, jungleFrogSpawnWeight);
+        guiOpenMode = normalizeGuiMode(guiOpenMode);
+    }
+
+    private static String normalizeGuiMode(String v) {
+        String m = v == null ? "" : v.trim().toUpperCase(java.util.Locale.ROOT).replace(' ', '_').replace('-', '_');
+        return switch (m) {
+            case "SHIFT_RIGHT_CLICK_EMPTY_HAND", "RIGHT_CLICK_EMPTY_HAND", "KEYBIND" -> m;
+            default -> "SHIFT_RIGHT_CLICK";
+        };
     }
 
     private static double clamp01(double v) {
