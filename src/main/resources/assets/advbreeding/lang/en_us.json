@@ -329,5 +329,7 @@
   "advbreeding.gui.trait_cost": "Costs %s trait points",
   "advbreeding.trait.hunters_mark.desc": "Applies Glowing Effect on hit for 5 seconds",
   "advbreeding.trait.rip_and_tear.desc": "Gives the Poison Effect for 10 seconds",
-  "advbreeding.stat.bite": "Poison Duration (s)"
+  "advbreeding.stat.bite": "Poison Duration (s)",
+  "key.advbreeding.open_gui": "Open Genetics GUI (Keybind mode)",
+  "key.category.advbreeding.keys": "Advanced Breeding"
 }
