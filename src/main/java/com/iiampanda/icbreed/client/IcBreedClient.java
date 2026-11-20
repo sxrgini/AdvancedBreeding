@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 public class IcBreedClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        com.iiampanda.icbreed.compat.RenderCompat.init();
         net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.registerKeyMapping(OpenGuiKey.KEY);
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register(
                 (type, renderer, helper, context) -> {

@@ -331,5 +331,10 @@
   "advbreeding.trait.rip_and_tear.desc": "Gives the Poison Effect for 10 seconds",
   "advbreeding.stat.bite": "Poison Duration (s)",
   "key.advbreeding.open_gui": "Open Genetics GUI (Keybind mode)",
-  "key.category.advbreeding.keys": "Advanced Breeding"
+  "key.category.advbreeding.keys": "Advanced Breeding",
+  "advbreeding.etf.sex": "Advanced Breeding: animal sex (male / female)",
+  "advbreeding.etf.tamed": "Advanced Breeding: whether the animal is tamed (true / false)",
+  "advbreeding.emf.male": "Advanced Breeding: true if the animal is male",
+  "advbreeding.emf.female": "Advanced Breeding: true if the animal is female",
+  "advbreeding.emf.tamed": "Advanced Breeding: true if the animal is tamed"
 }
