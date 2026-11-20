@@ -52,3 +52,14 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
+
+// Compile-time stubs of the optional EMF / ETF APIs. Not packaged: the real mods provide these classes at runtime.
+sourceSets {
+    compatStubs {
+        java.srcDir 'compat-stubs/java'
+    }
+}
+
+dependencies {
+    compileOnly sourceSets.compatStubs.output
+}
