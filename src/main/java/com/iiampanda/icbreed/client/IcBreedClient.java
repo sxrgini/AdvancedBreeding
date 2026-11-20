@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class IcBreedClient {
     public void onInitializeClient() {
+        com.iiampanda.icbreed.compat.RenderCompat.init();
         com.iiampanda.icbreed.platform.LivingEntityRenderLayerRegistrationCallback.EVENT.register(
                 (type, renderer, helper, context) -> {
                     if (renderer instanceof net.minecraft.client.renderer.entity.AxolotlRenderer axolotlRenderer) {
