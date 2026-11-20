@@ -331,5 +331,10 @@
   "advbreeding.trait.polly_pickup.per_level": "+5 Blocks",
   "advbreeding.gui.trait_per_level": "Per Level: ",
   "key.advbreeding.open_gui": "Open Genetics GUI (Keybind mode)",
-  "key.categories.advbreeding": "Advanced Breeding"
+  "key.categories.advbreeding": "Advanced Breeding",
+  "advbreeding.etf.sex": "Advanced Breeding: animal sex (male / female)",
+  "advbreeding.etf.tamed": "Advanced Breeding: whether the animal is tamed (true / false)",
+  "advbreeding.emf.male": "Advanced Breeding: true if the animal is male",
+  "advbreeding.emf.female": "Advanced Breeding: true if the animal is female",
+  "advbreeding.emf.tamed": "Advanced Breeding: true if the animal is tamed"
 }
